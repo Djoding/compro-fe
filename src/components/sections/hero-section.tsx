@@ -52,7 +52,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-4 pt-16">
+        <div className="space-y-4 pt-16 md:pt-4">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -83,9 +83,8 @@ export default function HeroSection() {
               >
                 Accelerating
               </FlipText>
-              
               Your Business Through
-              
+              <br />
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                 Digital Innovation
               </span>
@@ -152,25 +151,6 @@ export default function HeroSection() {
               <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               Watch Demo
             </Button>
-          </motion.div>
-
-          {/* Newsletter Signup */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="pt-8"
-          >
-            <AnimatedSubscribeButton className="bg-primary text-primary-foreground">
-              <span className="group inline-flex items-center">
-                Stay Updated{" "}
-                <ArrowRight className="ml-1 size-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-              <span className="group inline-flex items-center">
-                <span className="mr-2">✓</span>
-                Subscribed{" "}
-              </span>
-            </AnimatedSubscribeButton>
           </motion.div>
         </div>
       </div>
