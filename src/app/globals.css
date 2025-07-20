@@ -1,26 +1,194 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-sans), monospace;
+  --font-heading: var(--font-manrope), system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --radius: 0.75rem;
+  /* Teknalogi Purple Brand Colors - Based on Logo */
+  --background: #f8fafc; /* Light Gray */
+  --foreground: #0f0f23; /* Dark Background for text */
+  --card: #ffffff; /* Pure white */
+  --card-foreground: #0f0f23;
+  --popover: #ffffff;
+  --popover-foreground: #0f0f23;
+
+  /* Primary: Purple from Logo */
+  --primary: #8b5cf6; /* Primary Purple */
+  --primary-foreground: #ffffff;
+
+  /* Secondary: Supporting Purple */
+  --secondary: #c4b5fd; /* Light Purple */
+  --secondary-foreground: #6b21a8; /* Dark Purple */
+
+  --muted: #f1f5f9; /* Very light gray */
+  --muted-foreground: #64748b; /* Medium gray */
+
+  /* Accent: Blue accent */
+  --accent: #3b82f6; /* Accent Blue */
+  --accent-foreground: #ffffff;
+
+  --destructive: #ef4444; /* Red for errors */
+  --border: #e2e8f0; /* Light border */
+  --input: #f1f5f9; /* Input background */
+  --ring: #8b5cf6; /* Match primary purple */
+
+  /* Success color */
+  --success: #10b981; /* Success Green */
+  --success-foreground: #ffffff;
+
+  /* Chart colors - Purple themed */
+  --chart-1: #8b5cf6; /* Primary Purple */
+  --chart-2: #a855f7; /* Secondary Purple */
+  --chart-3: #3b82f6; /* Accent Blue */
+  --chart-4: #10b981; /* Success Green */
+  --chart-5: #f59e0b; /* Amber accent */
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f0f23;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f0f23;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #8b5cf6;
+}
+
+.dark {
+  /* Dark mode: Dark purple theme */
+  --background: #0f0f23; /* Dark background */
+  --foreground: #ffffff; /* White text */
+  --card: #1e1b2e; /* Dark card */
+  --card-foreground: #ffffff;
+  --popover: #1e1b2e;
+  --popover-foreground: #ffffff;
+
+  /* Primary: Brighter purple in dark */
+  --primary: #a855f7; /* Secondary purple becomes primary in dark */
+  --primary-foreground: #ffffff;
+
+  /* Secondary: Darker purple */
+  --secondary: #2d1b4e; /* Very dark purple */
+  --secondary-foreground: #c4b5fd; /* Light purple text */
+
+  --muted: #262640; /* Dark muted */
+  --muted-foreground: #a1a1aa; /* Light gray text */
+
+  /* Accent: Brighter blue */
+  --accent: #3b82f6; /* Same blue accent */
+  --accent-foreground: #ffffff;
+
+  --destructive: #f87171; /* Lighter red for dark mode */
+  --border: #2d1b4e; /* Dark purple border */
+  --input: #262640; /* Dark input background */
+  --ring: #a855f7; /* Bright purple ring */
+
+  /* Success color */
+  --success: #34d399; /* Brighter green for dark */
+  --success-foreground: #ffffff;
+
+  /* Chart colors - Dark mode purple themed */
+  --chart-1: #a855f7; /* Bright purple */
+  --chart-2: #c4b5fd; /* Light purple */
+  --chart-3: #60a5fa; /* Bright blue */
+  --chart-4: #34d399; /* Bright green */
+  --chart-5: #fbbf24; /* Bright amber */
+
+  /* Sidebar dark */
+  --sidebar: #1e1b2e;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #a855f7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #262640;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2d1b4e;
+  --sidebar-ring: #a855f7;
+}
+
+/* Global styles and utilities */
+
+/* Global styles and utilities */
+* {
+  border-color: var(--border);
+  outline-color: var(--ring);
+  outline-width: 2px;
+  outline-offset: 2px;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Typography utilities */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.font-ibm {
+  font-family: var(--font-ibm-plex-sans), system-ui, sans-serif;
+}
+
+/* Utility classes for Teknalogi theme */
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.border-primary {
+  border-color: var(--primary);
 }
