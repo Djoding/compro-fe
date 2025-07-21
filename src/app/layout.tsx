@@ -1,5 +1,6 @@
 import Footer from "@/components/layout/footer";
-import Navbar from "@/components/layout/navbar";
+import Navbar from "@/components/layout/navbar"; // Updated import
+import ScrollIndicator from "@/components/layout/scroll-indicator"; // New import
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, Inter, Manrope } from "next/font/google";
 import "./globals.css";
@@ -50,6 +51,7 @@ export default function RootLayout({
       className={`scroll-smooth ${inter.variable} ${ibmPlexSans.variable} ${manrope.variable}`}
     >
       <body className="antialiased font-sans">
+        <ScrollIndicator />
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />

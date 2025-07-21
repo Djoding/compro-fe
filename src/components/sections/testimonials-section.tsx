@@ -132,8 +132,8 @@ export default function TestimonialsSection() {
 
         {/* Testimonials Marquee */}
         <BlurFade delay={0.8} inView>
-          <div className="relative">
-            <Marquee className="py-4" pauseOnHover>
+          <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
+            <Marquee pauseOnHover className="[--duration:25s]">
               {testimonials.map((testimonial) => (
                 <TestimonialCard
                   key={testimonial.id}
@@ -141,6 +141,9 @@ export default function TestimonialsSection() {
                 />
               ))}
             </Marquee>
+            {/* Gradient overlays */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background"></div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background"></div>
           </div>
         </BlurFade>
 

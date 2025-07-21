@@ -1,9 +1,9 @@
 "use client";
 
 import { BlurFade } from "@/components/magicui/blur-fade";
+import { Dock, DockIcon } from "@/components/magicui/dock";
 import { MagicCard } from "@/components/magicui/magic-card";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle,
@@ -94,14 +94,54 @@ const services = [
 ];
 
 const technologies = [
-  { name: "React", logo: "⚛️" },
-  { name: "Next.js", logo: "▲" },
-  { name: "Node.js", logo: "🟢" },
-  { name: "Python", logo: "🐍" },
-  { name: "AWS", logo: "☁️" },
-  { name: "Docker", logo: "🐳" },
-  { name: "TypeScript", logo: "📘" },
-  { name: "PostgreSQL", logo: "🐘" },
+  {
+    name: "React",
+    logo: "⚛️",
+    href: "https://react.dev",
+    color: "bg-blue-500/10 hover:bg-blue-500/20",
+  },
+  {
+    name: "Next.js",
+    logo: "▲",
+    href: "https://nextjs.org",
+    color: "bg-black/10 hover:bg-black/20",
+  },
+  {
+    name: "Node.js",
+    logo: "🟢",
+    href: "https://nodejs.org",
+    color: "bg-green-500/10 hover:bg-green-500/20",
+  },
+  {
+    name: "Python",
+    logo: "🐍",
+    href: "https://python.org",
+    color: "bg-yellow-500/10 hover:bg-yellow-500/20",
+  },
+  {
+    name: "AWS",
+    logo: "☁️",
+    href: "https://aws.amazon.com",
+    color: "bg-orange-500/10 hover:bg-orange-500/20",
+  },
+  {
+    name: "Docker",
+    logo: "🐳",
+    href: "https://docker.com",
+    color: "bg-blue-600/10 hover:bg-blue-600/20",
+  },
+  {
+    name: "TypeScript",
+    logo: "📘",
+    href: "https://typescriptlang.org",
+    color: "bg-blue-700/10 hover:bg-blue-700/20",
+  },
+  {
+    name: "PostgreSQL",
+    logo: "🐘",
+    href: "https://postgresql.org",
+    color: "bg-blue-800/10 hover:bg-blue-800/20",
+  },
 ];
 
 export default function ServicesSection() {
@@ -179,28 +219,30 @@ export default function ServicesSection() {
           })}
         </div>
 
-        {/* Technologies */}
+        {/* Technologies with Dock */}
         <BlurFade delay={1.4} inView>
           <div className="text-center">
             <h3 className="text-2xl font-semibold text-foreground mb-8">
               Technologies We Work With
             </h3>
-            <div className="flex flex-wrap justify-center gap-6">
-              {technologies.map((tech, index) => (
-                <motion.div
-                  key={tech.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.1 }}
-                  className="flex flex-col items-center p-4 bg-card border border-border rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer"
-                >
-                  <span className="text-3xl mb-2">{tech.logo}</span>
-                  <span className="text-sm font-medium text-foreground">
-                    {tech.name}
-                  </span>
-                </motion.div>
-              ))}
+            <div className="flex">
+              <Dock
+                iconMagnification={60}
+                iconDistance={140}
+                direction="middle"
+                className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-4"
+              >
+                {technologies.map((tech) => (
+                  <DockIcon
+                    key={tech.name}
+                    className={`${tech.color} transition-colors duration-300`}
+                  >
+                    <div className="flex flex-col items-center justify-center w-full h-full">
+                      <span className="text-2xl mb-1">{tech.logo}</span>
+                    </div>
+                  </DockIcon>
+                ))}
+              </Dock>
             </div>
           </div>
         </BlurFade>
