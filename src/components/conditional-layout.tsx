@@ -14,13 +14,17 @@ export default function ConditionalLayout({
   // Check if current page is login or admin
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/admin');
 
+  if (isAuthPage) {
+    // For auth pages (login/admin), return children directly without navbar/footer
+    return <>{children}</>;
+  }
+
+  // For regular pages, include navbar, main wrapper, and footer
   return (
     <>
-      {!isAuthPage && <Navbar />}
-      <main className={isAuthPage ? "" : "min-h-screen"}>
-        {children}
-      </main>
-      {!isAuthPage && <Footer />}
+      <Navbar />
+      <main className="min-h-screen">{children}</main>
+      <Footer />
     </>
   );
 }
