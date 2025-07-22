@@ -1,3 +1,4 @@
+// src/components/layout/navbar.tsx (update existing)
 "use client";
 
 import TeknaLogiIcon from "@/components/ui/teknalogi-icon";
@@ -14,10 +15,11 @@ const navigation = [
     name: "About Us",
     href: "/about",
     submenu: [
-      { name: "Company Journey", href: "/about/journey" },
-      { name: "Vision & Mission", href: "/about/vision-mission" },
-      { name: "Organization Structure", href: "/about/structure" },
-      { name: "Certificates", href: "/about/certificates" },
+      { name: "Company Overview", href: "/about" },
+      { name: "Vision & Mission", href: "/about#vision-mission" },
+      { name: "Our Team", href: "/team" },
+      { name: "Company Journey", href: "/about#journey" },
+      { name: "Certificates", href: "/certificates" },
     ],
   },
   { name: "Solutions", href: "/solutions" },
@@ -50,7 +52,7 @@ export default function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border"
+          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm"
           : "bg-transparent"
       )}
     >
@@ -83,7 +85,10 @@ export default function Navbar() {
                     <button
                       className={cn(
                         "flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors duration-200",
-                        pathname.startsWith(item.href)
+                        pathname.startsWith(item.href) ||
+                          (pathname === "/team" && item.name === "About Us") ||
+                          (pathname === "/certificates" &&
+                            item.name === "About Us")
                           ? "text-primary"
                           : "text-foreground hover:text-primary"
                       )}
@@ -99,7 +104,7 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 mt-2 w-56 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+                          className="absolute top-full left-0 mt-2 w-64 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
                         >
                           {item.submenu.map((subItem) => (
                             <Link
