@@ -1,111 +1,136 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import TeknaLogiIcon from "@/components/ui/teknalogi-icon";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import TeknaLogiIcon from '@/components/ui/teknalogi-icon';
+import { authAPI, setAuthToken } from '@/lib/api';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
 
-    // Simulasi login
-    setTimeout(() => {
-      if (email === "admin@teknalogi.com" && password === "admin123") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "admin");
-        // Set cookie for middleware
-        document.cookie = "isLoggedIn=true; path=/; max-age=86400"; // 24 hours
-        router.push("/admin/dashboard");
+    try {
+      const response = await authAPI.login(formData);
+      
+      if (response.status === 'success' && response.data.token) {
+        setAuthToken(response.data.token);
+        document.cookie = 'admin_authenticated=true; path=/; max-age=86400'; // 24 hours
+        router.push('/admin/dashboard');
       } else {
-        alert("Email atau password salah!");
+        setError('Login gagal. Silakan coba lagi.');
       }
+    } catch (error: any) {
+      setError(error.message || 'Login gagal. Silakan coba lagi.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Logo */}
-      <div className="absolute top-8 left-8">
-        <div className="flex items-center space-x-3">
-          <TeknaLogiIcon className="w-8 h-8 text-blue-600" />
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
-            Teknalogi
-          </span>
-        </div>
-      </div>
-
-      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
-        <CardHeader className="space-y-1 pb-6">
-          <CardTitle className="text-3xl font-bold text-center text-gray-900 dark:text-white">
-            Admin Login
-          </CardTitle>
-          <CardDescription className="text-center text-gray-600 dark:text-gray-400">
-            Masuk ke panel admin Teknalogi
-          </CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="space-y-4 pb-8">
+          <div className="flex justify-center">
+            <TeknaLogiIcon className="w-16 h-16" />
+          </div>
+          <div className="text-center">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Admin Panel
+            </CardTitle>
+            <CardDescription className="text-base text-gray-600 mt-2">
+              Masuk ke dashboard administrasi
+            </CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="email" className="text-sm font-medium text-gray-700">
                 Email
               </label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@teknalogi.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-11"
+                placeholder="admin@teknalogi.co.id"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="h-12 border-2 focus:border-blue-500"
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="password" className="text-sm font-medium text-gray-700">
                 Password
               </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Masukkan password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-11"
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="h-12 border-2 focus:border-blue-500 pr-12"
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
-            <Button
-              type="submit"
-              className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+            
+            {error && (
+              <div className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-md p-3">
+                {error}
+              </div>
+            )}
+
+            <Button 
+              type="submit" 
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
               disabled={isLoading}
             >
-              {isLoading ? "Memproses..." : "Masuk ke Admin Panel"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Sedang masuk...
+                </>
+              ) : (
+                'Masuk'
+              )}
             </Button>
           </form>
-          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              <p className="font-medium mb-1">Demo Credentials:</p>
-              <p>📧 admin@teknalogi.com</p>
-              <p>🔑 admin123</p>
+
+          <div className="text-center text-sm text-gray-500 mt-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+              <p className="font-medium text-blue-800 mb-1">Demo Credentials:</p>
+              <p className="text-blue-600">Email: admin@teknalogi.co.id</p>
+              <p className="text-blue-600">Password: password123</p>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
-      </div>
     </div>
   );
 }

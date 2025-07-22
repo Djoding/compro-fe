@@ -1,5 +1,6 @@
 import ConditionalLayout from "@/components/conditional-layout";
 import ScrollIndicator from "@/components/layout/scroll-indicator";
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, Inter, Manrope } from "next/font/google";
 import "./globals.css";
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <ScrollIndicator />
         <ConditionalLayout>{children}</ConditionalLayout>
+        <Toaster />
       </body>
     </html>
   );

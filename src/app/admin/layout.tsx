@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getAuthToken, removeAuthToken } from "@/lib/api";
 import {
   LayoutDashboard,
   Users,
@@ -11,7 +12,16 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Building2,
+  FolderOpen,
+  Briefcase,
+  MessageSquare,
+  Mail,
+  HelpCircle,
+  Monitor,
+  Award,
+  MapPin
 } from "lucide-react";
 
 const menuItems = [
@@ -21,19 +31,59 @@ const menuItems = [
     icon: LayoutDashboard
   },
   {
-    label: "Users",
-    href: "/admin/users",
-    icon: Users
+    label: "Profil Perusahaan",
+    href: "/admin/company-profile",
+    icon: Building2
   },
   {
-    label: "Posts",
-    href: "/admin/posts",
+    label: "Proyek",
+    href: "/admin/projects",
+    icon: FolderOpen
+  },
+  {
+    label: "Artikel",
+    href: "/admin/articles",
     icon: FileText
   },
   {
-    label: "Settings",
-    href: "/admin/settings",
-    icon: Settings
+    label: "Tim",
+    href: "/admin/team",
+    icon: Users
+  },
+  {
+    label: "Layanan",
+    href: "/admin/services",
+    icon: Briefcase
+  },
+  {
+    label: "Testimoni",
+    href: "/admin/testimonials",
+    icon: MessageSquare
+  },
+  {
+    label: "Kontak",
+    href: "/admin/contact",
+    icon: Mail
+  },
+  {
+    label: "FAQ",
+    href: "/admin/faq",
+    icon: HelpCircle
+  },
+  {
+    label: "Platform",
+    href: "/admin/platforms",
+    icon: Monitor
+  },
+  {
+    label: "Sertifikat",
+    href: "/admin/certificates",
+    icon: Award
+  },
+  {
+    label: "Perjalanan",
+    href: "/admin/journey",
+    icon: MapPin
   }
 ];
 
@@ -48,8 +98,8 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn");
-    if (!loggedIn) {
+    const token = getAuthToken();
+    if (!token) {
       router.push("/login");
     } else {
       setIsLoggedIn(true);
@@ -57,10 +107,8 @@ export default function AdminLayout({
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userRole");
-    // Remove cookie
-    document.cookie = "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    removeAuthToken();
+    document.cookie = "admin_authenticated=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     router.push("/login");
   };
 
