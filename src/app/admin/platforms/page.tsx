@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { platformsAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
@@ -39,27 +39,27 @@ export default function PlatformsPage() {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchPlatforms();
-  }, []);
-
-  const fetchPlatforms = async () => {
+  const fetchPlatforms = useCallback(async () => {
     try {
       setLoading(true);
       const response = await platformsAPI.getAll();
       if (response.status === "success") {
-        setPlatforms(response.data);
+        setPlatforms(response.data as Platform[]);
       }
     } catch (error) {
       toast({
         title: "Error",
         description: getFriendlyErrorMessage(error),
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPlatforms();
+  }, [fetchPlatforms]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

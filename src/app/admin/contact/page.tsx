@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,42 +51,48 @@ export default function ContactPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchContactData();
-  }, []);
+  const fetchContactData = useCallback(
+    async () => {
+      try {
+        setLoading(true);
 
-  const fetchContactData = async () => {
-    try {
-      setLoading(true);
+        // Fetch contact info
+        const infoResponse = await contactAPI.getInfo();
+        if (infoResponse.status === "success") {
+          setContactInfo(infoResponse.data as ContactInfo);
+        }
 
-      // Fetch contact info
-      const infoResponse = await contactAPI.getInfo();
-      if (infoResponse.status === "success") {
-        setContactInfo(infoResponse.data);
+        // Fetch contact messages
+        const messagesResponse = await contactAPI.getMessages();
+        if (messagesResponse.status === "success") {
+          setMessages(messagesResponse.data as ContactMessage[]);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getFriendlyErrorMessage(error),
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
+    },
+    [toast]
+  );
 
-      // Fetch contact messages
-      const messagesResponse = await contactAPI.getMessages();
-      if (messagesResponse.status === "success") {
-        setMessages(messagesResponse.data);
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getFriendlyErrorMessage(error),
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(
+    () => {
+      fetchContactData();
+    },
+    [fetchContactData]
+  );
 
   const handleUpdateContactInfo = async (e: React.FormEvent) => {
     e.preventDefault();
     setUpdating(true);
 
     try {
-      const response = await contactAPI.updateInfo(contactInfo);
+      const response = await contactAPI.updateInfo({ ...contactInfo });
       if (response.status === "success") {
         toast({
           title: "Berhasil",

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { testimonialsAPI } from '@/lib/api';
-import { Plus, Search, Edit, Trash2, Loader2, Image, X, Star } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Loader2, Image, X } from 'lucide-react';
 
 interface Testimonial {
   id: string;
@@ -57,7 +57,7 @@ export default function TestimonialsPage() {
       setLoading(true);
       const response = await testimonialsAPI.getAll();
       if (response.status === 'success') {
-        setTestimonials(response.data);
+        setTestimonials(response.data as Testimonial[]);
       }
     } catch (error) {
       console.error('Failed to fetch testimonials:', error);
@@ -118,8 +118,9 @@ export default function TestimonialsPage() {
         setIsCreateOpen(false);
         resetForm();
       }
-    } catch (error: any) {
-      alert('Gagal membuat testimonial: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      alert('Gagal membuat testimonial: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -159,8 +160,9 @@ export default function TestimonialsPage() {
         resetForm();
         setSelectedTestimonial(null);
       }
-    } catch (error: any) {
-      alert('Gagal mengupdate testimonial: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      alert('Gagal mengupdate testimonial: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -173,8 +175,9 @@ export default function TestimonialsPage() {
         if (response.status === 'success') {
           await fetchTestimonials();
         }
-      } catch (error: any) {
-        alert('Gagal menghapus testimonial: ' + error.message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+        alert('Gagal menghapus testimonial: ' + errorMessage);
       }
     }
   };

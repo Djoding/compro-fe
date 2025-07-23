@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -87,24 +86,23 @@ const menuItems = [
   }
 ];
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const token = getAuthToken();
-    if (!token) {
-      router.push("/login");
-    } else {
-      setIsLoggedIn(true);
-    }
-  }, [router]);
+  useEffect(
+    () => {
+      const token = getAuthToken();
+      if (!token) {
+        router.push("/login");
+      } else {
+        setIsLoggedIn(true);
+      }
+    },
+    [router]
+  );
 
   const handleLogout = () => {
     removeAuthToken();
@@ -115,7 +113,7 @@ export default function AdminLayout({
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -124,45 +122,38 @@ export default function AdminLayout({
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile menu overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-200 ease-in-out lg:translate-x-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
+      >
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Admin Panel
-          </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden"
-          >
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Admin Panel</h1>
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="lg:hidden">
             <X className="h-6 w-6" />
           </Button>
         </div>
 
         <nav className="mt-8">
-          {menuItems.map((item) => {
+          {menuItems.map(item => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`
                   flex items-center px-4 py-3 text-sm font-medium transition-colors
-                  ${isActive 
-                    ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-100 border-r-2 border-blue-700' 
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ${
+                    isActive
+                      ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-100 border-r-2 border-blue-700"
+                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }
                 `}
                 onClick={() => setSidebarOpen(false)}
@@ -191,27 +182,18 @@ export default function AdminLayout({
         {/* Top bar */}
         <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between h-16 px-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden"
-            >
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="lg:hidden">
               <Menu className="h-6 w-6" />
             </Button>
-            
+
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                Welcome, Admin
-              </span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">Welcome, Admin</span>
             </div>
           </div>
         </div>
 
         {/* Page content */}
-        <main className="p-6">
-          {children}
-        </main>
+        <main className="p-6">{children}</main>
       </div>
     </div>
   );

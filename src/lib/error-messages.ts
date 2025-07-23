@@ -20,10 +20,18 @@ const errorMap: Record<string, string> = {
   "API call failed": "Terjadi kesalahan. Silakan coba lagi nanti."
 };
 
-export function getFriendlyErrorMessage(error: any): string {
+export function getFriendlyErrorMessage(error: unknown): string {
   if (!error) return "Terjadi kesalahan. Silakan coba lagi.";
   if (typeof error === "string" && errorMap[error]) return errorMap[error];
-  if (typeof error === "object" && error.message && errorMap[error.message]) return errorMap[error.message];
-  if (typeof error === "object" && error.message) return error.message;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string" &&
+    errorMap[error.message]
+  )
+    return errorMap[error.message];
+  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string")
+    return error.message;
   return "Terjadi kesalahan. Silakan coba lagi.";
 }

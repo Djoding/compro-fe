@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { certificatesAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,27 +23,27 @@ export default function CertificatesPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchCertificates();
-  }, []);
-
-  const fetchCertificates = async () => {
+  const fetchCertificates = useCallback(async () => {
     try {
       setLoading(true);
       const response = await certificatesAPI.getAll();
       if (response.status === "success") {
-        setCertificates(response.data);
+        setCertificates(response.data as Certificate[]);
       }
     } catch (error) {
       toast({
         title: "Error",
         description: getFriendlyErrorMessage(error),
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchCertificates();
+  }, [fetchCertificates]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Save, Upload, Shield, Bell, Globe, Palette } from "lucide-react";
+import { Save, Shield, Bell, Globe, Palette } from "lucide-react";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
@@ -12,17 +12,17 @@ export default function SettingsPage() {
     siteName: "Teknalogi",
     siteDescription: "Accelerating Your Business Through Digital Innovation",
     contactEmail: "info@teknalogi.com",
-    
+
     // Security Settings
     enableTwoFactor: false,
     sessionTimeout: "30",
     maxLoginAttempts: "3",
-    
+
     // Email Settings
     emailNotifications: true,
     weeklyReports: false,
     marketingEmails: true,
-    
+
     // Appearance Settings
     theme: "light",
     language: "en",
@@ -44,12 +44,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Settings
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Configure your admin panel settings
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+        <p className="text-gray-600 dark:text-gray-400">Configure your admin panel settings</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -60,20 +56,14 @@ export default function SettingsPage() {
               <Globe className="h-5 w-5 text-blue-600" />
               <CardTitle>General Settings</CardTitle>
             </div>
-            <CardDescription>
-              Basic site configuration and information
-            </CardDescription>
+            <CardDescription>Basic site configuration and information</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="siteName" className="text-sm font-medium">
                 Site Name
               </label>
-              <Input
-                id="siteName"
-                value={settings.siteName}
-                onChange={(e) => handleSettingChange('siteName', e.target.value)}
-              />
+              <Input id="siteName" value={settings.siteName} onChange={e => handleSettingChange("siteName", e.target.value)} />
             </div>
             <div className="space-y-2">
               <label htmlFor="siteDescription" className="text-sm font-medium">
@@ -84,7 +74,7 @@ export default function SettingsPage() {
                 rows={3}
                 className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
                 value={settings.siteDescription}
-                onChange={(e) => handleSettingChange('siteDescription', e.target.value)}
+                onChange={e => handleSettingChange("siteDescription", e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -95,10 +85,10 @@ export default function SettingsPage() {
                 id="contactEmail"
                 type="email"
                 value={settings.contactEmail}
-                onChange={(e) => handleSettingChange('contactEmail', e.target.value)}
+                onChange={e => handleSettingChange("contactEmail", e.target.value)}
               />
             </div>
-            <Button onClick={() => handleSave('General')} className="w-full">
+            <Button onClick={() => handleSave("General")} className="w-full">
               <Save className="h-4 w-4 mr-2" />
               Save General Settings
             </Button>
@@ -112,9 +102,7 @@ export default function SettingsPage() {
               <Shield className="h-5 w-5 text-red-600" />
               <CardTitle>Security Settings</CardTitle>
             </div>
-            <CardDescription>
-              Security and authentication configuration
-            </CardDescription>
+            <CardDescription>Security and authentication configuration</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -123,19 +111,19 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500">Add an extra layer of security</p>
               </div>
               <button
-                onClick={() => handleSettingChange('enableTwoFactor', !settings.enableTwoFactor)}
+                onClick={() => handleSettingChange("enableTwoFactor", !settings.enableTwoFactor)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.enableTwoFactor ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  settings.enableTwoFactor ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.enableTwoFactor ? 'translate-x-6' : 'translate-x-1'
+                    settings.enableTwoFactor ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
             </div>
-            
+
             <div className="space-y-2">
               <label htmlFor="sessionTimeout" className="text-sm font-medium">
                 Session Timeout (minutes)
@@ -144,10 +132,10 @@ export default function SettingsPage() {
                 id="sessionTimeout"
                 type="number"
                 value={settings.sessionTimeout}
-                onChange={(e) => handleSettingChange('sessionTimeout', e.target.value)}
+                onChange={e => handleSettingChange("sessionTimeout", e.target.value)}
               />
             </div>
-            
+
             <div className="space-y-2">
               <label htmlFor="maxLoginAttempts" className="text-sm font-medium">
                 Max Login Attempts
@@ -156,11 +144,11 @@ export default function SettingsPage() {
                 id="maxLoginAttempts"
                 type="number"
                 value={settings.maxLoginAttempts}
-                onChange={(e) => handleSettingChange('maxLoginAttempts', e.target.value)}
+                onChange={e => handleSettingChange("maxLoginAttempts", e.target.value)}
               />
             </div>
-            
-            <Button onClick={() => handleSave('Security')} className="w-full">
+
+            <Button onClick={() => handleSave("Security")} className="w-full">
               <Shield className="h-4 w-4 mr-2" />
               Save Security Settings
             </Button>
@@ -174,9 +162,7 @@ export default function SettingsPage() {
               <Bell className="h-5 w-5 text-yellow-600" />
               <CardTitle>Notification Settings</CardTitle>
             </div>
-            <CardDescription>
-              Configure email and notification preferences
-            </CardDescription>
+            <CardDescription>Configure email and notification preferences</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -185,14 +171,14 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500">Receive important notifications via email</p>
               </div>
               <button
-                onClick={() => handleSettingChange('emailNotifications', !settings.emailNotifications)}
+                onClick={() => handleSettingChange("emailNotifications", !settings.emailNotifications)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.emailNotifications ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  settings.emailNotifications ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.emailNotifications ? 'translate-x-6' : 'translate-x-1'
+                    settings.emailNotifications ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
@@ -204,14 +190,14 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500">Get weekly analytics reports</p>
               </div>
               <button
-                onClick={() => handleSettingChange('weeklyReports', !settings.weeklyReports)}
+                onClick={() => handleSettingChange("weeklyReports", !settings.weeklyReports)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.weeklyReports ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  settings.weeklyReports ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.weeklyReports ? 'translate-x-6' : 'translate-x-1'
+                    settings.weeklyReports ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
@@ -223,20 +209,20 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500">Receive marketing and promotional emails</p>
               </div>
               <button
-                onClick={() => handleSettingChange('marketingEmails', !settings.marketingEmails)}
+                onClick={() => handleSettingChange("marketingEmails", !settings.marketingEmails)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.marketingEmails ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                  settings.marketingEmails ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.marketingEmails ? 'translate-x-6' : 'translate-x-1'
+                    settings.marketingEmails ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
             </div>
 
-            <Button onClick={() => handleSave('Notification')} className="w-full">
+            <Button onClick={() => handleSave("Notification")} className="w-full">
               <Bell className="h-4 w-4 mr-2" />
               Save Notification Settings
             </Button>
@@ -250,9 +236,7 @@ export default function SettingsPage() {
               <Palette className="h-5 w-5 text-purple-600" />
               <CardTitle>Appearance Settings</CardTitle>
             </div>
-            <CardDescription>
-              Customize the look and feel of your admin panel
-            </CardDescription>
+            <CardDescription>Customize the look and feel of your admin panel</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -263,7 +247,7 @@ export default function SettingsPage() {
                 id="theme"
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 value={settings.theme}
-                onChange={(e) => handleSettingChange('theme', e.target.value)}
+                onChange={e => handleSettingChange("theme", e.target.value)}
               >
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
@@ -279,7 +263,7 @@ export default function SettingsPage() {
                 id="language"
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 value={settings.language}
-                onChange={(e) => handleSettingChange('language', e.target.value)}
+                onChange={e => handleSettingChange("language", e.target.value)}
               >
                 <option value="en">English</option>
                 <option value="id">Bahasa Indonesia</option>
@@ -296,7 +280,7 @@ export default function SettingsPage() {
                 id="timezone"
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 value={settings.timezone}
-                onChange={(e) => handleSettingChange('timezone', e.target.value)}
+                onChange={e => handleSettingChange("timezone", e.target.value)}
               >
                 <option value="UTC+7">UTC+7 (Jakarta)</option>
                 <option value="UTC+0">UTC+0 (London)</option>
@@ -305,7 +289,7 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <Button onClick={() => handleSave('Appearance')} className="w-full">
+            <Button onClick={() => handleSave("Appearance")} className="w-full">
               <Palette className="h-4 w-4 mr-2" />
               Save Appearance Settings
             </Button>
@@ -317,9 +301,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>System Information</CardTitle>
-          <CardDescription>
-            Current system status and information
-          </CardDescription>
+          <CardDescription>Current system status and information</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

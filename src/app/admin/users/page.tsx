@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Search, Edit, Trash2, User } from "lucide-react";
 
 interface User {
@@ -55,27 +55,23 @@ export default function UsersPage() {
     status: "Active"
   });
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    user =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingUser) {
       // Update existing user
-      setUsers(users.map(user =>
-        user.id === editingUser.id
-          ? { ...user, ...formData }
-          : user
-      ));
+      setUsers(users.map(user => (user.id === editingUser.id ? { ...user, ...formData } : user)));
     } else {
       // Add new user
       const newUser: User = {
         id: Math.max(...users.map(u => u.id)) + 1,
         ...formData,
-        created_at: new Date().toISOString().split('T')[0]
+        created_at: new Date().toISOString().split("T")[0]
       };
       setUsers([...users, newUser]);
     }
@@ -113,17 +109,10 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Users Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage all users in your system
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Users Management</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage all users in your system</p>
         </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2"
-        >
+        <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Add User</span>
         </Button>
@@ -133,12 +122,8 @@ export default function UsersPage() {
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>
-              {editingUser ? "Edit User" : "Add New User"}
-            </CardTitle>
-            <CardDescription>
-              {editingUser ? "Update user information" : "Create a new user account"}
-            </CardDescription>
+            <CardTitle>{editingUser ? "Edit User" : "Add New User"}</CardTitle>
+            <CardDescription>{editingUser ? "Update user information" : "Create a new user account"}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -152,7 +137,7 @@ export default function UsersPage() {
                     type="text"
                     placeholder="Enter user name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
@@ -165,7 +150,7 @@ export default function UsersPage() {
                     type="email"
                     placeholder="Enter email address"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
                     required
                   />
                 </div>
@@ -177,7 +162,7 @@ export default function UsersPage() {
                     id="role"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    onChange={e => setFormData({ ...formData, role: e.target.value })}
                   >
                     <option value="User">User</option>
                     <option value="Admin">Admin</option>
@@ -192,7 +177,7 @@ export default function UsersPage() {
                     id="status"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    onChange={e => setFormData({ ...formData, status: e.target.value })}
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -200,9 +185,7 @@ export default function UsersPage() {
                 </div>
               </div>
               <div className="flex space-x-2">
-                <Button type="submit">
-                  {editingUser ? "Update User" : "Add User"}
-                </Button>
+                <Button type="submit">{editingUser ? "Update User" : "Add User"}</Button>
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
@@ -218,9 +201,7 @@ export default function UsersPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Users List</CardTitle>
-              <CardDescription>
-                {filteredUsers.length} user(s) found
-              </CardDescription>
+              <CardDescription>{filteredUsers.length} user(s) found</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <div className="relative">
@@ -228,7 +209,7 @@ export default function UsersPage() {
                 <Input
                   placeholder="Search users..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-8 w-64"
                 />
               </div>
@@ -248,7 +229,7 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {filteredUsers.map(user => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-2">
@@ -258,33 +239,33 @@ export default function UsersPage() {
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'Admin' 
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' 
-                        : user.role === 'Moderator'
-                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.role === "Admin"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                          : user.role === "Moderator"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                          : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                      }`}
+                    >
                       {user.role}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.status === 'Active' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.status === "Active"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
+                      }`}
+                    >
                       {user.status}
                     </span>
                   </TableCell>
                   <TableCell>{user.created_at}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(user)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(user)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button

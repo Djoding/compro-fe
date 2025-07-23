@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,27 +49,33 @@ export default function ServicesPage() {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
-    try {
-      setLoading(true);
-      const response = await servicesAPI.getAll();
-      if (response.status === "success") {
-        setServices(response.data);
+  const fetchServices = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await servicesAPI.getAll();
+        if (response.status === "success") {
+          setServices(response.data as Service[]);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getFriendlyErrorMessage(error),
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getFriendlyErrorMessage(error),
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [toast]
+  );
+
+  useEffect(
+    () => {
+      fetchServices();
+    },
+    [fetchServices]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

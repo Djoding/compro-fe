@@ -24,7 +24,14 @@ export const removeAuthToken = () => {
 // Generic API call function
 import { getFriendlyErrorMessage } from "./error-messages";
 
-const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+// API Response Types
+interface ApiResponse<T = unknown> {
+  status: string;
+  message?: string;
+  data?: T;
+}
+
+const apiCall = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
   const token = getAuthToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -58,7 +65,7 @@ const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any
 };
 
 // Generic API call for form data (file uploads)
-const apiCallFormData = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+const apiCallFormData = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
   const token = getAuthToken();
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>)
@@ -108,7 +115,7 @@ export const authAPI = {
 // Company Profile API
 export const companyProfileAPI = {
   getProfile: () => apiCall("/company-profile"),
-  updateProfile: (data: any) =>
+  updateProfile: (data: Record<string, unknown>) =>
     apiCall("/company-profile", {
       method: "PUT",
       body: JSON.stringify(data)
@@ -181,12 +188,12 @@ export const teamAPI = {
 export const servicesAPI = {
   getAll: () => apiCall("/services"),
   getById: (id: string) => apiCall(`/services/${id}`),
-  create: (data: any) =>
+  create: (data: Record<string, unknown>) =>
     apiCall("/services", {
       method: "POST",
       body: JSON.stringify(data)
     }),
-  update: (id: string, data: any) =>
+  update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/services/${id}`, {
       method: "PUT",
       body: JSON.stringify(data)
@@ -219,7 +226,7 @@ export const testimonialsAPI = {
 // Contact API
 export const contactAPI = {
   getInfo: () => apiCall("/contact/info"),
-  updateInfo: (data: any) =>
+  updateInfo: (data: Record<string, unknown>) =>
     apiCall("/contact/info", {
       method: "PUT",
       body: JSON.stringify(data)
@@ -235,12 +242,12 @@ export const contactAPI = {
 export const faqAPI = {
   getAll: () => apiCall("/faqs"),
   getById: (id: string) => apiCall(`/faqs/${id}`),
-  create: (data: any) =>
+  create: (data: Record<string, unknown>) =>
     apiCall("/faqs", {
       method: "POST",
       body: JSON.stringify(data)
     }),
-  update: (id: string, data: any) =>
+  update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/faqs/${id}`, {
       method: "PUT",
       body: JSON.stringify(data)
@@ -288,12 +295,12 @@ export const certificatesAPI = {
 // Journey API
 export const journeyAPI = {
   getAll: () => apiCall("/journey"),
-  create: (data: any) =>
+  create: (data: Record<string, unknown>) =>
     apiCall("/journey", {
       method: "POST",
       body: JSON.stringify(data)
     }),
-  update: (id: string, data: any) =>
+  update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/journey/${id}`, {
       method: "PUT",
       body: JSON.stringify(data)

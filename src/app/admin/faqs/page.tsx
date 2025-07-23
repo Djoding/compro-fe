@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,27 +44,33 @@ export default function FAQPage() {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchFAQs();
-  }, []);
-
-  const fetchFAQs = async () => {
-    try {
-      setLoading(true);
-      const response = await faqAPI.getAll();
-      if (response.status === "success") {
-        setFaqs(response.data);
+  const fetchFAQs = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await faqAPI.getAll();
+        if (response.status === "success") {
+          setFaqs(response.data as FAQ[]);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getFriendlyErrorMessage(error),
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getFriendlyErrorMessage(error),
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [toast]
+  );
+
+  useEffect(
+    () => {
+      fetchFAQs();
+    },
+    [fetchFAQs]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,9 +79,9 @@ export default function FAQPage() {
     try {
       let response;
       if (editingFaq) {
-        response = await faqAPI.update(editingFaq.id, form);
+        response = await faqAPI.update(editingFaq.id, { ...form });
       } else {
-        response = await faqAPI.create(form);
+        response = await faqAPI.create({ ...form });
       }
 
       if (response.status === "success") {

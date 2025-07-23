@@ -62,7 +62,7 @@ export default function ArticlesPage() {
       setLoading(true);
       const response = await articlesAPI.getAll();
       if (response.status === 'success') {
-        setArticles(response.data);
+        setArticles(response.data as Article[]);
       }
     } catch (error) {
       console.error('Failed to fetch articles:', error);
@@ -126,8 +126,9 @@ export default function ArticlesPage() {
         setIsCreateOpen(false);
         resetForm();
       }
-    } catch (error: any) {
-      alert('Gagal membuat artikel: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      alert('Gagal membuat artikel: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -169,8 +170,9 @@ export default function ArticlesPage() {
         resetForm();
         setSelectedArticle(null);
       }
-    } catch (error: any) {
-      alert('Gagal mengupdate artikel: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      alert('Gagal mengupdate artikel: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -183,8 +185,9 @@ export default function ArticlesPage() {
         if (response.status === 'success') {
           await fetchArticles();
         }
-      } catch (error: any) {
-        alert('Gagal menghapus artikel: ' + error.message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+        alert('Gagal menghapus artikel: ' + errorMessage);
       }
     }
   };

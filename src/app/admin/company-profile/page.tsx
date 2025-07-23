@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { companyProfileAPI } from "@/lib/api";
@@ -33,34 +31,40 @@ export default function CompanyProfilePage() {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await companyProfileAPI.getProfile();
-      if (response.status === "success") {
-        setProfile(response.data);
+  const fetchProfile = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await companyProfileAPI.getProfile();
+        if (response.status === "success") {
+          setProfile(response.data as CompanyProfile);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getFriendlyErrorMessage(error),
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getFriendlyErrorMessage(error),
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [toast]
+  );
+
+  useEffect(
+    () => {
+      fetchProfile();
+    },
+    [fetchProfile]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
-      const response = await companyProfileAPI.updateProfile(profile);
+      const response = await companyProfileAPI.updateProfile({ ...profile });
       if (response.status === "success") {
         toast({
           title: "Berhasil",

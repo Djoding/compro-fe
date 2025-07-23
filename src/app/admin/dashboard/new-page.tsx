@@ -1,19 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { companyProfileAPI, contactAPI, articlesAPI } from '@/lib/api';
-import { 
-  Users, 
-  FolderOpen, 
-  MessageCircle, 
-  TrendingUp,
-  Clock,
-  Star,
-  Eye,
-  Calendar
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { companyProfileAPI, contactAPI, articlesAPI } from "@/lib/api";
+import { Users, FolderOpen, MessageCircle, TrendingUp, Clock, Star, Eye, Calendar } from "lucide-react";
 
 interface Stats {
   projectsCompleted: number;
@@ -26,7 +17,7 @@ interface RecentActivity {
   type: string;
   message: string;
   timestamp: string;
-  status: 'success' | 'warning' | 'info';
+  status: "success" | "warning" | "info";
 }
 
 interface ContactMessage {
@@ -59,25 +50,25 @@ export default function AdminDashboard() {
 
   const [recentActivities] = useState<RecentActivity[]>([
     {
-      id: '1',
-      type: 'project',
+      id: "1",
+      type: "project",
       message: 'Proyek "E-Commerce Platform" telah diselesaikan',
-      timestamp: '2 jam yang lalu',
-      status: 'success'
+      timestamp: "2 jam yang lalu",
+      status: "success"
     },
     {
-      id: '2',
-      type: 'article',
+      id: "2",
+      type: "article",
       message: 'Artikel baru "AI dalam Web Development" dipublikasikan',
-      timestamp: '5 jam yang lalu',
-      status: 'info'
+      timestamp: "5 jam yang lalu",
+      status: "info"
     },
     {
-      id: '3',
-      type: 'contact',
-      message: '3 pesan baru dari klien potensial',
-      timestamp: '1 hari yang lalu',
-      status: 'warning'
+      id: "3",
+      type: "contact",
+      message: "3 pesan baru dari klien potensial",
+      timestamp: "1 hari yang lalu",
+      status: "warning"
     }
   ]);
 
@@ -85,26 +76,26 @@ export default function AdminDashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch stats
         const statsResponse = await companyProfileAPI.getStats();
-        if (statsResponse.status === 'success') {
-          setStats(statsResponse.data);
+        if (statsResponse.status === "success") {
+          setStats(statsResponse.data as Stats);
         }
 
         // Fetch recent contact messages
         const messagesResponse = await contactAPI.getMessages();
-        if (messagesResponse.status === 'success') {
-          setContactMessages(messagesResponse.data.slice(0, 5)); // Get latest 5 messages
+        if (messagesResponse.status === "success") {
+          setContactMessages((messagesResponse.data as ContactMessage[]).slice(0, 5)); // Get latest 5 messages
         }
 
         // Fetch recent articles
         const articlesResponse = await articlesAPI.getAll();
-        if (articlesResponse.status === 'success') {
-          setRecentArticles(articlesResponse.data.slice(0, 5)); // Get latest 5 articles
+        if (articlesResponse.status === "success") {
+          setRecentArticles((articlesResponse.data as Article[]).slice(0, 5)); // Get latest 5 articles
         }
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        console.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -115,24 +106,24 @@ export default function AdminDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success':
-        return 'bg-green-100 text-green-800';
-      case 'warning':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'info':
-        return 'bg-blue-100 text-blue-800';
+      case "success":
+        return "bg-green-100 text-green-800";
+      case "warning":
+        return "bg-yellow-100 text-yellow-800";
+      case "info":
+        return "bg-blue-100 text-blue-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
     });
   };
 
@@ -140,10 +131,10 @@ export default function AdminDashboard() {
     return (
       <div className="p-8">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
+          <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg" />
             ))}
           </div>
         </div>
@@ -217,7 +208,7 @@ export default function AdminDashboard() {
             <CardDescription>Update sistem dan aktivitas admin</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentActivities.map((activity) => (
+            {recentActivities.map(activity => (
               <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">{activity.message}</p>
@@ -226,9 +217,7 @@ export default function AdminDashboard() {
                     <span className="text-xs text-gray-500">{activity.timestamp}</span>
                   </div>
                 </div>
-                <Badge className={getStatusColor(activity.status)}>
-                  {activity.status}
-                </Badge>
+                <Badge className={getStatusColor(activity.status)}>{activity.status}</Badge>
               </div>
             ))}
           </CardContent>
@@ -245,7 +234,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {contactMessages.length > 0 ? (
-              contactMessages.map((message) => (
+              contactMessages.map(message => (
                 <div key={message.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">{message.name}</p>
@@ -280,7 +269,7 @@ export default function AdminDashboard() {
         <CardContent>
           {recentArticles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentArticles.map((article) => (
+              {recentArticles.map(article => (
                 <div key={article.id} className="p-4 rounded-lg bg-gray-50 border">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline">{article.category}</Badge>

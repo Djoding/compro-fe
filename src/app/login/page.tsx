@@ -1,41 +1,42 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import TeknaLogiIcon from '@/components/ui/teknalogi-icon';
-import { authAPI, setAuthToken } from '@/lib/api';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import TeknaLogiIcon from "@/components/ui/teknalogi-icon";
+import { authAPI, setAuthToken } from "@/lib/api";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await authAPI.login(formData);
-      
-      if (response.status === 'success' && response.data.token) {
-        setAuthToken(response.data.token);
-        document.cookie = 'admin_authenticated=true; path=/; max-age=86400'; // 24 hours
-        router.push('/admin/dashboard');
+
+      if (response.status === "success" && response.data && typeof response.data === "object" && "token" in response.data) {
+        setAuthToken((response.data as { token: string }).token);
+        document.cookie = "admin_authenticated=true; path=/; max-age=86400"; // 24 hours
+        router.push("/admin/dashboard");
       } else {
-        setError('Login gagal. Silakan coba lagi.');
+        setError("Login gagal. Silakan coba lagi.");
       }
-    } catch (error: any) {
-      setError(error.message || 'Login gagal. Silakan coba lagi.');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Login gagal. Silakan coba lagi.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -52,9 +53,7 @@ export default function LoginPage() {
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Admin Panel
             </CardTitle>
-            <CardDescription className="text-base text-gray-600 mt-2">
-              Masuk ke dashboard administrasi
-            </CardDescription>
+            <CardDescription className="text-base text-gray-600 mt-2">Masuk ke dashboard administrasi</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -68,7 +67,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="admin@teknalogi.co.id"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
                 className="h-12 border-2 focus:border-blue-500"
                 required
                 disabled={isLoading}
@@ -84,7 +83,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={e => setFormData({ ...formData, password: e.target.value })}
                   className="h-12 border-2 focus:border-blue-500 pr-12"
                   required
                   disabled={isLoading}
@@ -99,15 +98,11 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            
-            {error && (
-              <div className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-md p-3">
-                {error}
-              </div>
-            )}
 
-            <Button 
-              type="submit" 
+            {error && <div className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-md p-3">{error}</div>}
+
+            <Button
+              type="submit"
               className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
               disabled={isLoading}
             >
@@ -117,7 +112,7 @@ export default function LoginPage() {
                   Sedang masuk...
                 </>
               ) : (
-                'Masuk'
+                "Masuk"
               )}
             </Button>
           </form>

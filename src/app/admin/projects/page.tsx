@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { projectsAPI } from '@/lib/api';
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Image, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Loader2, Image, X } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -61,7 +61,7 @@ export default function ProjectsPage() {
       setLoading(true);
       const response = await projectsAPI.getAll();
       if (response.status === 'success') {
-        setProjects(response.data);
+        setProjects(response.data as Project[]);
       }
     } catch (error) {
       console.error('Failed to fetch projects:', error);
@@ -127,8 +127,9 @@ export default function ProjectsPage() {
         setIsCreateOpen(false);
         resetForm();
       }
-    } catch (error: any) {
-      alert('Gagal membuat proyek: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      alert('Gagal membuat proyek: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -172,8 +173,9 @@ export default function ProjectsPage() {
         resetForm();
         setSelectedProject(null);
       }
-    } catch (error: any) {
-      alert('Gagal mengupdate proyek: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      alert('Gagal mengupdate proyek: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -186,8 +188,9 @@ export default function ProjectsPage() {
         if (response.status === 'success') {
           await fetchProjects();
         }
-      } catch (error: any) {
-        alert('Gagal menghapus proyek: ' + error.message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+        alert('Gagal menghapus proyek: ' + errorMessage);
       }
     }
   };

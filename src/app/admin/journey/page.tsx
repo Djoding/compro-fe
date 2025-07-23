@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,27 +48,33 @@ export default function JourneyPage() {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchJourneys();
-  }, []);
-
-  const fetchJourneys = async () => {
-    try {
-      setLoading(true);
-      const response = await journeyAPI.getAll();
-      if (response.status === "success") {
-        setJourneys(response.data);
+  const fetchJourneys = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+        const response = await journeyAPI.getAll();
+        if (response.status === "success") {
+          setJourneys(response.data as Journey[]);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getFriendlyErrorMessage(error),
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getFriendlyErrorMessage(error),
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [toast]
+  );
+
+  useEffect(
+    () => {
+      fetchJourneys();
+    },
+    [fetchJourneys]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,7 +251,7 @@ export default function JourneyPage() {
         {journeys.length > 0 && <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-200" />}
 
         <div className="space-y-8">
-          {journeys.map((journey, index) => (
+          {journeys.map(journey => (
             <div key={journey.id} className="relative flex items-start">
               {/* Timeline dot */}
               <div className="flex-shrink-0 w-16 flex justify-center">

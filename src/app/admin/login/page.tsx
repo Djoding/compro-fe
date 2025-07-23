@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     try {
       const response = await authAPI.login({ email, password });
-      setAuthToken(response.data.token);
+      setAuthToken((response.data as { token: string }).token);
       toast({
         title: "Login Berhasil",
         description: "Anda akan diarahkan ke dashboard.",
