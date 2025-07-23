@@ -9,8 +9,6 @@ interface MagicCardProps {
   children?: React.ReactNode;
   className?: string;
   gradientSize?: number;
-  gradientColor?: string;
-  gradientOpacity?: number;
   gradientFrom?: string;
   gradientTo?: string;
 }
@@ -19,8 +17,6 @@ export function MagicCard({
   children,
   className,
   gradientSize = 200,
-  gradientColor = "#262626",
-  gradientOpacity = 0.8,
   gradientFrom = "#9E7AFF",
   gradientTo = "#FE8BBB",
 }: MagicCardProps) {
@@ -38,7 +34,7 @@ export function MagicCard({
         mouseY.set(clientY - top);
       }
     },
-    [mouseX, mouseY],
+    [mouseX, mouseY]
   );
 
   const handleMouseOut = useCallback(
@@ -49,7 +45,7 @@ export function MagicCard({
         mouseY.set(-gradientSize);
       }
     },
-    [handleMouseMove, mouseX, gradientSize, mouseY],
+    [handleMouseMove, mouseX, gradientSize, mouseY]
   );
 
   const handleMouseEnter = useCallback(() => {
@@ -93,15 +89,6 @@ export function MagicCard({
         }}
       />
       <div className="absolute inset-px rounded-[inherit] bg-background" />
-      <motion.div
-        className="pointer-events-none absolute inset-px rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: useMotionTemplate`
-            radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px, ${gradientColor}, transparent 100%)
-          `,
-          opacity: gradientOpacity,
-        }}
-      />
       <div className="relative">{children}</div>
     </div>
   );

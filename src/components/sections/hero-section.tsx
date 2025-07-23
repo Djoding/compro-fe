@@ -21,13 +21,6 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const techIcons = [
-  { icon: Code, label: "Development" },
-  { icon: Database, label: "Data Solutions" },
-  { icon: Cloud, label: "Cloud Services" },
-  { icon: Shield, label: "Security" },
-];
-
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const centerRef = useRef<HTMLDivElement>(null);
@@ -68,97 +61,25 @@ export default function HeroSection() {
       <div className="absolute inset-0">
         <Particles
           className="absolute inset-0"
-          quantity={100}
+          quantity={300}
+          size={0.8}
           staticity={30}
-          color="#8b5cf6"
-        />
-        <InteractiveGridPattern
-          className="absolute inset-0 opacity-30"
-          width={40}
-          height={40}
+          color="#8B5CF6"
         />
       </div>
 
       {/* Warp Background for central focus */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <WarpBackground
-          className="w-96 h-96 opacity-20"
-          beamsPerSide={4}
-          beamSize={8}
+          className="w-full h-full opacity-60"
+          beamsPerSide={2}
+          beamSize={1}
         >
           <div
             ref={centerRef}
             className="w-20 h-20 bg-primary/20 rounded-full"
           />
         </WarpBackground>
-      </div>
-
-      {/* Animated Beams connecting tech icons */}
-      <div className="absolute inset-0 pointer-events-none">
-        {refsReady && (
-          <>
-            <AnimatedBeam
-              containerRef={containerRef}
-              fromRef={centerRef}
-              toRef={icon1Ref}
-              curvature={20}
-              gradientStartColor="#8b5cf6"
-              gradientStopColor="#3b82f6"
-            />
-            <AnimatedBeam
-              containerRef={containerRef}
-              fromRef={centerRef}
-              toRef={icon2Ref}
-              curvature={-20}
-              gradientStartColor="#8b5cf6"
-              gradientStopColor="#10b981"
-            />
-            <AnimatedBeam
-              containerRef={containerRef}
-              fromRef={centerRef}
-              toRef={icon3Ref}
-              curvature={20}
-              reverse
-              gradientStartColor="#8b5cf6"
-              gradientStopColor="#f59e0b"
-            />
-            <AnimatedBeam
-              containerRef={containerRef}
-              fromRef={centerRef}
-              toRef={icon4Ref}
-              curvature={-20}
-              reverse
-              gradientStartColor="#8b5cf6"
-              gradientStopColor="#ef4444"
-            />
-          </>
-        )}
-      </div>
-
-      {/* Tech Icons positioned around */}
-      <div
-        ref={icon1Ref}
-        className="absolute top-20 left-20 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center"
-      >
-        <Code className="w-8 h-8 text-primary" />
-      </div>
-      <div
-        ref={icon2Ref}
-        className="absolute top-20 right-20 w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center"
-      >
-        <Database className="w-8 h-8 text-accent" />
-      </div>
-      <div
-        ref={icon3Ref}
-        className="absolute bottom-20 left-20 w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center"
-      >
-        <Cloud className="w-8 h-8 text-green-500" />
-      </div>
-      <div
-        ref={icon4Ref}
-        className="absolute bottom-20 right-20 w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center"
-      >
-        <Shield className="w-8 h-8 text-orange-500" />
       </div>
 
       {/* Orbiting Circles */}
@@ -191,7 +112,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-6 pt-16 md:pt-12">
+        <div className="space-y-6 py-24">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
