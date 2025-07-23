@@ -67,7 +67,7 @@ const menuItems = [
   },
   {
     label: "FAQ",
-    href: "/admin/faq",
+    href: "/admin/faqs",
     icon: HelpCircle
   },
   {
