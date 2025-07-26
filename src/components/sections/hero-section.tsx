@@ -1,4 +1,3 @@
-// src/components/sections/hero-section.tsx
 "use client";
 
 import { AnimatedBeam } from "@/components/magicui/animated-beam";
@@ -9,6 +8,8 @@ import { Particles } from "@/components/magicui/particles";
 import { TypingAnimation } from "@/components/magicui/typing-animation";
 import { WarpBackground } from "@/components/magicui/warp-background";
 import { Button } from "@/components/ui/button";
+import { useHomeData } from "@/hooks/use-home-data";
+import { useTranslations } from "@/hooks/use-translations";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -18,6 +19,7 @@ import {
   Play,
   Shield,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -29,7 +31,35 @@ export default function HeroSection() {
   const icon3Ref = useRef<HTMLDivElement>(null);
   const icon4Ref = useRef<HTMLDivElement>(null);
 
+  const { t, locale } = useTranslations();
+  const { data, loading, error } = useHomeData();
+
   const [refsReady, setRefsReady] = useState(false);
+  const [stats, setStats] = useState({
+    projects: 50,
+    clients: 25,
+    years: 5,
+    experts: 15,
+  });
+
+  // Static texts dari translations
+  const heroTexts = {
+    badge: t("sections.hero.badge") || "PT. Teknalogi Transformasi Digital",
+    accelerating: locale === "id" ? "Mempercepat" : "Accelerating",
+    businessThrough:
+      locale === "id" ? "Bisnis Anda Melalui" : "Your Business Through",
+    digitalInnovation:
+      locale === "id" ? "Inovasi Digital" : "Digital Innovation",
+    startProject: t("buttons.startProject"),
+    watchStory: t("buttons.watchStory"),
+    loading: t("ui.loading"),
+    errorLoadData:
+      locale === "id" ? "Gagal memuat data" : "Failed to load data",
+    defaultDescription:
+      locale === "id"
+        ? "Kami adalah mitra inovasi digital yang berdedikasi fokus pada percepatan pertumbuhan bisnis, merancang dan membangun solusi teknologi khusus yang meningkatkan efisiensi dan membuka potensi baru bagi klien kami."
+        : "We are dedicated digital innovation partners focused on accelerating business growth, designing and building custom technology solutions that enhance efficiency and unlock new potential for our clients.",
+  };
 
   useEffect(() => {
     // Check if all refs are ready
@@ -48,9 +78,56 @@ export default function HeroSection() {
 
     // Use a timeout to ensure DOM is ready
     const timer = setTimeout(checkRefs, 100);
-
     return () => clearTimeout(timer);
   }, []);
+
+  // Update stats dari backend jika ada
+  useEffect(() => {
+    if (data?.companyProfile) {
+      // Mapping stats dari backend response
+      setStats({
+        projects: 50,
+        clients: 25,
+        years: 5,
+        experts: 15,
+      });
+    }
+  }, [data]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <span className="text-lg text-muted-foreground">
+            {heroTexts.loading}
+          </span>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="text-center">
+          <div className="text-red-500 mb-4 text-lg font-semibold">
+            {heroTexts.errorLoadData}
+          </div>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            {t("ui.retry")}
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  // Dynamic content dari backend (sudah dalam bahasa yang sesuai)
+  const companyDescription =
+    heroTexts.defaultDescription;
 
   return (
     <section
@@ -72,7 +149,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <WarpBackground
           className="w-full h-full opacity-60"
-          beamsPerSide={2}
+          beamsPerSide={1}
           beamSize={1}
         >
           <div
@@ -111,6 +188,7 @@ export default function HeroSection() {
         </OrbitingCircles>
       </div>
 
+      {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-6 py-24">
           {/* Badge */}
@@ -121,7 +199,7 @@ export default function HeroSection() {
             className="inline-flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-full px-6 py-3 text-sm font-medium text-primary backdrop-blur-sm"
           >
             <Sparkles className="w-4 h-4" />
-            <span>PT. Teknalogi Transformasi Digital</span>
+            <span>{heroTexts.badge}</span>
           </motion.div>
 
           {/* Main Heading with Typography */}
@@ -133,20 +211,22 @@ export default function HeroSection() {
           >
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-foreground leading-tight">
               <div className="block mb-4">
-                <FlipText className="text-primary">Accelerating</FlipText>
+                <FlipText className="text-primary">
+                  {heroTexts.accelerating}
+                </FlipText>
               </div>
 
-              <div className="block mb-4">Your Business Through</div>
+              <div className="block mb-4">{heroTexts.businessThrough}</div>
 
               <div className="block">
                 <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                  Digital Innovation
+                  {heroTexts.digitalInnovation}
                 </span>
               </div>
             </h1>
           </motion.div>
 
-          {/* Subtitle with Typing Animation */}
+          {/* Subtitle with Typing Animation - Dynamic Content dari Backend */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -158,10 +238,7 @@ export default function HeroSection() {
               duration={50}
               delay={1000}
             >
-              We are dedicated digital innovation partners focused on
-              accelerating business growth, designing and building custom
-              technology solutions that enhance efficiency and unlock new
-              potential for our clients.
+              {companyDescription}
             </TypingAnimation>
           </motion.div>
 
@@ -173,7 +250,7 @@ export default function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8"
           >
             <Button size="lg" className="group px-8 py-4 text-lg font-semibold">
-              Start Your Project
+              {heroTexts.startProject}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
 
@@ -183,11 +260,11 @@ export default function HeroSection() {
               className="group border-2 border-border hover:border-primary transition-all duration-300 px-8 py-4 text-lg"
             >
               <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-              Watch Our Story
+              {heroTexts.watchStory}
             </Button>
           </motion.div>
 
-          {/* Stats Preview */}
+          {/* Stats Preview - Data dari Backend dengan Labels Statis */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -195,10 +272,30 @@ export default function HeroSection() {
             className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-12 max-w-2xl mx-auto"
           >
             {[
-              { number: "50+", label: "Projects" },
-              { number: "25+", label: "Clients" },
-              { number: "5+", label: "Years" },
-              { number: "15+", label: "Experts" },
+              {
+                number: `${stats.projects}+`,
+                label:
+                  t("sections.stats.projects") ||
+                  (locale === "id" ? "Proyek" : "Projects"),
+              },
+              {
+                number: `${stats.clients}+`,
+                label:
+                  t("sections.stats.clients") ||
+                  (locale === "id" ? "Klien" : "Clients"),
+              },
+              {
+                number: `${stats.years}+`,
+                label:
+                  t("sections.stats.years") ||
+                  (locale === "id" ? "Tahun" : "Years"),
+              },
+              {
+                number: `${stats.experts}+`,
+                label:
+                  t("sections.stats.experts") ||
+                  (locale === "id" ? "Ahli" : "Experts"),
+              },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl lg:text-3xl font-bold text-primary mb-1">

@@ -8,31 +8,34 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const navigation = [
-  { name: "Home", href: "/" },
-  {
-    name: "About Us",
-    href: "/about",
-    submenu: [
-      { name: "Company Overview", href: "/about" },
-      { name: "Vision & Mission", href: "/about#vision-mission" },
-      { name: "Our Team", href: "/team" },
-      { name: "Company Journey", href: "/about#journey" },
-      { name: "Certificates", href: "/certificates" },
-    ],
-  },
-  { name: "Solutions", href: "/solutions" },
-  { name: "Expertise", href: "/expertise" },
-  { name: "News & Insights", href: "/news" },
-  { name: "Contact", href: "/contact" },
-];
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslations } from "@/hooks/use-translations";
 
 export default function Navbar() {
+  const { t } = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const pathname = usePathname();
+
+  const navigation = [
+    { name: t("nav.home"), href: "/" },
+    {
+      name: t("nav.about"),
+      href: "/about",
+      submenu: [
+        { name: "Company Overview", href: "/about" },
+        { name: "Vision & Mission", href: "/about#vision-mission" },
+        { name: t("nav.team"), href: "/team" },
+        { name: "Company Journey", href: "/about#journey" },
+        { name: t("nav.certificates"), href: "/certificates" },
+      ],
+    },
+    { name: t("nav.solutions"), href: "/solutions" },
+    { name: t("nav.expertise"), href: "/expertise" },
+    { name: t("nav.news"), href: "/news" },
+    { name: t("nav.contact"), href: "/contact" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -140,6 +143,8 @@ export default function Navbar() {
                 )}
               </div>
             ))}
+            {/* Language Switcher */}
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile menu button */}
@@ -223,6 +228,10 @@ export default function Navbar() {
                     )}
                   </div>
                 ))}
+                {/* Mobile Language Switcher */}
+                <div className="px-4 py-2">
+                  <LanguageSwitcher />
+                </div>
               </div>
             </motion.div>
           )}

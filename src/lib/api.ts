@@ -1,5 +1,8 @@
+import { getCurrentLocale } from "./i18n";
+
 // API configuration and utility functions
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
 // Auth token management
 export const getAuthToken = () => {
@@ -31,11 +34,17 @@ interface ApiResponse<T = unknown> {
   data?: T;
 }
 
-const apiCall = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
+const apiCall = async <T = unknown>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> => {
   const token = getAuthToken();
+  const locale = getCurrentLocale();
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers as Record<string, string>)
+    "Accept-Language": locale === "en" ? "en-US,en;q=0.9" : "id-ID,id;q=0.9",
+    ...(options.headers as Record<string, string>),
   };
 
   if (token) {
@@ -45,7 +54,7 @@ const apiCall = async <T = unknown>(endpoint: string, options: RequestInit = {})
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
-      headers
+      headers,
     });
 
     if (!response.ok) {
@@ -65,10 +74,16 @@ const apiCall = async <T = unknown>(endpoint: string, options: RequestInit = {})
 };
 
 // Generic API call for form data (file uploads)
-const apiCallFormData = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
+const apiCallFormData = async <T = unknown>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> => {
   const token = getAuthToken();
+  const locale = getCurrentLocale();
+
   const headers: Record<string, string> = {
-    ...(options.headers as Record<string, string>)
+    "Accept-Language": locale === "en" ? "en-US,en;q=0.9" : "id-ID,id;q=0.9",
+    ...(options.headers as Record<string, string>),
   };
 
   if (token) {
@@ -78,7 +93,7 @@ const apiCallFormData = async <T = unknown>(endpoint: string, options: RequestIn
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
-      headers
+      headers,
     });
 
     if (!response.ok) {
@@ -102,14 +117,14 @@ export const authAPI = {
   login: (credentials: { email: string; password: string }) =>
     apiCall("/auth/login", {
       method: "POST",
-      body: JSON.stringify(credentials)
+      body: JSON.stringify(credentials),
     }),
 
   register: (userData: { name: string; email: string; password: string }) =>
     apiCall("/auth/register", {
       method: "POST",
-      body: JSON.stringify(userData)
-    })
+      body: JSON.stringify(userData),
+    }),
 };
 
 // Company Profile API
@@ -118,9 +133,9 @@ export const companyProfileAPI = {
   updateProfile: (data: Record<string, unknown>) =>
     apiCall("/company-profile", {
       method: "PUT",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
-  getStats: () => apiCall("/company-profile/stats")
+  getStats: () => apiCall("/company-profile/stats"),
 };
 
 // Projects API
@@ -130,17 +145,17 @@ export const projectsAPI = {
   create: (formData: FormData) =>
     apiCallFormData("/projects", {
       method: "POST",
-      body: formData
+      body: formData,
     }),
   update: (id: string, formData: FormData) =>
     apiCallFormData(`/projects/${id}`, {
       method: "PUT",
-      body: formData
+      body: formData,
     }),
   delete: (id: string) =>
     apiCall(`/projects/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Articles API
@@ -151,17 +166,17 @@ export const articlesAPI = {
   create: (formData: FormData) =>
     apiCallFormData("/articles", {
       method: "POST",
-      body: formData
+      body: formData,
     }),
   update: (id: string, formData: FormData) =>
     apiCallFormData(`/articles/${id}`, {
       method: "PUT",
-      body: formData
+      body: formData,
     }),
   delete: (id: string) =>
     apiCall(`/articles/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Team Members API
@@ -171,17 +186,17 @@ export const teamAPI = {
   create: (formData: FormData) =>
     apiCallFormData("/team", {
       method: "POST",
-      body: formData
+      body: formData,
     }),
   update: (id: string, formData: FormData) =>
     apiCallFormData(`/team/${id}`, {
       method: "PUT",
-      body: formData
+      body: formData,
     }),
   delete: (id: string) =>
     apiCall(`/team/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Services API
@@ -191,17 +206,17 @@ export const servicesAPI = {
   create: (data: Record<string, unknown>) =>
     apiCall("/services", {
       method: "POST",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/services/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   delete: (id: string) =>
     apiCall(`/services/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Testimonials API
@@ -210,17 +225,17 @@ export const testimonialsAPI = {
   create: (formData: FormData) =>
     apiCallFormData("/testimonials", {
       method: "POST",
-      body: formData
+      body: formData,
     }),
   update: (id: string, formData: FormData) =>
     apiCallFormData(`/testimonials/${id}`, {
       method: "PUT",
-      body: formData
+      body: formData,
     }),
   delete: (id: string) =>
     apiCall(`/testimonials/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Contact API
@@ -229,13 +244,13 @@ export const contactAPI = {
   updateInfo: (data: Record<string, unknown>) =>
     apiCall("/contact/info", {
       method: "PUT",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   getMessages: () => apiCall("/contact/messages"),
   deleteMessage: (id: string) =>
     apiCall(`/contact/messages/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // FAQ API
@@ -245,17 +260,17 @@ export const faqAPI = {
   create: (data: Record<string, unknown>) =>
     apiCall("/faqs", {
       method: "POST",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/faqs/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   delete: (id: string) =>
     apiCall(`/faqs/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Platforms API
@@ -265,17 +280,17 @@ export const platformsAPI = {
   create: (formData: FormData) =>
     apiCallFormData("/platforms", {
       method: "POST",
-      body: formData
+      body: formData,
     }),
   update: (id: string, formData: FormData) =>
     apiCallFormData(`/platforms/${id}`, {
       method: "PUT",
-      body: formData
+      body: formData,
     }),
   delete: (id: string) =>
     apiCall(`/platforms/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Certificates API
@@ -284,12 +299,12 @@ export const certificatesAPI = {
   create: (formData: FormData) =>
     apiCallFormData("/certificates", {
       method: "POST",
-      body: formData
+      body: formData,
     }),
   delete: (id: string) =>
     apiCall(`/certificates/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };
 
 // Journey API
@@ -298,15 +313,25 @@ export const journeyAPI = {
   create: (data: Record<string, unknown>) =>
     apiCall("/journey", {
       method: "POST",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/journey/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }),
   delete: (id: string) =>
     apiCall(`/journey/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
+};
+
+// Home Page API
+export const homeAPI = {
+  getHomeData: () => apiCall("/"), // Jika ada endpoint khusus home
+  // Atau gunakan existing endpoints
+  getTestimonials: () => apiCall("/testimonials"),
+  getCompanyProfile: () => apiCall("/company-profile"),
+  getServices: () => apiCall("/services"),
+  getProjects: () => apiCall("/projects")
 };
