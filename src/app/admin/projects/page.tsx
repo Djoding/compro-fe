@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { projectsAPI } from '@/lib/api';
+import { useTranslations } from '@/hooks/use-translations';
 import { Plus, Search, Edit, Trash2, Loader2, Image, X } from 'lucide-react';
 
 interface Project {
@@ -43,6 +44,7 @@ export default function ProjectsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslations();
 
   useEffect(() => {
     fetchProjects();
@@ -106,7 +108,7 @@ export default function ProjectsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      alert('Gambar proyek wajib diunggah');
+      alert(t("admin.pages.projects.form.imageRequired") || 'Gambar proyek wajib diunggah');
       return;
     }
 
@@ -128,8 +130,8 @@ export default function ProjectsPage() {
         resetForm();
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
-      alert('Gagal membuat proyek: ' + errorMessage);
+      const errorMessage = error instanceof Error ? error.message : t("admin.pages.projects.errors.genericError") || 'Terjadi kesalahan';
+      alert(t("admin.pages.projects.errors.createFailed").replace('{error}', errorMessage) || 'Gagal membuat proyek: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -174,23 +176,23 @@ export default function ProjectsPage() {
         setSelectedProject(null);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
-      alert('Gagal mengupdate proyek: ' + errorMessage);
+      const errorMessage = error instanceof Error ? error.message : t("admin.pages.projects.errors.genericError") || 'Terjadi kesalahan';
+      alert(t("admin.pages.projects.errors.updateFailed").replace('{error}', errorMessage) || 'Gagal mengupdate proyek: ' + errorMessage);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus proyek "${title}"?`)) {
+    if (window.confirm(t("admin.pages.projects.deleteConfirm").replace('{title}', title) || `Apakah Anda yakin ingin menghapus proyek "${title}"?`)) {
       try {
         const response = await projectsAPI.delete(id);
         if (response.status === 'success') {
           await fetchProjects();
         }
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
-        alert('Gagal menghapus proyek: ' + errorMessage);
+        const errorMessage = error instanceof Error ? error.message : t("admin.pages.projects.errors.genericError") || 'Terjadi kesalahan';
+        alert(t("admin.pages.projects.errors.deleteFailed").replace('{error}', errorMessage) || 'Gagal menghapus proyek: ' + errorMessage);
       }
     }
   };
@@ -218,25 +220,25 @@ export default function ProjectsPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Manajemen Proyek</h1>
-          <p className="text-gray-600">Kelola portofolio proyek perusahaan</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.projects.title") || "Manajemen Proyek"}</h1>
+          <p className="text-gray-600">{t("admin.pages.projects.subtitle") || "Kelola portofolio proyek perusahaan"}</p>
         </div>
         
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm}>
               <Plus className="h-4 w-4 mr-2" />
-              Tambah Proyek
+              {t("admin.pages.projects.addProject") || "Tambah Proyek"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Tambah Proyek Baru</DialogTitle>
-              <DialogDescription>Tambahkan proyek baru ke dalam portofolio</DialogDescription>
+              <DialogTitle>{t("admin.pages.projects.addProject") || "Tambah Proyek Baru"}</DialogTitle>
+              <DialogDescription>{t("admin.pages.projects.addDescription") || "Tambahkan proyek baru ke dalam portofolio"}</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="space-y-2">
-                <Label>Gambar Proyek *</Label>
+                <Label>{t("admin.pages.projects.form.image") || "Gambar Proyek"} *</Label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                   {previewUrl ? (
                     <div className="relative">
@@ -254,7 +256,7 @@ export default function ProjectsPage() {
                   ) : (
                     <div className="text-center">
                       <Image className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600">Klik untuk upload gambar</p>
+                      <p className="text-sm text-gray-600">{t("admin.pages.projects.form.imagePlaceholder") || "Klik untuk upload gambar"}</p>
                       <input
                         type="file"
                         accept="image/*"
@@ -269,7 +271,7 @@ export default function ProjectsPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Judul Proyek *</Label>
+                  <Label>{t("admin.pages.projects.form.title") || "Judul Proyek"} *</Label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -277,7 +279,7 @@ export default function ProjectsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Kategori Layanan *</Label>
+                  <Label>{t("admin.pages.projects.form.serviceCategory") || "Kategori Layanan"} *</Label>
                   <Input
                     value={formData.serviceCategory}
                     onChange={(e) => setFormData({...formData, serviceCategory: e.target.value})}
@@ -288,7 +290,7 @@ export default function ProjectsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label>Deskripsi Singkat *</Label>
+                <Label>{t("admin.pages.projects.form.shortDescription") || "Deskripsi Singkat"} *</Label>
                 <Textarea
                   value={formData.shortDescription}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription: e.target.value})}
@@ -298,7 +300,7 @@ export default function ProjectsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label>Elaborasi Detail *</Label>
+                <Label>{t("admin.pages.projects.form.elaboration") || "Elaborasi Detail"} *</Label>
                 <Textarea
                   value={formData.elaboration}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration: e.target.value})}
@@ -309,7 +311,7 @@ export default function ProjectsPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Teknologi (pisahkan dengan koma) *</Label>
+                  <Label>{t("admin.pages.projects.form.technologies") || "Teknologi (pisahkan dengan koma)"} *</Label>
                   <Input
                     value={formData.languages}
                     onChange={(e) => setFormData({...formData, languages: e.target.value})}
@@ -318,7 +320,7 @@ export default function ProjectsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Fitur (pisahkan dengan koma) *</Label>
+                  <Label>{t("admin.pages.projects.form.features") || "Fitur (pisahkan dengan koma)"} *</Label>
                   <Input
                     value={formData.features}
                     onChange={(e) => setFormData({...formData, features: e.target.value})}
@@ -330,11 +332,11 @@ export default function ProjectsPage() {
               
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                  Batal
+                  {t("admin.common.cancel") || "Batal"}
                 </Button>
                 <Button type="submit" disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                  Simpan
+                  {t("admin.common.save") || "Simpan"}
                 </Button>
               </DialogFooter>
             </form>
@@ -346,16 +348,16 @@ export default function ProjectsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Daftar Proyek</CardTitle>
+              <CardTitle>{t("admin.pages.projects.list.title") || "Daftar Proyek"}</CardTitle>
               <CardDescription>
-                Total {projects.length} proyek dalam portofolio
+                {t("admin.pages.projects.list.total")?.replace("{count}", projects.length.toString()) || `Total ${projects.length} proyek dalam portofolio`}
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
-                  placeholder="Cari proyek..."
+                  placeholder={t("admin.pages.projects.list.search") || "Cari proyek..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-64"
@@ -369,12 +371,12 @@ export default function ProjectsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Gambar</TableHead>
-                  <TableHead>Judul</TableHead>
-                  <TableHead>Kategori</TableHead>
-                  <TableHead>Teknologi</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
+                  <TableHead>{t("admin.pages.projects.list.image") || "Gambar"}</TableHead>
+                  <TableHead>{t("admin.pages.projects.form.title") || "Judul"}</TableHead>
+                  <TableHead>{t("admin.pages.projects.list.category") || "Kategori"}</TableHead>
+                  <TableHead>{t("admin.pages.projects.form.technologies") || "Teknologi"}</TableHead>
+                  <TableHead>{t("admin.pages.projects.list.date") || "Tanggal"}</TableHead>
+                  <TableHead className="text-right">{t("admin.pages.projects.list.actions") || "Aksi"}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -442,8 +444,8 @@ export default function ProjectsPage() {
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Proyek</DialogTitle>
-            <DialogDescription>Ubah informasi proyek</DialogDescription>
+            <DialogTitle>{t("admin.pages.projects.editProject") || "Edit Proyek"}</DialogTitle>
+            <DialogDescription>{t("admin.pages.projects.editDescription") || "Ubah informasi proyek"}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="space-y-2">
@@ -550,11 +552,11 @@ export default function ProjectsPage() {
             
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
-                Batal
+                {t("admin.common.cancel") || "Batal"}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                Update
+                {t("admin.common.update") || "Update"}
               </Button>
             </DialogFooter>
           </form>

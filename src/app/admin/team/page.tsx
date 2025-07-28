@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { teamAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { Plus, Edit, Trash2, Users, Linkedin, Github, Twitter, Globe } from "lucide-react";
 
@@ -54,6 +55,7 @@ export default function TeamPage() {
     socialMedia: [{ platform: "", url: "" }],
   });
   const { toast } = useToast();
+  const { t } = useTranslations();
 
   const fetchTeamMembers = useCallback(async () => {
     try {
@@ -102,8 +104,8 @@ export default function TeamPage() {
 
       if (response.status === "success") {
         toast({
-          title: "Berhasil",
-          description: editingMember ? "Anggota tim berhasil diperbarui" : "Anggota tim berhasil ditambahkan",
+          title: t("admin.common.success"),
+          description: editingMember ? t("admin.pages.team.updateSuccess") : t("admin.pages.team.addSuccess"),
           variant: "success",
         });
         fetchTeamMembers();
@@ -112,7 +114,7 @@ export default function TeamPage() {
       }
     } catch (error) {
       toast({
-        title: "Error",
+        title: t("admin.common.error"),
         description: getFriendlyErrorMessage(error),
         variant: "destructive",
       });
@@ -122,7 +124,7 @@ export default function TeamPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus anggota tim ini?")) return;
+    if (!confirm(t("admin.pages.team.deleteConfirm"))) return;
 
     try {
       const response = await teamAPI.delete(id);
@@ -222,24 +224,24 @@ export default function TeamPage() {
         <div className="flex items-center gap-3">
           <Users className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Tim</h1>
-            <p className="text-gray-600">Kelola anggota tim perusahaan</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.team.title")}</h1>
+            <p className="text-gray-600">{t("admin.pages.team.subtitle")}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Tambah Anggota Tim
+              {t("admin.pages.team.addMember")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingMember ? "Edit Anggota Tim" : "Tambah Anggota Tim"}
+                {editingMember ? t("admin.pages.team.editMember") : t("admin.pages.team.addMember")}
               </DialogTitle>
               <DialogDescription>
-                {editingMember ? "Perbarui informasi anggota tim" : "Tambahkan anggota tim baru"}
+                {editingMember ? t("admin.pages.team.editDescription") : t("admin.pages.team.addDescription")}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">

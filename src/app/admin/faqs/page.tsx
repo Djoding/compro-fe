@@ -17,6 +17,7 @@ import {
 import { faqAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
+import { useTranslations } from "@/hooks/use-translations";
 import { Plus, Edit, Trash2, HelpCircle } from "lucide-react";
 
 interface FAQ {
@@ -33,6 +34,7 @@ interface FAQForm {
 }
 
 export default function FAQPage() {
+  const { t } = useTranslations();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -165,15 +167,15 @@ export default function FAQPage() {
         <div className="flex items-center gap-3">
           <HelpCircle className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">FAQ</h1>
-            <p className="text-gray-600">Kelola pertanyaan yang sering diajukan</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.faqs.title") || "FAQ"}</h1>
+            <p className="text-gray-600">{t("admin.pages.faqs.subtitle") || "Kelola pertanyaan yang sering diajukan"}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Tambah FAQ
+              {t("admin.pages.faqs.addFaq") || "Tambah FAQ"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">

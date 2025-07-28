@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { certificatesAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { Plus, Trash2, Award, Upload } from "lucide-react";
 
@@ -16,6 +17,7 @@ interface Certificate {
 }
 
 export default function CertificatesPage() {
+  const { t } = useTranslations();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -23,7 +25,7 @@ export default function CertificatesPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
-  const fetchCertificates = useCallback(async () => {
+  const fetchCertificates = async () => {
     try {
       setLoading(true);
       const response = await certificatesAPI.getAll();
@@ -33,24 +35,25 @@ export default function CertificatesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.certificates.fetchError").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
   useEffect(() => {
     fetchCertificates();
-  }, [fetchCertificates]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run on mount
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
       toast({
         title: "Error",
-        description: "Pilih file sertifikat terlebih dahulu",
+        description: t("admin.pages.certificates.form.noFileSelected") || "Pilih file sertifikat terlebih dahulu",
         variant: "destructive",
       });
       return;
@@ -66,7 +69,7 @@ export default function CertificatesPage() {
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: "Sertifikat berhasil ditambahkan",
+          description: t("admin.pages.certificates.addSuccess") || "Sertifikat berhasil ditambahkan",
           variant: "success",
         });
         fetchCertificates();
@@ -76,7 +79,7 @@ export default function CertificatesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.certificates.error").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive",
       });
     } finally {
@@ -85,14 +88,14 @@ export default function CertificatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus sertifikat ini?")) return;
+    if (!confirm(t("admin.pages.certificates.deleteConfirm") || "Apakah Anda yakin ingin menghapus sertifikat ini?")) return;
 
     try {
       const response = await certificatesAPI.delete(id);
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: "Sertifikat berhasil dihapus",
+          description: t("admin.pages.certificates.deleteSuccess") || "Sertifikat berhasil dihapus",
           variant: "success",
         });
         fetchCertificates();
@@ -100,7 +103,7 @@ export default function CertificatesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.certificates.error").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive",
       });
     }
@@ -135,37 +138,37 @@ export default function CertificatesPage() {
         <div className="flex items-center gap-3">
           <Award className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Sertifikat</h1>
-            <p className="text-gray-600">Kelola sertifikat dan penghargaan perusahaan</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.certificates.title") || "Sertifikat"}</h1>
+            <p className="text-gray-600">{t("admin.pages.certificates.subtitle") || "Kelola sertifikat dan penghargaan perusahaan"}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Tambah Sertifikat
+              {t("admin.pages.certificates.addButton") || "Tambah Sertifikat"}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Tambah Sertifikat</DialogTitle>
+              <DialogTitle>{t("admin.pages.certificates.addDialog.title") || "Tambah Sertifikat"}</DialogTitle>
               <DialogDescription>
-                Upload gambar sertifikat atau penghargaan perusahaan
+                {t("admin.pages.certificates.addDialog.description") || "Upload gambar sertifikat atau penghargaan perusahaan"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="certificate" className="text-sm font-medium">
-                  File Sertifikat
+                  {t("admin.pages.certificates.form.fileLabel") || "File Sertifikat"}
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <div className="space-y-2">
                     <p className="text-sm text-gray-600">
-                      Klik untuk memilih file atau drag & drop
+                      {t("admin.pages.certificates.form.clickToSelect") || "Klik untuk memilih file atau drag & drop"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Format yang didukung: JPG, PNG, PDF (Max 5MB)
+                      {t("admin.pages.certificates.form.supportedFormats") || "Format yang didukung: JPG, PNG, PDF (Max 5MB)"}
                     </p>
                     <input
                       id="certificate"
@@ -179,23 +182,23 @@ export default function CertificatesPage() {
                       variant="outline"
                       onClick={() => document.getElementById('certificate')?.click()}
                     >
-                      Pilih File
+                      {t("admin.pages.certificates.form.selectFile") || "Pilih File"}
                     </Button>
                   </div>
                 </div>
                 {selectedFile && (
                   <p className="text-sm text-green-600">
-                    File terpilih: {selectedFile.name}
+                    {t("admin.pages.certificates.form.selectedFile").replace("{filename}", selectedFile.name) || `File terpilih: ${selectedFile.name}`}
                   </p>
                 )}
               </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Batal
+                  {t("admin.pages.certificates.form.cancel") || "Batal"}
                 </Button>
                 <Button type="submit" disabled={uploading || !selectedFile}>
-                  {uploading ? "Mengupload..." : "Upload"}
+                  {uploading ? (t("admin.pages.certificates.form.uploading") || "Mengupload...") : (t("admin.pages.certificates.form.upload") || "Upload")}
                 </Button>
               </DialogFooter>
             </form>
@@ -217,7 +220,7 @@ export default function CertificatesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">
-                    Ditambahkan: {formatDate(certificate.createdAt)}
+                    {t("admin.pages.certificates.addedDate").replace("{date}", formatDate(certificate.createdAt)) || `Ditambahkan: ${formatDate(certificate.createdAt)}`}
                   </p>
                 </div>
                 <Button
@@ -238,13 +241,13 @@ export default function CertificatesPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Award className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada sertifikat</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t("admin.pages.certificates.empty.title") || "Belum ada sertifikat"}</h3>
             <p className="text-gray-500 text-center mb-4">
-              Mulai upload sertifikat dan penghargaan perusahaan
+              {t("admin.pages.certificates.empty.subtitle") || "Mulai upload sertifikat dan penghargaan perusahaan"}
             </p>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Upload Sertifikat Pertama
+              {t("admin.pages.certificates.empty.addFirst") || "Upload Sertifikat Pertama"}
             </Button>
           </CardContent>
         </Card>

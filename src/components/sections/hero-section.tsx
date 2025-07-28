@@ -1,8 +1,6 @@
 "use client";
 
-import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import { FlipText } from "@/components/magicui/flip-text";
-import { InteractiveGridPattern } from "@/components/magicui/interactive-grid-pattern";
 import { OrbitingCircles } from "@/components/magicui/orbiting-circles";
 import { Particles } from "@/components/magicui/particles";
 import { TypingAnimation } from "@/components/magicui/typing-animation";
@@ -13,11 +11,7 @@ import { useTranslations } from "@/hooks/use-translations";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  Cloud,
-  Code,
-  Database,
   Play,
-  Shield,
   Sparkles,
   Loader2,
 } from "lucide-react";
@@ -34,7 +28,6 @@ export default function HeroSection() {
   const { t, locale } = useTranslations();
   const { data, loading, error } = useHomeData();
 
-  const [refsReady, setRefsReady] = useState(false);
   const [stats, setStats] = useState({
     projects: 50,
     clients: 25,
@@ -72,7 +65,7 @@ export default function HeroSection() {
         icon3Ref.current &&
         icon4Ref.current
       ) {
-        setRefsReady(true);
+        // Refs are ready, you can add any logic here if needed
       }
     };
 

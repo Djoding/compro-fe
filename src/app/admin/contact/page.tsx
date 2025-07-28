@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { contactAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { Phone, Mail, MapPin, Clock, MessageSquare, Trash2, Settings } from "lucide-react";
 
@@ -38,6 +39,7 @@ interface ContactMessage {
 }
 
 export default function ContactPage() {
+  const { t } = useTranslations();
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
     id: "",
     location: "",
@@ -51,40 +53,38 @@ export default function ContactPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const fetchContactData = useCallback(
-    async () => {
-      try {
-        setLoading(true);
+  const fetchContactData = async () => {
+    try {
+      setLoading(true);
 
-        // Fetch contact info
-        const infoResponse = await contactAPI.getInfo();
-        if (infoResponse.status === "success") {
-          setContactInfo(infoResponse.data as ContactInfo);
-        }
-
-        // Fetch contact messages
-        const messagesResponse = await contactAPI.getMessages();
-        if (messagesResponse.status === "success") {
-          setMessages(messagesResponse.data as ContactMessage[]);
-        }
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: getFriendlyErrorMessage(error),
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
+      // Fetch contact info
+      const infoResponse = await contactAPI.getInfo();
+      if (infoResponse.status === "success") {
+        setContactInfo(infoResponse.data as ContactInfo);
       }
-    },
-    [toast]
-  );
+
+      // Fetch contact messages
+      const messagesResponse = await contactAPI.getMessages();
+      if (messagesResponse.status === "success") {
+        setMessages(messagesResponse.data as ContactMessage[]);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: t("admin.pages.contact.fetchError").replace("{error}", getFriendlyErrorMessage(error)),
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(
     () => {
       fetchContactData();
     },
-    [fetchContactData]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // Empty dependency array - only run on mount
   );
 
   const handleUpdateContactInfo = async (e: React.FormEvent) => {
@@ -96,7 +96,7 @@ export default function ContactPage() {
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: "Informasi kontak berhasil diperbarui",
+          description: t("admin.pages.contact.success") || "Informasi kontak berhasil diperbarui",
           variant: "success"
         });
         setDialogOpen(false);
@@ -104,7 +104,7 @@ export default function ContactPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.contact.error").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive"
       });
     } finally {
@@ -113,14 +113,14 @@ export default function ContactPage() {
   };
 
   const handleDeleteMessage = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus pesan ini?")) return;
+    if (!confirm(t("admin.pages.contact.messages.deleteConfirm") || "Apakah Anda yakin ingin menghapus pesan ini?")) return;
 
     try {
       const response = await contactAPI.deleteMessage(id);
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: "Pesan berhasil dihapus",
+          description: t("admin.pages.contact.deleteSuccess") || "Pesan berhasil dihapus",
           variant: "success"
         });
         fetchContactData();
@@ -128,7 +128,7 @@ export default function ContactPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.contact.deleteError").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive"
       });
     }
@@ -164,30 +164,33 @@ export default function ContactPage() {
         <div className="flex items-center gap-3">
           <Phone className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Kontak & Pesan</h1>
-            <p className="text-gray-600">Kelola informasi kontak dan pesan masuk</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.contact.title") || "Kontak & Pesan"}</h1>
+            <p className="text-gray-600">{t("admin.pages.contact.subtitle") || "Kelola informasi kontak dan pesan masuk"}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              Edit Info Kontak
+              {t("admin.pages.contact.editDialog.button") || "Edit Info Kontak"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Edit Informasi Kontak</DialogTitle>
-              <DialogDescription>Perbarui informasi kontak yang akan ditampilkan di website</DialogDescription>
+              <DialogTitle>{t("admin.pages.contact.editDialog.title") || "Edit Informasi Kontak"}</DialogTitle>
+              <DialogDescription>
+                {t("admin.pages.contact.editDialog.description") ||
+                  "Perbarui informasi kontak yang akan ditampilkan di website"}
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleUpdateContactInfo} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="location">Alamat</Label>
+                <Label htmlFor="location">{t("admin.pages.contact.form.address") || "Alamat"}</Label>
                 <Textarea
                   id="location"
                   value={contactInfo.location}
                   onChange={e => setContactInfo(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Alamat lengkap perusahaan"
+                  placeholder={t("admin.pages.contact.form.addressPlaceholder") || "Alamat lengkap perusahaan"}
                   rows={3}
                   required
                 />
@@ -195,45 +198,47 @@ export default function ContactPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Nomor Telepon</Label>
+                  <Label htmlFor="phone">{t("admin.pages.contact.form.phone") || "Nomor Telepon"}</Label>
                   <Input
                     id="phone"
                     value={contactInfo.phone}
                     onChange={e => setContactInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+62 21 1234 5678"
+                    placeholder={t("admin.pages.contact.form.phonePlaceholder") || "+62 21 1234 5678"}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("admin.pages.contact.form.email") || "Email"}</Label>
                   <Input
                     id="email"
                     type="email"
                     value={contactInfo.email}
                     onChange={e => setContactInfo(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="contact@company.com"
+                    placeholder={t("admin.pages.contact.form.emailPlaceholder") || "contact@company.com"}
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="operationHours">Jam Operasional</Label>
+                <Label htmlFor="operationHours">{t("admin.pages.contact.form.operationHours") || "Jam Operasional"}</Label>
                 <Input
                   id="operationHours"
                   value={contactInfo.operationHours}
                   onChange={e => setContactInfo(prev => ({ ...prev, operationHours: e.target.value }))}
-                  placeholder="Senin - Jumat, 09:00 - 17:00 WIB"
+                  placeholder={t("admin.pages.contact.form.operationHoursPlaceholder") || "Senin - Jumat, 09:00 - 17:00 WIB"}
                   required
                 />
               </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Batal
+                  {t("admin.pages.contact.form.cancel") || "Batal"}
                 </Button>
                 <Button type="submit" disabled={updating}>
-                  {updating ? "Menyimpan..." : "Simpan"}
+                  {updating
+                    ? t("admin.pages.contact.form.saving") || "Menyimpan..."
+                    : t("admin.pages.contact.form.save") || "Simpan"}
                 </Button>
               </DialogFooter>
             </form>
@@ -247,15 +252,17 @@ export default function ContactPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Phone className="h-5 w-5" />
-              Informasi Kontak
+              {t("admin.pages.contact.contactInfo.title") || "Informasi Kontak"}
             </CardTitle>
-            <CardDescription>Informasi kontak yang ditampilkan di website</CardDescription>
+            <CardDescription>
+              {t("admin.pages.contact.contactInfo.description") || "Informasi kontak yang ditampilkan di website"}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
               <div>
-                <p className="font-medium">Alamat</p>
+                <p className="font-medium">{t("admin.pages.contact.contactInfo.address") || "Alamat"}</p>
                 <p className="text-sm text-gray-600">{contactInfo.location}</p>
               </div>
             </div>
@@ -263,7 +270,7 @@ export default function ContactPage() {
             <div className="flex items-center gap-3">
               <Phone className="h-5 w-5 text-gray-500" />
               <div>
-                <p className="font-medium">Telepon</p>
+                <p className="font-medium">{t("admin.pages.contact.contactInfo.phone") || "Telepon"}</p>
                 <p className="text-sm text-gray-600">{contactInfo.phone}</p>
               </div>
             </div>
@@ -271,7 +278,7 @@ export default function ContactPage() {
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 text-gray-500" />
               <div>
-                <p className="font-medium">Email</p>
+                <p className="font-medium">{t("admin.pages.contact.contactInfo.email") || "Email"}</p>
                 <p className="text-sm text-gray-600">{contactInfo.email}</p>
               </div>
             </div>
@@ -279,7 +286,7 @@ export default function ContactPage() {
             <div className="flex items-center gap-3">
               <Clock className="h-5 w-5 text-gray-500" />
               <div>
-                <p className="font-medium">Jam Operasional</p>
+                <p className="font-medium">{t("admin.pages.contact.contactInfo.operationHours") || "Jam Operasional"}</p>
                 <p className="text-sm text-gray-600">{contactInfo.operationHours}</p>
               </div>
             </div>
@@ -291,9 +298,12 @@ export default function ContactPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
-              Pesan Masuk ({messages.length})
+              {t("admin.pages.contact.messages.title").replace("{count}", messages.length.toString()) ||
+                `Pesan Masuk (${messages.length})`}
             </CardTitle>
-            <CardDescription>Pesan dari pengunjung website</CardDescription>
+            <CardDescription>
+              {t("admin.pages.contact.messages.description") || "Pesan dari pengunjung website"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {messages.length > 0 ? (
@@ -327,7 +337,7 @@ export default function ContactPage() {
             ) : (
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Belum ada pesan masuk</p>
+                <p className="text-gray-500">{t("admin.pages.contact.messages.noMessages") || "Belum ada pesan masuk"}</p>
               </div>
             )}
           </CardContent>

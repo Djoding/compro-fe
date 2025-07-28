@@ -1,12 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React, {
-  ComponentPropsWithoutRef,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ComponentPropsWithoutRef, useEffect, useRef, useState } from "react";
 
 interface MousePosition {
   x: number;
@@ -16,7 +11,7 @@ interface MousePosition {
 function MousePosition(): MousePosition {
   const [mousePosition, setMousePosition] = useState<MousePosition>({
     x: 0,
-    y: 0,
+    y: 0
   });
 
   useEffect(() => {
@@ -52,7 +47,7 @@ function hexToRgb(hex: string): number[] {
   if (hex.length === 3) {
     hex = hex
       .split("")
-      .map((char) => char + char)
+      .map(char => char + char)
       .join("");
   }
 
@@ -99,42 +94,54 @@ export const Particles: React.FC<ParticlesProps> = ({
   const rafID = useRef<number | null>(null);
   const resizeTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      context.current = canvasRef.current.getContext("2d");
-    }
-    initCanvas();
-    animate();
-
-    const handleResize = () => {
-      if (resizeTimeout.current) {
-        clearTimeout(resizeTimeout.current);
+  useEffect(
+    () => {
+      if (canvasRef.current) {
+        context.current = canvasRef.current.getContext("2d");
       }
-      resizeTimeout.current = setTimeout(() => {
-        initCanvas();
-      }, 200);
-    };
+      initCanvas();
+      animate();
 
-    window.addEventListener("resize", handleResize);
+      const handleResize = () => {
+        if (resizeTimeout.current) {
+          clearTimeout(resizeTimeout.current);
+        }
+        resizeTimeout.current = setTimeout(() => {
+          initCanvas();
+        }, 200);
+      };
 
-    return () => {
-      if (rafID.current != null) {
-        window.cancelAnimationFrame(rafID.current);
-      }
-      if (resizeTimeout.current) {
-        clearTimeout(resizeTimeout.current);
-      }
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [color]);
+      window.addEventListener("resize", handleResize);
 
-  useEffect(() => {
-    onMouseMove();
-  }, [mousePosition.x, mousePosition.y]);
+      return () => {
+        if (rafID.current != null) {
+          window.cancelAnimationFrame(rafID.current);
+        }
+        if (resizeTimeout.current) {
+          clearTimeout(resizeTimeout.current);
+        }
+        window.removeEventListener("resize", handleResize);
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [color]
+  );
 
-  useEffect(() => {
-    initCanvas();
-  }, [refresh]);
+  useEffect(
+    () => {
+      onMouseMove();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mousePosition.x, mousePosition.y]
+  );
+
+  useEffect(
+    () => {
+      initCanvas();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [refresh]
+  );
 
   const initCanvas = () => {
     resizeCanvas();
@@ -196,7 +203,7 @@ export const Particles: React.FC<ParticlesProps> = ({
       targetAlpha,
       dx,
       dy,
-      magnetism,
+      magnetism
     };
   };
 
@@ -220,12 +227,7 @@ export const Particles: React.FC<ParticlesProps> = ({
 
   const clearContext = () => {
     if (context.current) {
-      context.current.clearRect(
-        0,
-        0,
-        canvasSize.current.w,
-        canvasSize.current.h,
-      );
+      context.current.clearRect(0, 0, canvasSize.current.w, canvasSize.current.h);
     }
   };
 
@@ -238,15 +240,8 @@ export const Particles: React.FC<ParticlesProps> = ({
     }
   };
 
-  const remapValue = (
-    value: number,
-    start1: number,
-    end1: number,
-    start2: number,
-    end2: number,
-  ): number => {
-    const remapped =
-      ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
+  const remapValue = (value: number, start1: number, end1: number, start2: number, end2: number): number => {
+    const remapped = ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
     return remapped > 0 ? remapped : 0;
   };
 
@@ -258,12 +253,10 @@ export const Particles: React.FC<ParticlesProps> = ({
         circle.x + circle.translateX - circle.size, // distance from left edge
         canvasSize.current.w - circle.x - circle.translateX - circle.size, // distance from right edge
         circle.y + circle.translateY - circle.size, // distance from top edge
-        canvasSize.current.h - circle.y - circle.translateY - circle.size, // distance from bottom edge
+        canvasSize.current.h - circle.y - circle.translateY - circle.size // distance from bottom edge
       ];
       const closestEdge = edge.reduce((a, b) => Math.min(a, b));
-      const remapClosestEdge = parseFloat(
-        remapValue(closestEdge, 0, 20, 0, 1).toFixed(2),
-      );
+      const remapClosestEdge = parseFloat(remapValue(closestEdge, 0, 20, 0, 1).toFixed(2));
       if (remapClosestEdge > 1) {
         circle.alpha += 0.02;
         if (circle.alpha > circle.targetAlpha) {
@@ -274,12 +267,8 @@ export const Particles: React.FC<ParticlesProps> = ({
       }
       circle.x += circle.dx + vx;
       circle.y += circle.dy + vy;
-      circle.translateX +=
-        (mouse.current.x / (staticity / circle.magnetism) - circle.translateX) /
-        ease;
-      circle.translateY +=
-        (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) /
-        ease;
+      circle.translateX += (mouse.current.x / (staticity / circle.magnetism) - circle.translateX) / ease;
+      circle.translateY += (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) / ease;
 
       drawCircle(circle, true);
 
@@ -301,12 +290,7 @@ export const Particles: React.FC<ParticlesProps> = ({
   };
 
   return (
-    <div
-      className={cn("pointer-events-none", className)}
-      ref={canvasContainerRef}
-      aria-hidden="true"
-      {...props}
-    >
+    <div className={cn("pointer-events-none", className)} ref={canvasContainerRef} aria-hidden="true" {...props}>
       <canvas ref={canvasRef} className="size-full" />
     </div>
   );

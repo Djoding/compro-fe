@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { platformsAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { Plus, Edit, Trash2, Code } from "lucide-react";
 
@@ -27,6 +28,7 @@ interface PlatformForm {
 }
 
 export default function PlatformsPage() {
+  const { t } = useTranslations();
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -39,7 +41,7 @@ export default function PlatformsPage() {
   });
   const { toast } = useToast();
 
-  const fetchPlatforms = useCallback(async () => {
+  const fetchPlatforms = async () => {
     try {
       setLoading(true);
       const response = await platformsAPI.getAll();
@@ -49,17 +51,18 @@ export default function PlatformsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.platforms.fetchError").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
   useEffect(() => {
     fetchPlatforms();
-  }, [fetchPlatforms]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run on mount
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +87,7 @@ export default function PlatformsPage() {
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: editingPlatform ? "Platform berhasil diperbarui" : "Platform berhasil ditambahkan",
+          description: editingPlatform ? (t("admin.pages.platforms.updateSuccess") || "Platform berhasil diperbarui") : (t("admin.pages.platforms.addSuccess") || "Platform berhasil ditambahkan"),
           variant: "success",
         });
         fetchPlatforms();
@@ -94,7 +97,7 @@ export default function PlatformsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.platforms.error").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive",
       });
     } finally {
@@ -103,14 +106,14 @@ export default function PlatformsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus platform ini?")) return;
+    if (!confirm(t("admin.pages.platforms.deleteConfirm") || "Apakah Anda yakin ingin menghapus platform ini?")) return;
 
     try {
       const response = await platformsAPI.delete(id);
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: "Platform berhasil dihapus",
+          description: t("admin.pages.platforms.deleteSuccess") || "Platform berhasil dihapus",
           variant: "success",
         });
         fetchPlatforms();
@@ -118,7 +121,7 @@ export default function PlatformsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getFriendlyErrorMessage(error),
+        description: t("admin.pages.platforms.error").replace("{error}", getFriendlyErrorMessage(error)),
         variant: "destructive",
       });
     }
@@ -163,52 +166,52 @@ export default function PlatformsPage() {
         <div className="flex items-center gap-3">
           <Code className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Platform</h1>
-            <p className="text-gray-600">Kelola platform dan teknologi yang digunakan</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.platforms.title") || "Platform"}</h1>
+            <p className="text-gray-600">{t("admin.pages.platforms.subtitle") || "Kelola platform dan teknologi yang digunakan"}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Tambah Platform
+              {t("admin.pages.platforms.addButton") || "Tambah Platform"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                {editingPlatform ? "Edit Platform" : "Tambah Platform"}
+                {editingPlatform ? (t("admin.pages.platforms.addDialog.editTitle") || "Edit Platform") : (t("admin.pages.platforms.addDialog.title") || "Tambah Platform")}
               </DialogTitle>
               <DialogDescription>
-                {editingPlatform ? "Perbarui informasi platform" : "Tambahkan platform atau teknologi baru"}
+                {editingPlatform ? (t("admin.pages.platforms.addDialog.editDescription") || "Perbarui informasi platform") : (t("admin.pages.platforms.addDialog.description") || "Tambahkan platform atau teknologi baru")}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nama Platform</Label>
+                <Label htmlFor="name">{t("admin.pages.platforms.form.name") || "Nama Platform"}</Label>
                 <Input
                   id="name"
                   value={form.name}
                   onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g. React, Node.js, AWS"
+                  placeholder={t("admin.pages.platforms.form.namePlaceholder") || "e.g. React, Node.js, AWS"}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Deskripsi</Label>
+                <Label htmlFor="description">{t("admin.pages.platforms.form.description") || "Deskripsi"}</Label>
                 <Textarea
                   id="description"
                   value={form.description}
                   onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Deskripsi penggunaan platform ini..."
+                  placeholder={t("admin.pages.platforms.form.descriptionPlaceholder") || "Deskripsi penggunaan platform ini..."}
                   rows={3}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Logo Platform</Label>
+                <Label htmlFor="image">{t("admin.pages.platforms.form.image") || "Logo Platform"}</Label>
                 <Input
                   id="image"
                   type="file"
@@ -217,16 +220,16 @@ export default function PlatformsPage() {
                   required={!editingPlatform}
                 />
                 <p className="text-xs text-gray-500">
-                  Upload logo atau ikon platform (format: JPG, PNG)
+                  {t("admin.pages.platforms.form.imageHelp") || "Upload logo atau ikon platform (format: JPG, PNG)"}
                 </p>
               </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Batal
+                  {t("admin.pages.platforms.form.cancel") || "Batal"}
                 </Button>
                 <Button type="submit" disabled={submitting}>
-                  {submitting ? "Menyimpan..." : editingPlatform ? "Perbarui" : "Tambah"}
+                  {submitting ? (t("admin.pages.platforms.form.saving") || "Menyimpan...") : editingPlatform ? (t("admin.pages.platforms.form.update") || "Perbarui") : (t("admin.pages.platforms.form.save") || "Tambah")}
                 </Button>
               </DialogFooter>
             </form>
@@ -258,7 +261,7 @@ export default function PlatformsPage() {
                   className="flex-1"
                 >
                   <Edit className="h-3 w-3 mr-1" />
-                  Edit
+                  {t("admin.pages.platforms.edit") || "Edit"}
                 </Button>
                 <Button
                   variant="outline"
@@ -278,13 +281,13 @@ export default function PlatformsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Code className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada platform</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t("admin.pages.platforms.empty.title") || "Belum ada platform"}</h3>
             <p className="text-gray-500 text-center mb-4">
-              Mulai tambahkan platform dan teknologi yang digunakan perusahaan
+              {t("admin.pages.platforms.empty.subtitle") || "Mulai tambahkan platform dan teknologi yang digunakan perusahaan"}
             </p>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Tambah Platform Pertama
+              {t("admin.pages.platforms.empty.addFirst") || "Tambah Platform Pertama"}
             </Button>
           </CardContent>
         </Card>

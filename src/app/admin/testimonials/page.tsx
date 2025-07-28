@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { testimonialsAPI } from '@/lib/api';
 import { Plus, Search, Edit, Trash2, Loader2, Image, X } from 'lucide-react';
+import { useTranslations } from '@/hooks/use-translations';
 
 interface Testimonial {
   id: string;
@@ -22,6 +23,7 @@ interface Testimonial {
 }
 
 export default function TestimonialsPage() {
+  const { t } = useTranslations();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [filteredTestimonials, setFilteredTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,8 +121,8 @@ export default function TestimonialsPage() {
         resetForm();
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
-      alert('Gagal membuat testimonial: ' + errorMessage);
+      const errorMessage = error instanceof Error ? error.message : t("admin.pages.testimonials.errors.genericError") || 'Terjadi kesalahan';
+      alert(t("admin.pages.testimonials.errors.createFailed").replace('{error}', errorMessage) || 'Gagal membuat testimonial: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -161,23 +163,23 @@ export default function TestimonialsPage() {
         setSelectedTestimonial(null);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
-      alert('Gagal mengupdate testimonial: ' + errorMessage);
+      const errorMessage = error instanceof Error ? error.message : t("admin.pages.testimonials.errors.genericError") || 'Terjadi kesalahan';
+      alert(t("admin.pages.testimonials.errors.updateFailed").replace('{error}', errorMessage) || 'Gagal mengupdate testimonial: ' + errorMessage);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string, clientName: string) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus testimonial dari "${clientName}"?`)) {
+    if (window.confirm(t("admin.pages.testimonials.deleteConfirm").replace('{clientName}', clientName) || `Apakah Anda yakin ingin menghapus testimonial dari "${clientName}"?`)) {
       try {
         const response = await testimonialsAPI.delete(id);
         if (response.status === 'success') {
           await fetchTestimonials();
         }
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
-        alert('Gagal menghapus testimonial: ' + errorMessage);
+        const errorMessage = error instanceof Error ? error.message : t("admin.pages.testimonials.errors.genericError") || 'Terjadi kesalahan';
+        alert(t("admin.pages.testimonials.errors.deleteFailed").replace('{error}', errorMessage) || 'Gagal menghapus testimonial: ' + errorMessage);
       }
     }
   };
@@ -205,21 +207,21 @@ export default function TestimonialsPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Manajemen Testimoni</h1>
-          <p className="text-gray-600">Kelola testimoni dari klien</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.testimonials.title") || "Manajemen Testimoni"}</h1>
+          <p className="text-gray-600">{t("admin.pages.testimonials.subtitle") || "Kelola testimoni dari klien"}</p>
         </div>
         
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm}>
               <Plus className="h-4 w-4 mr-2" />
-              Tambah Testimoni
+              {t("admin.pages.testimonials.addTestimonial") || "Tambah Testimoni"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Tambah Testimoni Baru</DialogTitle>
-              <DialogDescription>Tambahkan testimoni dari klien</DialogDescription>
+              <DialogTitle>{t("admin.pages.testimonials.addTestimonial") || "Tambah Testimoni Baru"}</DialogTitle>
+              <DialogDescription>{t("admin.pages.testimonials.addDescription") || "Tambahkan testimoni dari klien"}</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="space-y-2">
@@ -255,7 +257,7 @@ export default function TestimonialsPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Nama Klien *</Label>
+                  <Label>{t("admin.pages.testimonials.form.clientName") || "Nama Klien"} *</Label>
                   <Input
                     value={formData.clientName}
                     onChange={(e) => setFormData({...formData, clientName: e.target.value})}
@@ -263,7 +265,7 @@ export default function TestimonialsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Perusahaan *</Label>
+                  <Label>{t("admin.pages.testimonials.form.company") || "Perusahaan"} *</Label>
                   <Input
                     value={formData.company}
                     onChange={(e) => setFormData({...formData, company: e.target.value})}
@@ -273,33 +275,33 @@ export default function TestimonialsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label>Posisi *</Label>
+                <Label>{t("admin.pages.testimonials.form.position") || "Posisi"} *</Label>
                 <Input
                   value={formData.position}
                   onChange={(e) => setFormData({...formData, position: e.target.value})}
-                  placeholder="CEO, CTO, Marketing Manager, etc."
+                  placeholder={t("admin.pages.testimonials.form.positionPlaceholder") || "CEO, CTO, Marketing Manager, etc."}
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label>Testimoni *</Label>
+                <Label>{t("admin.pages.testimonials.form.testimonial") || "Testimoni"} *</Label>
                 <Textarea
                   value={formData.testimonial}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial: e.target.value})}
                   rows={5}
-                  placeholder="Tulis testimoni dari klien..."
+                  placeholder={t("admin.pages.testimonials.form.testimonialPlaceholder") || "Tulis testimoni dari klien..."}
                   required
                 />
               </div>
               
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                  Batal
+                  {t("admin.common.cancel") || "Batal"}
                 </Button>
                 <Button type="submit" disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                  Simpan
+                  {t("admin.common.save") || "Simpan"}
                 </Button>
               </DialogFooter>
             </form>
@@ -320,7 +322,7 @@ export default function TestimonialsPage() {
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
-                  placeholder="Cari testimoni..."
+                  placeholder={t("admin.pages.testimonials.list.search") || "Cari testimoni..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-64"
@@ -334,13 +336,13 @@ export default function TestimonialsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Foto</TableHead>
-                  <TableHead>Klien</TableHead>
-                  <TableHead>Perusahaan</TableHead>
-                  <TableHead>Posisi</TableHead>
-                  <TableHead>Testimoni</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
+                  <TableHead>{t("admin.pages.testimonials.list.photo") || "Foto"}</TableHead>
+                  <TableHead>{t("admin.pages.testimonials.list.client") || "Klien"}</TableHead>
+                  <TableHead>{t("admin.pages.testimonials.list.company") || "Perusahaan"}</TableHead>
+                  <TableHead>{t("admin.pages.testimonials.list.position") || "Posisi"}</TableHead>
+                  <TableHead>{t("admin.pages.testimonials.list.testimonial") || "Testimoni"}</TableHead>
+                  <TableHead>{t("admin.pages.testimonials.list.date") || "Tanggal"}</TableHead>
+                  <TableHead className="text-right">{t("admin.pages.testimonials.list.actions") || "Aksi"}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

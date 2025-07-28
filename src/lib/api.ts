@@ -2,7 +2,7 @@ import { getCurrentLocale } from "./i18n";
 
 // API configuration and utility functions
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
 // Auth token management
 export const getAuthToken = () => {

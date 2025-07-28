@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { journeyAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { Plus, Edit, Trash2, MapPin, Calendar } from "lucide-react";
 
@@ -36,6 +37,7 @@ interface JourneyForm {
 }
 
 export default function JourneyPage() {
+  const { t } = useTranslations();
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -97,7 +99,9 @@ export default function JourneyPage() {
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: editingJourney ? "Perjalanan berhasil diperbarui" : "Perjalanan berhasil ditambahkan",
+          description: editingJourney
+            ? t("admin.pages.journey.updateSuccess") || "Perjalanan berhasil diperbarui"
+            : t("admin.pages.journey.addSuccess") || "Perjalanan berhasil ditambahkan",
           variant: "success"
         });
         fetchJourneys();
@@ -177,33 +181,39 @@ export default function JourneyPage() {
         <div className="flex items-center gap-3">
           <MapPin className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Perjalanan Perusahaan</h1>
-            <p className="text-gray-600">Kelola milestone dan pencapaian perusahaan</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.journey.title") || "Perjalanan Perusahaan"}</h1>
+            <p className="text-gray-600">{t("admin.pages.journey.subtitle") || "Kelola milestone dan pencapaian perusahaan"}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Tambah Milestone
+              {t("admin.pages.journey.addButton") || "Tambah Milestone"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>{editingJourney ? "Edit Milestone" : "Tambah Milestone"}</DialogTitle>
+              <DialogTitle>
+                {editingJourney
+                  ? t("admin.pages.journey.addDialog.editTitle") || "Edit Milestone"
+                  : t("admin.pages.journey.addDialog.title") || "Tambah Milestone"}
+              </DialogTitle>
               <DialogDescription>
-                {editingJourney ? "Perbarui milestone perusahaan" : "Tambahkan milestone baru dalam perjalanan perusahaan"}
+                {editingJourney
+                  ? t("admin.pages.journey.addDialog.editDescription") || "Perbarui milestone perusahaan"
+                  : t("admin.pages.journey.addDialog.description") || "Tambahkan milestone baru dalam perjalanan perusahaan"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="year">Tahun</Label>
+                <Label htmlFor="year">{t("admin.pages.journey.form.year") || "Tahun"}</Label>
                 <Input
                   id="year"
                   type="number"
                   value={form.year}
                   onChange={e => setForm(prev => ({ ...prev, year: e.target.value }))}
-                  placeholder="2024"
+                  placeholder={t("admin.pages.journey.form.yearPlaceholder") || "2024"}
                   min="1900"
                   max="2100"
                   required
@@ -211,23 +221,27 @@ export default function JourneyPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title">Judul Milestone</Label>
+                <Label htmlFor="title">{t("admin.pages.journey.form.title") || "Judul Milestone"}</Label>
                 <Input
                   id="title"
                   value={form.title}
                   onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g. Pendirian Perusahaan, Ekspansi Internasional"
+                  placeholder={
+                    t("admin.pages.journey.form.titlePlaceholder") || "e.g. Pendirian Perusahaan, Ekspansi Internasional"
+                  }
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Deskripsi</Label>
+                <Label htmlFor="description">{t("admin.pages.journey.form.description") || "Deskripsi"}</Label>
                 <Textarea
                   id="description"
                   value={form.description}
                   onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Deskripsi lengkap tentang pencapaian ini..."
+                  placeholder={
+                    t("admin.pages.journey.form.descriptionPlaceholder") || "Deskripsi lengkap tentang pencapaian ini..."
+                  }
                   rows={4}
                   required
                 />
@@ -235,10 +249,14 @@ export default function JourneyPage() {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Batal
+                  {t("admin.pages.journey.form.cancel") || "Batal"}
                 </Button>
                 <Button type="submit" disabled={submitting}>
-                  {submitting ? "Menyimpan..." : editingJourney ? "Perbarui" : "Tambah"}
+                  {submitting
+                    ? t("admin.pages.journey.form.saving") || "Menyimpan..."
+                    : editingJourney
+                    ? t("admin.pages.journey.form.update") || "Perbarui"
+                    : t("admin.pages.journey.form.save") || "Tambah"}
                 </Button>
               </DialogFooter>
             </form>
