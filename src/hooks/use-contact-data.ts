@@ -32,8 +32,8 @@ export function useContactData() {
       const response = await contactAPI.getInfo();
       setContactInfo(response.data || null);
     } catch (err) {
-      console.error('Error fetching contact data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch contact data');
+      console.error("Error fetching contact data:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch contact data");
       setContactInfo(null);
     } finally {
       setLoading(false);

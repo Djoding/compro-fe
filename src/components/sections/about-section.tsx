@@ -141,6 +141,9 @@ export default function AboutSection() {
     ? (locale === "id" ? companyProfile.name_id : companyProfile.name_en) || "PT. Teknalogi Transformasi Digital"
     : "PT. Teknalogi Transformasi Digital";
 
+  // Ensure companyName is always a string to prevent split errors
+  const safeCompanyName = companyName || "PT. Teknalogi Transformasi Digital";
+
   const companyDescription = companyProfile
     ? (locale === "id" ? companyProfile.description_id : companyProfile.description_en) ||
       "PT. Teknalogi Transformasi Digital is dedicated to helping businesses thrive in the digital age. We provide comprehensive technology solutions that enhance efficiency, drive innovation, and unlock new growth opportunities."
@@ -171,7 +174,7 @@ export default function AboutSection() {
         <div className="text-center mb-16">
           <BlurFade delay={0.2} inView>
             <span className="inline-block px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-4">
-              About {companyName.split(" ")[1] || "Teknalogi"}
+              About {safeCompanyName.split(" ")[1] || "Teknalogi"}
             </span>
           </BlurFade>
 

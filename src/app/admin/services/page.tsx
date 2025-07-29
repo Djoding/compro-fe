@@ -90,7 +90,7 @@ export default function ServicesPage() {
     setSubmitting(true);
 
     try {
-      const technologies = form.technologies
+      const technologies = (form.technologies || "")
         .split(",")
         .map(tech => tech.trim())
         .filter(tech => tech !== "");

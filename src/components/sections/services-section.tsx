@@ -6,6 +6,7 @@ import { MagicCard } from "@/components/magicui/magic-card";
 import { Button } from "@/components/ui/button";
 import { servicesAPI, platformsAPI } from "@/lib/api";
 import { useLanguage } from "@/contexts/language-context";
+import { getImageUrl } from "@/lib/utils";
 import { ArrowRight, CheckCircle, Cloud, Database, Globe, Settings, Shield, Smartphone, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -76,12 +77,12 @@ const fallbackServices = [
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Globe,
-  Smartphone,
-  Cloud,
-  Database,
-  Shield,
-  Settings
+  Globe: Globe,
+  Smartphone: Smartphone,
+  Cloud: Cloud,
+  Database: Database,
+  Shield: Shield,
+  Settings: Settings
 };
 
 // Color mapping for services
@@ -179,24 +180,31 @@ export default function ServicesSection() {
                 : service.description_en
               : service.description;
 
+            // Generate unique key
+            const serviceKey = isApiService ? `api-service-${service.id}` : `fallback-service-${index}-${title}`;
+
             // Get icon (fallback to Globe if not found)
-            const IconComponent = isApiService
-              ? service.icon && iconMap[service.icon]
-                ? iconMap[service.icon]
-                : Globe
-              : service.icon;
+            const IconComponent = isApiService ? (service.icon && iconMap[service.icon]) || Globe : service.icon || Globe;
+
+            // Debug logging for development
+            if (process.env.NODE_ENV === "development" && isApiService) {
+              console.log("Service icon:", service.icon, "IconComponent:", IconComponent);
+            }
+
+            // Safety check - ensure IconComponent is always a valid React component
+            const SafeIconComponent = typeof IconComponent === "function" ? IconComponent : Globe;
 
             // Get color class
             const colorClass = isApiService ? service.color || colorClasses[index % colorClasses.length] : service.color;
 
             return (
-              <BlurFade key={isApiService ? service.id : title} delay={0.8 + index * 0.1} inView>
+              <BlurFade key={serviceKey} delay={0.8 + index * 0.1} inView>
                 <MagicCard className="group h-full">
                   <div className="p-6 h-full flex flex-col">
                     <div
                       className={`w-12 h-12 bg-gradient-to-r ${colorClass} rounded-lg flex items-center justify-center mb-4`}
                     >
-                      <IconComponent className="w-6 h-6 text-white" />
+                      <SafeIconComponent className="w-6 h-6 text-white" />
                     </div>
 
                     <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
@@ -208,7 +216,10 @@ export default function ServicesSection() {
                     {service.features && (
                       <ul className="space-y-2 mb-6">
                         {service.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
+                          <li
+                            key={`${isApiService ? service.id : title}-feature-${featureIndex}`}
+                            className="flex items-center text-sm text-muted-foreground"
+                          >
                             <CheckCircle className="w-4 h-4 text-primary mr-2 flex-shrink-0" />
                             {feature}
                           </li>
@@ -243,14 +254,17 @@ export default function ServicesSection() {
                   className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-4"
                 >
                   {platforms.slice(0, 8).map(platform => (
-                    <DockIcon key={platform.id} className="bg-white/10 hover:bg-white/20 transition-colors duration-300">
+                    <DockIcon
+                      key={`platform-${platform.id}`}
+                      className="bg-white/10 hover:bg-white/20 transition-colors duration-300"
+                    >
                       <div className="flex flex-col items-center justify-center w-full h-full">
                         <img
-                          src={platform.logoUrl}
+                          src={getImageUrl(platform.logoUrl)}
                           alt={locale === "id" ? platform.name_id : platform.name_en}
                           className="w-8 h-8 object-contain"
                           onError={e => {
-                            e.currentTarget.style.display = "none";
+                            e.currentTarget.src = "/placeholder.png";
                           }}
                         />
                       </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Linkedin, Twitter } from "lucide-react";
 import { useTranslations } from "@/hooks/use-translations";
 import { useTeamData } from "@/hooks/use-team-data";
+import { getImageUrl } from "@/lib/utils";
 
 // Fallback team data
 const fallbackLeadership = [
@@ -19,6 +20,7 @@ const fallbackLeadership = [
       "Visionary leader with 15+ years in digital transformation. Previously led technology initiatives at major Indonesian corporations.",
     expertise: ["Digital Strategy", "Business Development", "Leadership"],
     avatar: "BS",
+    image: undefined as string | undefined,
     social: {
       linkedin: "#",
       email: "budi@teknalogi.id"
@@ -32,6 +34,7 @@ const fallbackLeadership = [
       "Technology expert specializing in cloud architecture and modern web solutions. Former senior architect at international tech companies.",
     expertise: ["Cloud Architecture", "System Design", "DevOps"],
     avatar: "SW",
+    image: undefined as string | undefined,
     social: {
       linkedin: "#",
       twitter: "#",
@@ -45,6 +48,7 @@ const fallbackLeadership = [
     bio: "Full-stack developer and team lead with expertise in modern JavaScript frameworks and scalable backend systems.",
     expertise: ["Full-Stack Development", "Team Leadership", "Architecture"],
     avatar: "AR",
+    image: undefined as string | undefined,
     social: {
       linkedin: "#",
       email: "ahmad@teknalogi.id"
@@ -58,6 +62,7 @@ const fallbackLeadership = [
       "Creative director focused on user-centered design and brand identity. Expert in creating compelling digital experiences.",
     expertise: ["UI/UX Design", "Brand Identity", "User Research"],
     avatar: "DK",
+    image: undefined as string | undefined,
     social: {
       linkedin: "#",
       email: "diana@teknalogi.id"
@@ -71,6 +76,7 @@ const fallbackLeadership = [
       "Operations specialist ensuring smooth project delivery and client satisfaction. Expert in agile methodologies and process optimization.",
     expertise: ["Project Management", "Agile", "Process Optimization"],
     avatar: "MC",
+    image: undefined as string | undefined,
     social: {
       linkedin: "#",
       email: "michael@teknalogi.id"
@@ -84,6 +90,7 @@ const fallbackLeadership = [
       "Strategic business developer building partnerships and driving growth. Specialized in client relations and market expansion.",
     expertise: ["Business Strategy", "Partnership", "Market Analysis"],
     avatar: "RS",
+    image: undefined as string | undefined,
     social: {
       linkedin: "#",
       email: "rina@teknalogi.id"
@@ -196,8 +203,26 @@ export default function TeamPage() {
                 <MagicCard className="group h-full">
                   <div className="p-6 text-center">
                     {/* Avatar */}
-                    <div className="w-24 h-24 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl font-bold text-white">{member.avatar}</span>
+                    <div className="w-24 h-24 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                      {member.image ? (
+                        <img
+                          src={getImageUrl(member.image)}
+                          alt={member.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            const fallback = target.parentElement?.querySelector('.fallback-avatar') as HTMLElement;
+                            target.style.display = 'none';
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <span 
+                        className="fallback-avatar text-2xl font-bold text-white"
+                        style={{ display: member.image ? 'none' : 'flex' }}
+                      >
+                        {member.avatar}
+                      </span>
                     </div>
 
                     {/* Basic Info */}

@@ -97,8 +97,8 @@ const TestimonialCard = ({
   const isApiTestimonial = 'name_id' in testimonial;
   
   const name = isApiTestimonial 
-    ? (locale === "id" ? testimonial.name_id : testimonial.name_en)
-    : testimonial.name;
+    ? (locale === "id" ? testimonial.name_id : testimonial.name_en) || "Anonymous"
+    : testimonial.name || "Anonymous";
   
   const position = isApiTestimonial 
     ? (locale === "id" ? testimonial.position_id : testimonial.position_en)

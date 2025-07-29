@@ -132,8 +132,8 @@ export default function ProjectsPage() {
       formDataObj.append('shortDescription_en', formData.shortDescription_en);
       formDataObj.append('elaboration_id', formData.elaboration_id);
       formDataObj.append('elaboration_en', formData.elaboration_en);
-      formDataObj.append('languages', JSON.stringify(formData.languages.split(',').map(lang => lang.trim())));
-      formDataObj.append('features', JSON.stringify(formData.features.split(',').map(feat => feat.trim())));
+      formDataObj.append('languages', JSON.stringify((formData.languages || "").split(',').map(lang => lang.trim())));
+      formDataObj.append('features', JSON.stringify((formData.features || "").split(',').map(feat => feat.trim())));
       
       // Only append image if file is selected
       if (selectedFile) {
@@ -184,8 +184,8 @@ export default function ProjectsPage() {
       formDataObj.append('shortDescription_en', formData.shortDescription_en);
       formDataObj.append('elaboration_id', formData.elaboration_id);
       formDataObj.append('elaboration_en', formData.elaboration_en);
-      formDataObj.append('languages', JSON.stringify(formData.languages.split(',').map(lang => lang.trim())));
-      formDataObj.append('features', JSON.stringify(formData.features.split(',').map(feat => feat.trim())));
+      formDataObj.append('languages', JSON.stringify((formData.languages || "").split(',').map(lang => lang.trim())));
+      formDataObj.append('features', JSON.stringify((formData.features || "").split(',').map(feat => feat.trim())));
       
       if (selectedFile) {
         formDataObj.append('image', selectedFile);
