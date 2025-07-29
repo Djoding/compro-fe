@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { testimonialsAPI } from '@/lib/api';
+import { getImageUrl } from '@/lib/utils';
 import { Plus, Search, Edit, Trash2, Loader2, Image, X } from 'lucide-react';
 import { useTranslations } from '@/hooks/use-translations';
 
@@ -16,14 +17,16 @@ interface Testimonial {
   id: string;
   clientName: string;
   company: string;
-  position: string;
-  testimonial: string;
+  position_id: string;
+  position_en: string;
+  testimonial_id: string;
+  testimonial_en: string;
   imageUrl: string | null;
   createdAt: string;
 }
 
 export default function TestimonialsPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [filteredTestimonials, setFilteredTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,8 +37,10 @@ export default function TestimonialsPage() {
   const [formData, setFormData] = useState({
     clientName: '',
     company: '',
-    position: '',
-    testimonial: '',
+    position_id: '',
+    position_en: '',
+    testimonial_id: '',
+    testimonial_en: '',
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -49,7 +54,10 @@ export default function TestimonialsPage() {
     const filtered = testimonials.filter(testimonial =>
       testimonial.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       testimonial.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      testimonial.position.toLowerCase().includes(searchTerm.toLowerCase())
+      testimonial.position_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      testimonial.position_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      testimonial.testimonial_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      testimonial.testimonial_en.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredTestimonials(filtered);
   }, [testimonials, searchTerm]);
@@ -89,8 +97,10 @@ export default function TestimonialsPage() {
     setFormData({
       clientName: '',
       company: '',
-      position: '',
-      testimonial: '',
+      position_id: '',
+      position_en: '',
+      testimonial_id: '',
+      testimonial_en: '',
     });
     setSelectedFile(null);
     if (previewUrl) {
@@ -107,8 +117,10 @@ export default function TestimonialsPage() {
       const formDataObj = new FormData();
       formDataObj.append('clientName', formData.clientName);
       formDataObj.append('company', formData.company);
-      formDataObj.append('position', formData.position);
-      formDataObj.append('testimonial', formData.testimonial);
+      formDataObj.append('position_id', formData.position_id);
+      formDataObj.append('position_en', formData.position_en);
+      formDataObj.append('testimonial_id', formData.testimonial_id);
+      formDataObj.append('testimonial_en', formData.testimonial_en);
       
       if (selectedFile) {
         formDataObj.append('image', selectedFile);
@@ -133,8 +145,10 @@ export default function TestimonialsPage() {
     setFormData({
       clientName: testimonial.clientName,
       company: testimonial.company,
-      position: testimonial.position,
-      testimonial: testimonial.testimonial,
+      position_id: testimonial.position_id,
+      position_en: testimonial.position_en,
+      testimonial_id: testimonial.testimonial_id,
+      testimonial_en: testimonial.testimonial_en,
     });
     setIsEditOpen(true);
   };
@@ -148,8 +162,10 @@ export default function TestimonialsPage() {
       const formDataObj = new FormData();
       formDataObj.append('clientName', formData.clientName);
       formDataObj.append('company', formData.company);
-      formDataObj.append('position', formData.position);
-      formDataObj.append('testimonial', formData.testimonial);
+      formDataObj.append('position_id', formData.position_id);
+      formDataObj.append('position_en', formData.position_en);
+      formDataObj.append('testimonial_id', formData.testimonial_id);
+      formDataObj.append('testimonial_en', formData.testimonial_en);
       
       if (selectedFile) {
         formDataObj.append('image', selectedFile);
@@ -224,8 +240,79 @@ export default function TestimonialsPage() {
               <DialogDescription>{t("admin.pages.testimonials.addDescription") || "Tambahkan testimoni dari klien"}</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t("admin.pages.testimonials.form.clientName") || "Nama Klien"} *</Label>
+                  <Input
+                    value={formData.clientName}
+                    onChange={(e) => setFormData({...formData, clientName: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("admin.pages.testimonials.form.company") || "Perusahaan"} *</Label>
+                  <Input
+                    value={formData.company}
+                    onChange={(e) => setFormData({...formData, company: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+              
+              {/* Position Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Posisi / Position</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Posisi (ID) *</Label>
+                    <Input
+                      value={formData.position_id}
+                      onChange={(e) => setFormData({...formData, position_id: e.target.value})}
+                      placeholder="CEO, Direktur Utama"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Position (EN) *</Label>
+                    <Input
+                      value={formData.position_en}
+                      onChange={(e) => setFormData({...formData, position_en: e.target.value})}
+                      placeholder="CEO, Chief Executive Officer"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Testimonial Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Testimoni / Testimonial</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Testimoni (ID) *</Label>
+                    <Textarea
+                      value={formData.testimonial_id}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial_id: e.target.value})}
+                      rows={3}
+                      placeholder="Tulis testimoni dari klien dalam Bahasa Indonesia..."
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Testimonial (EN) *</Label>
+                    <Textarea
+                      value={formData.testimonial_en}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial_en: e.target.value})}
+                      rows={3}
+                      placeholder="Write client testimonial in English..."
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label>Foto Klien (Optional)</Label>
+                <Label>Foto Klien (Opsional)</Label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                   {previewUrl ? (
                     <div className="relative">
@@ -253,46 +340,6 @@ export default function TestimonialsPage() {
                     </div>
                   )}
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("admin.pages.testimonials.form.clientName") || "Nama Klien"} *</Label>
-                  <Input
-                    value={formData.clientName}
-                    onChange={(e) => setFormData({...formData, clientName: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("admin.pages.testimonials.form.company") || "Perusahaan"} *</Label>
-                  <Input
-                    value={formData.company}
-                    onChange={(e) => setFormData({...formData, company: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>{t("admin.pages.testimonials.form.position") || "Posisi"} *</Label>
-                <Input
-                  value={formData.position}
-                  onChange={(e) => setFormData({...formData, position: e.target.value})}
-                  placeholder={t("admin.pages.testimonials.form.positionPlaceholder") || "CEO, CTO, Marketing Manager, etc."}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>{t("admin.pages.testimonials.form.testimonial") || "Testimoni"} *</Label>
-                <Textarea
-                  value={formData.testimonial}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial: e.target.value})}
-                  rows={5}
-                  placeholder={t("admin.pages.testimonials.form.testimonialPlaceholder") || "Tulis testimoni dari klien..."}
-                  required
-                />
               </div>
               
               <DialogFooter>
@@ -351,9 +398,12 @@ export default function TestimonialsPage() {
                     <TableCell>
                       {testimonial.imageUrl ? (
                         <img 
-                          src={testimonial.imageUrl} 
+                          src={getImageUrl(testimonial.imageUrl)} 
                           alt={testimonial.clientName}
                           className="w-12 h-12 object-cover rounded-full"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.png";
+                          }}
                         />
                       ) : (
                         <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
@@ -365,11 +415,11 @@ export default function TestimonialsPage() {
                     </TableCell>
                     <TableCell className="font-medium">{testimonial.clientName}</TableCell>
                     <TableCell>{testimonial.company}</TableCell>
-                    <TableCell>{testimonial.position}</TableCell>
+                    <TableCell>{locale === 'en' ? testimonial.position_en : testimonial.position_id}</TableCell>
                     <TableCell>
                       <div className="max-w-xs">
                         <p className="text-sm text-gray-600 line-clamp-2">
-                          "{testimonial.testimonial}"
+                          "{locale === 'en' ? testimonial.testimonial_en : testimonial.testimonial_id}"
                         </p>
                       </div>
                     </TableCell>
@@ -409,8 +459,79 @@ export default function TestimonialsPage() {
             <DialogDescription>Ubah informasi testimoni</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nama Klien *</Label>
+                <Input
+                  value={formData.clientName}
+                  onChange={(e) => setFormData({...formData, clientName: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Perusahaan *</Label>
+                <Input
+                  value={formData.company}
+                  onChange={(e) => setFormData({...formData, company: e.target.value})}
+                  required
+                />
+              </div>
+            </div>
+            
+            {/* Position Fields - Bilingual */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Posisi / Position</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Posisi (ID) *</Label>
+                  <Input
+                    value={formData.position_id}
+                    onChange={(e) => setFormData({...formData, position_id: e.target.value})}
+                    placeholder="CEO, Direktur Utama"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Position (EN) *</Label>
+                  <Input
+                    value={formData.position_en}
+                    onChange={(e) => setFormData({...formData, position_en: e.target.value})}
+                    placeholder="CEO, Chief Executive Officer"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial Fields - Bilingual */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Testimoni / Testimonial</h4>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Testimoni (ID) *</Label>
+                  <Textarea
+                    value={formData.testimonial_id}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial_id: e.target.value})}
+                    rows={3}
+                    placeholder="Tulis testimoni dari klien dalam Bahasa Indonesia..."
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Testimonial (EN) *</Label>
+                  <Textarea
+                    value={formData.testimonial_en}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial_en: e.target.value})}
+                    rows={3}
+                    placeholder="Write client testimonial in English..."
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label>Foto Klien</Label>
+              <Label>Foto Klien (Opsional)</Label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                 {previewUrl ? (
                   <div className="relative">
@@ -427,7 +548,14 @@ export default function TestimonialsPage() {
                   </div>
                 ) : selectedTestimonial?.imageUrl ? (
                   <div className="relative">
-                    <img src={selectedTestimonial.imageUrl} alt="Current" className="w-32 h-32 object-cover rounded-full mx-auto" />
+                    <img 
+                      src={getImageUrl(selectedTestimonial.imageUrl)} 
+                      alt="Current" 
+                      className="w-32 h-32 object-cover rounded-full mx-auto"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.png";
+                      }}
+                    />
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-lg">
                       <input
                         type="file"
@@ -451,44 +579,6 @@ export default function TestimonialsPage() {
                   </div>
                 )}
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nama Klien *</Label>
-                <Input
-                  value={formData.clientName}
-                  onChange={(e) => setFormData({...formData, clientName: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Perusahaan *</Label>
-                <Input
-                  value={formData.company}
-                  onChange={(e) => setFormData({...formData, company: e.target.value})}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Posisi *</Label>
-              <Input
-                value={formData.position}
-                onChange={(e) => setFormData({...formData, position: e.target.value})}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Testimoni *</Label>
-              <Textarea
-                value={formData.testimonial}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, testimonial: e.target.value})}
-                rows={5}
-                required
-              />
             </div>
             
             <DialogFooter>

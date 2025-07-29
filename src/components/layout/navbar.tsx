@@ -33,7 +33,6 @@ export default function Navbar() {
     },
     { name: t("nav.solutions"), href: "/solutions" },
     { name: t("nav.expertise"), href: "/expertise" },
-    { name: t("nav.news"), href: "/news" },
     { name: t("nav.contact"), href: "/contact" },
   ];
 

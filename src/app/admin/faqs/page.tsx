@@ -22,27 +22,33 @@ import { Plus, Edit, Trash2, HelpCircle } from "lucide-react";
 
 interface FAQ {
   id: string;
-  question: string;
-  answer: string;
+  question_id: string;
+  question_en: string;
+  answer_id: string;
+  answer_en: string;
   createdAt: string;
   updatedAt: string;
 }
 
 interface FAQForm {
-  question: string;
-  answer: string;
+  question_id: string;
+  question_en: string;
+  answer_id: string;
+  answer_en: string;
 }
 
 export default function FAQPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FAQForm>({
-    question: "",
-    answer: ""
+    question_id: "",
+    question_en: "",
+    answer_id: "",
+    answer_en: ""
   });
   const { toast } = useToast();
 
@@ -79,11 +85,18 @@ export default function FAQPage() {
     setSubmitting(true);
 
     try {
+      const data = {
+        question_id: form.question_id,
+        question_en: form.question_en,
+        answer_id: form.answer_id,
+        answer_en: form.answer_en
+      };
+
       let response;
       if (editingFaq) {
-        response = await faqAPI.update(editingFaq.id, { ...form });
+        response = await faqAPI.update(editingFaq.id, data);
       } else {
-        response = await faqAPI.create({ ...form });
+        response = await faqAPI.create(data);
       }
 
       if (response.status === "success") {
@@ -131,8 +144,10 @@ export default function FAQPage() {
 
   const resetForm = () => {
     setForm({
-      question: "",
-      answer: ""
+      question_id: "",
+      question_en: "",
+      answer_id: "",
+      answer_en: ""
     });
     setEditingFaq(null);
   };
@@ -140,8 +155,10 @@ export default function FAQPage() {
   const openEditDialog = (faq: FAQ) => {
     setEditingFaq(faq);
     setForm({
-      question: faq.question,
-      answer: faq.answer
+      question_id: faq.question_id,
+      question_en: faq.question_en,
+      answer_id: faq.answer_id,
+      answer_en: faq.answer_en
     });
     setDialogOpen(true);
   };
@@ -178,7 +195,7 @@ export default function FAQPage() {
               {t("admin.pages.faqs.addFaq") || "Tambah FAQ"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingFaq ? "Edit FAQ" : "Tambah FAQ"}</DialogTitle>
               <DialogDescription>
@@ -186,28 +203,58 @@ export default function FAQPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="question">Pertanyaan</Label>
-                <Textarea
-                  id="question"
-                  value={form.question}
-                  onChange={e => setForm(prev => ({ ...prev, question: e.target.value }))}
-                  placeholder="Masukkan pertanyaan yang sering diajukan..."
-                  rows={2}
-                  required
-                />
+              {/* Question Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Pertanyaan / Question</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Pertanyaan (ID) *</Label>
+                    <Textarea
+                      value={form.question_id}
+                      onChange={e => setForm(prev => ({ ...prev, question_id: e.target.value }))}
+                      placeholder="Masukkan pertanyaan yang sering diajukan..."
+                      rows={2}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Question (EN) *</Label>
+                    <Textarea
+                      value={form.question_en}
+                      onChange={e => setForm(prev => ({ ...prev, question_en: e.target.value }))}
+                      placeholder="Enter frequently asked question..."
+                      rows={2}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="answer">Jawaban</Label>
-                <Textarea
-                  id="answer"
-                  value={form.answer}
-                  onChange={e => setForm(prev => ({ ...prev, answer: e.target.value }))}
-                  placeholder="Masukkan jawaban lengkap untuk pertanyaan..."
-                  rows={4}
-                  required
-                />
+              {/* Answer Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Jawaban / Answer</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Jawaban (ID) *</Label>
+                    <Textarea
+                      value={form.answer_id}
+                      onChange={e => setForm(prev => ({ ...prev, answer_id: e.target.value }))}
+                      placeholder="Masukkan jawaban lengkap untuk pertanyaan..."
+                      rows={3}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Answer (EN) *</Label>
+                    <Textarea
+                      value={form.answer_en}
+                      onChange={e => setForm(prev => ({ ...prev, answer_en: e.target.value }))}
+                      placeholder="Enter complete answer for the question..."
+                      rows={3}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               <DialogFooter>
@@ -229,10 +276,10 @@ export default function FAQPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-2 flex-1">
-                  <CardTitle className="text-lg">
-                    {index + 1}. {faq.question}
+                  <CardTitle className="text-lg text-blue-600">
+                    {index + 1}. {locale === "en" ? faq.question_en : faq.question_id}
                   </CardTitle>
-                  <CardDescription>{faq.answer}</CardDescription>
+                  <CardDescription>{locale === "en" ? faq.answer_en : faq.answer_id}</CardDescription>
                 </div>
                 <div className="flex gap-2 ml-4">
                   <Button variant="outline" size="sm" onClick={() => openEditDialog(faq)}>

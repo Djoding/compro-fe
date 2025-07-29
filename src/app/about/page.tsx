@@ -1,12 +1,17 @@
 // src/app/about/page.tsx
+'use client';
+
 import AboutSection from "@/components/sections/about-section";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { VelocityScroll } from "@/components/magicui/scroll-based-velocity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Eye, Target, Heart, Zap } from "lucide-react";
+import { useTranslations } from "@/hooks/use-translations";
+import { useAboutData } from "@/hooks/use-about-data";
 
-const visionMission = [
+// Fallback vision/mission data
+const fallbackVisionMission = [
   {
     icon: Eye,
     title: "Vision",
@@ -23,7 +28,8 @@ const visionMission = [
   },
 ];
 
-const coreValues = [
+// Fallback core values data
+const fallbackCoreValues = [
   {
     icon: Heart,
     title: "Passion for Excellence",
@@ -49,12 +55,98 @@ const coreValues = [
     icon: Eye,
     title: "Transparency & Trust",
     description:
-      "We build lasting relationships through honest communication and reliable delivery.",
-    color: "from-indigo-500 to-purple-500",
+      "We believe in open communication and honest relationships built on trust and mutual respect.",
+    color: "from-blue-500 to-purple-500",
   },
 ];
 
+// Fallback timeline data
+const fallbackTimeline = [
+  {
+    year: "2019",
+    title: "Company Founded",
+    description: "PT Teknalogi was established with a vision to transform businesses through technology.",
+    milestone: "Started with 3 founding members"
+  },
+  {
+    year: "2020", 
+    title: "First Major Client",
+    description: "Successfully delivered our first enterprise-level digital transformation project.",
+    milestone: "Team expanded to 8 professionals"
+  },
+  {
+    year: "2021",
+    title: "Service Expansion", 
+    description: "Expanded our services to include cloud solutions, mobile development, and cybersecurity.",
+    milestone: "Served 25+ clients across Indonesia"
+  },
+  {
+    year: "2022",
+    title: "Technology Partnerships",
+    description: "Formed strategic partnerships with major technology providers and cloud platforms.",
+    milestone: "Achieved AWS Partner status"
+  },
+  {
+    year: "2023",
+    title: "Innovation Focus",
+    description: "Launched our AI and machine learning practice to help clients leverage advanced analytics.",
+    milestone: "Delivered 50+ successful projects"
+  },
+  {
+    year: "2024",
+    title: "Continued Growth",
+    description: "Expanding our team and capabilities to serve more clients with comprehensive digital solutions.",
+    milestone: "15+ expert developers and consultants"
+  }
+];
+
 export default function AboutPage() {
+  const { locale } = useTranslations();
+  const { companyProfile, journey, loading } = useAboutData();
+
+  // Get vision/mission from company profile with fallback
+  const visionMission = [
+    {
+      icon: Eye,
+      title: "Vision",
+      content: companyProfile?.vision_id && companyProfile?.vision_en
+        ? (locale === 'id' ? companyProfile.vision_id : companyProfile.vision_en)
+        : fallbackVisionMission[0].content,
+      color: "from-blue-500 to-cyan-500",
+    },
+    {
+      icon: Target,
+      title: "Mission",
+      content: companyProfile?.mission_id && companyProfile?.mission_en
+        ? (locale === 'id' ? companyProfile.mission_id : companyProfile.mission_en)
+        : fallbackVisionMission[1].content,
+      color: "from-purple-500 to-pink-500",
+    },
+  ];
+
+  // Use core values from fallback for now (no API endpoint for values yet)
+  const coreValues = fallbackCoreValues;
+
+  // Get timeline from journey data with fallback
+  const timeline = journey && journey.length > 0 
+    ? journey.map((item) => ({
+        year: item.year?.toString() || "2024",
+        title: locale === 'id' ? (item.title_id || item.title_en || "Milestone") : (item.title_en || item.title_id || "Milestone"),
+        description: locale === 'id' ? (item.description_id || item.description_en || "") : (item.description_en || item.description_id || ""),
+        milestone: locale === 'id' ? (item.achievement_id || item.achievement_en || "") : (item.achievement_en || item.achievement_id || "")
+      }))
+    : fallbackTimeline;
+
+  if (loading) {
+    return (
+      <div className="pt-20 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading about information...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="pt-20">
       {/* Hero Section */}
@@ -198,112 +290,58 @@ export default function AboutPage() {
             <div className="absolute left-1/2 transform -translate-x-0.5 h-full w-0.5 bg-gradient-to-b from-primary via-accent to-primary"></div>
 
             <div className="space-y-12">
-              {[
-                {
-                  year: "2019",
-                  title: "Foundation & Vision",
-                  description:
-                    "Teknalogi was founded with a bold vision to democratize digital transformation for businesses of all sizes across Indonesia.",
-                  achievement: "First office established in Jakarta",
-                  side: "left",
-                },
-                {
-                  year: "2020",
-                  title: "First Major Breakthrough",
-                  description:
-                    "Successfully delivered our first enterprise-level digital transformation project, setting the stage for exponential growth.",
-                  achievement: "5 major clients onboarded",
-                  side: "right",
-                },
-                {
-                  year: "2021",
-                  title: "Team Expansion & Expertise",
-                  description:
-                    "Expanded our team of experts and opened our first dedicated development center, bringing world-class talent together.",
-                  achievement: "Team grew to 10+ specialists",
-                  side: "left",
-                },
-                {
-                  year: "2022",
-                  title: "Cloud Innovation Leader",
-                  description:
-                    "Launched comprehensive cloud migration and infrastructure services, helping clients modernize their legacy systems.",
-                  achievement: "20+ cloud projects completed",
-                  side: "right",
-                },
-                {
-                  year: "2023",
-                  title: "AI & Machine Learning Integration",
-                  description:
-                    "Integrated cutting-edge AI and machine learning capabilities into our service offerings, staying ahead of technology trends.",
-                  achievement: "AI solutions for 15+ clients",
-                  side: "left",
-                },
-                {
-                  year: "2024",
-                  title: "Milestone Achievement",
-                  description:
-                    "Celebrated delivering over 50 successful projects and serving clients across various industries, from startups to enterprises.",
-                  achievement: "50+ projects, 25+ happy clients",
-                  side: "right",
-                },
-                {
-                  year: "2025",
-                  title: "Future Vision",
-                  description:
-                    "Expanding our services globally while maintaining our commitment to excellence and innovation in digital transformation.",
-                  achievement: "International expansion planned",
-                  side: "left",
-                },
-              ].map((milestone, index) => (
-                <BlurFade key={milestone.year} delay={0.4 + index * 0.1} inView>
-                  <div
-                    className={`flex items-center ${
-                      milestone.side === "right" ? "flex-row-reverse" : ""
-                    }`}
-                  >
+              {timeline.map((milestone, index) => {
+                const side = index % 2 === 0 ? "left" : "right";
+                return (
+                  <BlurFade key={milestone.year} delay={0.4 + index * 0.1} inView>
                     <div
-                      className={`w-1/2 ${
-                        milestone.side === "right" ? "pl-8" : "pr-8"
+                      className={`flex items-center ${
+                        side === "right" ? "flex-row-reverse" : ""
                       }`}
                     >
                       <div
-                        className={`${
-                          milestone.side === "right"
-                            ? "text-left"
-                            : "text-right"
+                        className={`w-1/2 ${
+                          side === "right" ? "pl-8" : "pr-8"
                         }`}
                       >
-                        <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                              <span className="text-primary font-bold text-sm">
-                                {milestone.year}
-                              </span>
+                        <div
+                          className={`${
+                            side === "right"
+                              ? "text-left"
+                              : "text-right"
+                          }`}
+                        >
+                          <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                                <span className="text-primary font-bold text-sm">
+                                  {milestone.year}
+                                </span>
+                              </div>
+                              <h3 className="text-lg font-semibold text-foreground">
+                                {milestone.title}
+                              </h3>
                             </div>
-                            <h3 className="text-lg font-semibold text-foreground">
-                              {milestone.title}
-                            </h3>
-                          </div>
-                          <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                            {milestone.description}
-                          </p>
-                          <div className="inline-flex items-center px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
-                            {milestone.achievement}
+                            <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+                              {milestone.description}
+                            </p>
+                            <div className="inline-flex items-center px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
+                              {milestone.milestone}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Timeline dot */}
-                    <div className="relative">
-                      <div className="w-4 h-4 bg-primary rounded-full border-4 border-background shadow-lg"></div>
-                    </div>
+                      {/* Timeline dot */}
+                      <div className="relative">
+                        <div className="w-4 h-4 bg-primary rounded-full border-4 border-background shadow-lg"></div>
+                      </div>
 
-                    <div className="w-1/2"></div>
-                  </div>
-                </BlurFade>
-              ))}
+                      <div className="w-1/2"></div>
+                    </div>
+                  </BlurFade>
+                );
+              })}
             </div>
           </div>
         </div>

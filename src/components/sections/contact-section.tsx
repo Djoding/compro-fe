@@ -3,46 +3,83 @@
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { CheckCircle, Mail, MapPin, Phone, Send } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle, Mail, MapPin, Phone, Send, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { contactAPI } from "@/lib/api";
+import { useLanguage } from "@/contexts/language-context";
 
-const contactInfo = [
+interface ContactInfo {
+  phone_id?: string;
+  phone_en?: string;
+  email?: string;
+  address_id?: string;
+  address_en?: string;
+  operatingHours_id?: string;
+  operatingHours_en?: string;
+}
+
+// Fallback contact info
+const fallbackContactInfo = [
   {
     icon: Mail,
     title: "Email Us",
     content: "info@teknalogi.id",
-    description: "Send us an email anytime",
+    description: "Send us an email anytime"
   },
   {
     icon: Phone,
     title: "Call Us",
     content: "+62 21 1234 5678",
-    description: "Mon-Fri from 9am to 6pm",
+    description: "Mon-Fri from 9am to 6pm"
   },
   {
     icon: MapPin,
     title: "Visit Us",
     content: "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345",
-    description: "Come say hello at our office",
-  },
+    description: "Come say hello at our office"
+  }
 ];
 
 export default function ContactSection() {
+  const { locale } = useLanguage();
+  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     company: "",
-    message: "",
+    message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
+  useEffect(
+    () => {
+      const fetchContactInfo = async () => {
+        try {
+          setLoading(true);
+          const response = await contactAPI.getInfo();
+
+          if (response.status === "success" && response.data) {
+            setContactInfo(response.data);
+          }
+        } catch (err) {
+          console.error("Error fetching contact info:", err);
+          // Silently fail and use fallback data
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchContactInfo();
+    },
+    [locale]
+  );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.value
     }));
   };
 
@@ -50,8 +87,9 @@ export default function ContactSection() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // TODO: Implement actual form submission to API
+    // For now, simulate form submission
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     setIsSubmitting(false);
     setIsSubmitted(true);
@@ -60,6 +98,36 @@ export default function ContactSection() {
     // Reset success state after 3 seconds
     setTimeout(() => setIsSubmitted(false), 3000);
   };
+
+  // Prepare contact info for display
+  const displayContactInfo = contactInfo
+    ? [
+        {
+          icon: Mail,
+          title: "Email Us",
+          content: contactInfo.email || "info@teknalogi.id",
+          description: "Send us an email anytime"
+        },
+        {
+          icon: Phone,
+          title: "Call Us",
+          content: locale === "id" ? contactInfo.phone_id || "+62 21 1234 5678" : contactInfo.phone_en || "+62 21 1234 5678",
+          description:
+            locale === "id"
+              ? contactInfo.operatingHours_id || "Senin-Jumat 09:00 - 18:00"
+              : contactInfo.operatingHours_en || "Mon-Fri from 9am to 6pm"
+        },
+        {
+          icon: MapPin,
+          title: "Visit Us",
+          content:
+            locale === "id"
+              ? contactInfo.address_id || "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345"
+              : contactInfo.address_en || "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345",
+          description: "Come say hello at our office"
+        }
+      ]
+    : fallbackContactInfo;
 
   return (
     <section className="py-24 bg-muted/20">
@@ -73,16 +141,13 @@ export default function ContactSection() {
           </BlurFade>
 
           <BlurFade delay={0.4} inView>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              Let&apos;s Start Your Project
-            </h2>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">Let&apos;s Start Your Project</h2>
           </BlurFade>
 
           <BlurFade delay={0.6} inView>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Ready to transform your business? Get in touch with our team to
-              discuss your project requirements and discover how we can help you
-              achieve your digital goals.
+              Ready to transform your business? Get in touch with our team to discuss your project requirements and discover how
+              we can help you achieve your digital goals.
             </p>
           </BlurFade>
         </div>
@@ -92,50 +157,46 @@ export default function ContactSection() {
           <div className="space-y-8">
             <BlurFade delay={0.8} inView>
               <div>
-                <h3 className="text-2xl font-semibold text-foreground mb-6">
-                  Get In Touch
-                </h3>
+                <h3 className="text-2xl font-semibold text-foreground mb-6">Get In Touch</h3>
                 <p className="text-muted-foreground mb-8">
-                  We&apos;d love to hear from you. Choose the most convenient
-                  way to reach out to us.
+                  We&apos;d love to hear from you. Choose the most convenient way to reach out to us.
                 </p>
               </div>
             </BlurFade>
 
-            <div className="space-y-6">
-              {contactInfo.map((info, index) => {
-                const Icon = info.icon;
-                return (
-                  <BlurFade key={info.title} delay={1.0 + index * 0.1} inView>
-                    <div className="flex items-start space-x-4 p-4 bg-card rounded-lg border border-border hover:shadow-md transition-all duration-300">
-                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-6 h-6 text-primary" />
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading contact info...</span>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {displayContactInfo.map((info, index) => {
+                  const Icon = info.icon;
+                  return (
+                    <BlurFade key={info.title} delay={1.0 + index * 0.1} inView>
+                      <div className="flex items-start space-x-4 p-4 bg-card rounded-lg border border-border hover:shadow-md transition-all duration-300">
+                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-1">{info.title}</h4>
+                          <p className="text-foreground font-medium mb-1">{info.content}</p>
+                          <p className="text-sm text-muted-foreground">{info.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-1">
-                          {info.title}
-                        </h4>
-                        <p className="text-foreground font-medium mb-1">
-                          {info.content}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {info.description}
-                        </p>
-                      </div>
-                    </div>
-                  </BlurFade>
-                );
-              })}
-            </div>
+                    </BlurFade>
+                  );
+                })}
+              </div>
+            )}
 
             <BlurFade delay={1.4} inView>
               <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
-                <h4 className="font-semibold text-foreground mb-2">
-                  Response Time
-                </h4>
+                <h4 className="font-semibold text-foreground mb-2">Response Time</h4>
                 <p className="text-muted-foreground text-sm">
-                  We typically respond to all inquiries within 24 hours during
-                  business days. For urgent matters, please call us directly.
+                  We typically respond to all inquiries within 24 hours during business days. For urgent matters, please call us
+                  directly.
                 </p>
               </div>
             </BlurFade>
@@ -144,17 +205,12 @@ export default function ContactSection() {
           {/* Contact Form */}
           <BlurFade delay={1.0} inView>
             <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
-              <h3 className="text-2xl font-semibold text-foreground mb-6">
-                Send us a message
-              </h3>
+              <h3 className="text-2xl font-semibold text-foreground mb-6">Send us a message</h3>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-foreground mb-2"
-                    >
+                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
                       Full Name *
                     </label>
                     <input
@@ -170,10 +226,7 @@ export default function ContactSection() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-foreground mb-2"
-                    >
+                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                       Email Address *
                     </label>
                     <input
@@ -190,10 +243,7 @@ export default function ContactSection() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="company"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
+                  <label htmlFor="company" className="block text-sm font-medium text-foreground mb-2">
                     Company Name
                   </label>
                   <input
@@ -208,10 +258,7 @@ export default function ContactSection() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
+                  <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
                     Project Details *
                   </label>
                   <textarea
@@ -226,12 +273,7 @@ export default function ContactSection() {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || isSubmitted}
-                  className="w-full"
-                  size="lg"
-                >
+                <Button type="submit" disabled={isSubmitting || isSubmitted} className="w-full" size="lg">
                   {(() => {
                     if (isSubmitting) {
                       return (
@@ -241,7 +283,7 @@ export default function ContactSection() {
                             transition={{
                               duration: 1,
                               repeat: Infinity,
-                              ease: "linear",
+                              ease: "linear"
                             }}
                             className="w-5 h-5 border-2 border-current border-t-transparent rounded-full mr-2"
                           />

@@ -23,10 +23,12 @@ import { Phone, Mail, MapPin, Clock, MessageSquare, Trash2, Settings } from "luc
 
 interface ContactInfo {
   id: string;
-  location: string;
+  location_id: string;
+  location_en: string;
   phone: string;
   email: string;
-  operationHours: string;
+  operationHours_id: string;
+  operationHours_en: string;
 }
 
 interface ContactMessage {
@@ -39,13 +41,15 @@ interface ContactMessage {
 }
 
 export default function ContactPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
     id: "",
-    location: "",
+    location_id: "",
+    location_en: "",
     phone: "",
     email: "",
-    operationHours: ""
+    operationHours_id: "",
+    operationHours_en: ""
   });
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +96,17 @@ export default function ContactPage() {
     setUpdating(true);
 
     try {
-      const response = await contactAPI.updateInfo({ ...contactInfo });
+      // Only send the fields that should be updated
+      const updateData = {
+        location_id: contactInfo.location_id,
+        location_en: contactInfo.location_en,
+        phone: contactInfo.phone,
+        email: contactInfo.email,
+        operationHours_id: contactInfo.operationHours_id,
+        operationHours_en: contactInfo.operationHours_en
+      };
+
+      const response = await contactAPI.updateInfo(updateData);
       if (response.status === "success") {
         toast({
           title: "Berhasil",
@@ -100,6 +114,8 @@ export default function ContactPage() {
           variant: "success"
         });
         setDialogOpen(false);
+        // Refresh the data to get the updated info
+        fetchContactData();
       }
     } catch (error) {
       toast({
@@ -175,7 +191,7 @@ export default function ContactPage() {
               {t("admin.pages.contact.editDialog.button") || "Edit Info Kontak"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t("admin.pages.contact.editDialog.title") || "Edit Informasi Kontak"}</DialogTitle>
               <DialogDescription>
@@ -184,26 +200,43 @@ export default function ContactPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleUpdateContactInfo} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="location">{t("admin.pages.contact.form.address") || "Alamat"}</Label>
-                <Textarea
-                  id="location"
-                  value={contactInfo.location}
-                  onChange={e => setContactInfo(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder={t("admin.pages.contact.form.addressPlaceholder") || "Alamat lengkap perusahaan"}
-                  rows={3}
-                  required
-                />
+              {/* Location Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Alamat / Address</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location_id">Alamat (ID)</Label>
+                    <Textarea
+                      id="location_id"
+                      value={contactInfo.location_id}
+                      onChange={e => setContactInfo(prev => ({ ...prev, location_id: e.target.value }))}
+                      placeholder="Alamat lengkap perusahaan"
+                      rows={2}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location_en">Address (EN)</Label>
+                    <Textarea
+                      id="location_en"
+                      value={contactInfo.location_en}
+                      onChange={e => setContactInfo(prev => ({ ...prev, location_en: e.target.value }))}
+                      placeholder="Company address in English"
+                      rows={2}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">{t("admin.pages.contact.form.phone") || "Nomor Telepon"}</Label>
                   <Input
                     id="phone"
                     value={contactInfo.phone}
                     onChange={e => setContactInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder={t("admin.pages.contact.form.phonePlaceholder") || "+62 21 1234 5678"}
+                    placeholder="+62 21 1234 5678"
                     required
                   />
                 </div>
@@ -214,21 +247,37 @@ export default function ContactPage() {
                     type="email"
                     value={contactInfo.email}
                     onChange={e => setContactInfo(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder={t("admin.pages.contact.form.emailPlaceholder") || "contact@company.com"}
+                    placeholder="contact@company.com"
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="operationHours">{t("admin.pages.contact.form.operationHours") || "Jam Operasional"}</Label>
-                <Input
-                  id="operationHours"
-                  value={contactInfo.operationHours}
-                  onChange={e => setContactInfo(prev => ({ ...prev, operationHours: e.target.value }))}
-                  placeholder={t("admin.pages.contact.form.operationHoursPlaceholder") || "Senin - Jumat, 09:00 - 17:00 WIB"}
-                  required
-                />
+              {/* Operation Hours Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Jam Operasional / Operation Hours</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="operationHours_id">Jam Operasional (ID)</Label>
+                    <Input
+                      id="operationHours_id"
+                      value={contactInfo.operationHours_id}
+                      onChange={e => setContactInfo(prev => ({ ...prev, operationHours_id: e.target.value }))}
+                      placeholder="Senin - Jumat, 09:00 - 17:00"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="operationHours_en">Operation Hours (EN)</Label>
+                    <Input
+                      id="operationHours_en"
+                      value={contactInfo.operationHours_en}
+                      onChange={e => setContactInfo(prev => ({ ...prev, operationHours_en: e.target.value }))}
+                      placeholder="Monday - Friday, 09:00 - 17:00"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               <DialogFooter>
@@ -263,7 +312,7 @@ export default function ContactPage() {
               <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
               <div>
                 <p className="font-medium">{t("admin.pages.contact.contactInfo.address") || "Alamat"}</p>
-                <p className="text-sm text-gray-600">{contactInfo.location}</p>
+                <p className="text-sm text-gray-600">{locale === "en" ? contactInfo.location_en : contactInfo.location_id}</p>
               </div>
             </div>
 
@@ -287,7 +336,9 @@ export default function ContactPage() {
               <Clock className="h-5 w-5 text-gray-500" />
               <div>
                 <p className="font-medium">{t("admin.pages.contact.contactInfo.operationHours") || "Jam Operasional"}</p>
-                <p className="text-sm text-gray-600">{contactInfo.operationHours}</p>
+                <p className="text-sm text-gray-600">
+                  {locale === "en" ? contactInfo.operationHours_en : contactInfo.operationHours_id}
+                </p>
               </div>
             </div>
           </CardContent>

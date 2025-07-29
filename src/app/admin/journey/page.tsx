@@ -24,20 +24,24 @@ import { Plus, Edit, Trash2, MapPin, Calendar } from "lucide-react";
 interface Journey {
   id: string;
   year: number;
-  title: string;
-  description: string;
+  title_id: string;
+  title_en: string;
+  description_id: string;
+  description_en: string;
   createdAt: string;
   updatedAt: string;
 }
 
 interface JourneyForm {
   year: string;
-  title: string;
-  description: string;
+  title_id: string;
+  title_en: string;
+  description_id: string;
+  description_en: string;
 }
 
 export default function JourneyPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -45,8 +49,10 @@ export default function JourneyPage() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<JourneyForm>({
     year: "",
-    title: "",
-    description: ""
+    title_id: "",
+    title_en: "",
+    description_id: "",
+    description_en: ""
   });
   const { toast } = useToast();
 
@@ -83,17 +89,31 @@ export default function JourneyPage() {
     setSubmitting(true);
 
     try {
-      const journeyData = {
-        year: parseInt(form.year),
-        title: form.title,
-        description: form.description
+      // Validate year is a valid number
+      const yearNum = parseInt(form.year);
+      if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+        toast({
+          title: "Error",
+          description: "Tahun harus berupa angka antara 1900-2100",
+          variant: "destructive"
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      const data = {
+        year: yearNum, // Convert to integer
+        title_id: form.title_id,
+        title_en: form.title_en,
+        description_id: form.description_id,
+        description_en: form.description_en
       };
 
       let response;
       if (editingJourney) {
-        response = await journeyAPI.update(editingJourney.id, journeyData);
+        response = await journeyAPI.update(editingJourney.id, data);
       } else {
-        response = await journeyAPI.create(journeyData);
+        response = await journeyAPI.create(data);
       }
 
       if (response.status === "success") {
@@ -144,8 +164,10 @@ export default function JourneyPage() {
   const resetForm = () => {
     setForm({
       year: "",
-      title: "",
-      description: ""
+      title_id: "",
+      title_en: "",
+      description_id: "",
+      description_en: ""
     });
     setEditingJourney(null);
   };
@@ -154,8 +176,10 @@ export default function JourneyPage() {
     setEditingJourney(journey);
     setForm({
       year: journey.year.toString(),
-      title: journey.title,
-      description: journey.description
+      title_id: journey.title_id,
+      title_en: journey.title_en,
+      description_id: journey.description_id,
+      description_en: journey.description_en
     });
     setDialogOpen(true);
   };
@@ -192,7 +216,7 @@ export default function JourneyPage() {
               {t("admin.pages.journey.addButton") || "Tambah Milestone"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingJourney
@@ -220,38 +244,69 @@ export default function JourneyPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="title">{t("admin.pages.journey.form.title") || "Judul Milestone"}</Label>
-                <Input
-                  id="title"
-                  value={form.title}
-                  onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder={
-                    t("admin.pages.journey.form.titlePlaceholder") || "e.g. Pendirian Perusahaan, Ekspansi Internasional"
-                  }
-                  required
-                />
+              {/* Title Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Judul Milestone / Milestone Title</h4>
+                <div className="space-y-2">
+                  <Label>Judul Milestone (Bahasa Indonesia) *</Label>
+                  <Input
+                    value={form.title_id}
+                    onChange={e => setForm(prev => ({ ...prev, title_id: e.target.value }))}
+                    placeholder="Pendirian Perusahaan, Ekspansi Internasional, dll."
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Milestone Title (English) *</Label>
+                  <Input
+                    value={form.title_en}
+                    onChange={e => setForm(prev => ({ ...prev, title_en: e.target.value }))}
+                    placeholder="Company Establishment, International Expansion, etc."
+                    required
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">{t("admin.pages.journey.form.description") || "Deskripsi"}</Label>
-                <Textarea
-                  id="description"
-                  value={form.description}
-                  onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder={
-                    t("admin.pages.journey.form.descriptionPlaceholder") || "Deskripsi lengkap tentang pencapaian ini..."
-                  }
-                  rows={4}
-                  required
-                />
+              {/* Description Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Deskripsi / Description</h4>
+                <div className="space-y-2">
+                  <Label>Deskripsi (Bahasa Indonesia) *</Label>
+                  <Textarea
+                    value={form.description_id}
+                    onChange={e => setForm(prev => ({ ...prev, description_id: e.target.value }))}
+                    placeholder="Deskripsi lengkap tentang pencapaian ini dalam Bahasa Indonesia..."
+                    rows={4}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description (English) *</Label>
+                  <Textarea
+                    value={form.description_en}
+                    onChange={e => setForm(prev => ({ ...prev, description_en: e.target.value }))}
+                    placeholder="Complete description about this achievement in English..."
+                    rows={4}
+                    required
+                  />
+                </div>
               </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   {t("admin.pages.journey.form.cancel") || "Batal"}
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button
+                  type="submit"
+                  disabled={
+                    submitting ||
+                    !form.year.trim() ||
+                    !form.title_id.trim() ||
+                    !form.title_en.trim() ||
+                    !form.description_id.trim() ||
+                    !form.description_en.trim()
+                  }
+                >
                   {submitting
                     ? t("admin.pages.journey.form.saving") || "Menyimpan..."
                     : editingJourney
@@ -285,8 +340,8 @@ export default function JourneyPage() {
                         <Calendar className="h-4 w-4 text-blue-600" />
                         <span className="text-sm font-medium text-blue-600">{journey.year}</span>
                       </div>
-                      <CardTitle className="text-xl">{journey.title}</CardTitle>
-                      <CardDescription>{journey.description}</CardDescription>
+                      <CardTitle className="text-xl">{locale === "id" ? journey.title_id : journey.title_en}</CardTitle>
+                      <CardDescription>{locale === "id" ? journey.description_id : journey.description_en}</CardDescription>
                     </div>
                     <div className="flex gap-2 ml-4">
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(journey)}>

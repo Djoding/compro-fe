@@ -2,27 +2,47 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { certificatesAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
+import { getImageUrl } from "@/lib/utils";
 import { Plus, Trash2, Award, Upload } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 interface Certificate {
   id: string;
+  title_id: string;
+  title_en: string;
   imageUrl: string;
+  issuedDate: string; // Keep consistent with backend
   createdAt: string;
+  updatedAt: string;
+}
+
+interface CertificateForm {
+  title_id: string;
+  title_en: string;
+  issueDate: string;
 }
 
 export default function CertificatesPage() {
   const { t } = useTranslations();
+  const { locale } = useLanguage();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [form, setForm] = useState<CertificateForm>({
+    title_id: "",
+    title_en: "",
+    issueDate: ""
+  });
   const { toast } = useToast();
 
   const fetchCertificates = async () => {
@@ -59,11 +79,26 @@ export default function CertificatesPage() {
       return;
     }
 
+        if (!form.title_id.trim() || !form.title_en.trim() || !form.issueDate.trim()) {
+      alert("Mohon isi semua field yang wajib");
+      return;
+    }
+
+    // Validate date format
+    const dateTest = new Date(form.issueDate);
+    if (isNaN(dateTest.getTime())) {
+      alert("Format tanggal tidak valid. Gunakan format YYYY-MM-DD");
+      return;
+    }
+
     setUploading(true);
 
     try {
       const formData = new FormData();
       formData.append("image", selectedFile);
+      formData.append("title_id", form.title_id);
+      formData.append("title_en", form.title_en);
+      formData.append("issuedDate", form.issueDate); // Backend expects issuedDate, not issueDate
 
       const response = await certificatesAPI.create(formData);
       if (response.status === "success") {
@@ -74,6 +109,7 @@ export default function CertificatesPage() {
         });
         fetchCertificates();
         setSelectedFile(null);
+        setForm({ title_id: "", title_en: "", issueDate: "" });
         setDialogOpen(false);
       }
     } catch (error) {
@@ -157,9 +193,45 @@ export default function CertificatesPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Title Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Judul Sertifikat / Certificate Title</h4>
+                <div className="space-y-2">
+                  <Label>Judul Sertifikat (Bahasa Indonesia) *</Label>
+                  <Input
+                    value={form.title_id}
+                    onChange={e => setForm(prev => ({ ...prev, title_id: e.target.value }))}
+                    placeholder="Contoh: Sertifikat ISO 9001, Penghargaan Teknologi Terbaik, dll."
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Certificate Title (English) *</Label>
+                  <Input
+                    value={form.title_en}
+                    onChange={e => setForm(prev => ({ ...prev, title_en: e.target.value }))}
+                    placeholder="Example: ISO 9001 Certificate, Best Technology Award, etc."
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Issue Date Field */}
+              <div className="space-y-2">
+                <Label htmlFor="issueDate">Tanggal Terbit / Issue Date *</Label>
+                <Input
+                  id="issueDate"
+                  type="date"
+                  value={form.issueDate}
+                  onChange={e => setForm(prev => ({ ...prev, issueDate: e.target.value }))}
+                  required
+                />
+              </div>
+
+              {/* File Upload */}
               <div className="space-y-2">
                 <label htmlFor="certificate" className="text-sm font-medium">
-                  {t("admin.pages.certificates.form.fileLabel") || "File Sertifikat"}
+                  {t("admin.pages.certificates.form.fileLabel") || "File Sertifikat"} *
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -197,7 +269,7 @@ export default function CertificatesPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   {t("admin.pages.certificates.form.cancel") || "Batal"}
                 </Button>
-                <Button type="submit" disabled={uploading || !selectedFile}>
+                <Button type="submit" disabled={uploading || !selectedFile || !form.title_id.trim() || !form.title_en.trim() || !form.issueDate.trim()}>
                   {uploading ? (t("admin.pages.certificates.form.uploading") || "Mengupload...") : (t("admin.pages.certificates.form.upload") || "Upload")}
                 </Button>
               </DialogFooter>
@@ -211,26 +283,35 @@ export default function CertificatesPage() {
           <Card key={certificate.id} className="overflow-hidden">
             <div className="aspect-[4/3] relative">
               <img
-                src={certificate.imageUrl || "/placeholder.png"}
-                alt="Certificate"
+                src={getImageUrl(certificate.imageUrl)}
+                alt={locale === 'id' ? certificate.title_id : certificate.title_en}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.png";
+                }}
               />
             </div>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">
+              <div className="space-y-2">
+                <h3 className="font-medium text-gray-900 line-clamp-2">
+                  {locale === 'id' ? certificate.title_id : certificate.title_en}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Terbit: {new Date(certificate.issuedDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-500">
                     {t("admin.pages.certificates.addedDate").replace("{date}", formatDate(certificate.createdAt)) || `Ditambahkan: ${formatDate(certificate.createdAt)}`}
                   </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(certificate.id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDelete(certificate.id)}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
               </div>
             </CardContent>
           </Card>

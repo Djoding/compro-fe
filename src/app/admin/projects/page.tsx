@@ -11,15 +11,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { projectsAPI } from '@/lib/api';
 import { useTranslations } from '@/hooks/use-translations';
+import { getImageUrl } from '@/lib/utils';
 import { Plus, Search, Edit, Trash2, Loader2, Image, X } from 'lucide-react';
 
 interface Project {
   id: string;
-  title: string;
+  title_id: string;
+  title_en: string;
   serviceCategory: string;
   imageUrl: string;
-  shortDescription: string;
-  elaboration: string;
+  shortDescription_id: string;
+  shortDescription_en: string;
+  elaboration_id: string;
+  elaboration_en: string;
   languages: string[];
   features: string[];
   createdAt: string;
@@ -34,17 +38,20 @@ export default function ProjectsPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
+    title_id: '',
+    title_en: '',
     serviceCategory: '',
-    shortDescription: '',
-    elaboration: '',
+    shortDescription_id: '',
+    shortDescription_en: '',
+    elaboration_id: '',
+    elaboration_en: '',
     languages: '',
     features: '',
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   useEffect(() => {
     fetchProjects();
@@ -52,8 +59,11 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     const filtered = projects.filter(project =>
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.serviceCategory.toLowerCase().includes(searchTerm.toLowerCase())
+      project.title_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.title_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.serviceCategory.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.shortDescription_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.shortDescription_en.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredProjects(filtered);
   }, [projects, searchTerm]);
@@ -91,10 +101,13 @@ export default function ProjectsPage() {
 
   const resetForm = () => {
     setFormData({
-      title: '',
+      title_id: '',
+      title_en: '',
       serviceCategory: '',
-      shortDescription: '',
-      elaboration: '',
+      shortDescription_id: '',
+      shortDescription_en: '',
+      elaboration_id: '',
+      elaboration_en: '',
       languages: '',
       features: '',
     });
@@ -107,21 +120,25 @@ export default function ProjectsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) {
-      alert(t("admin.pages.projects.form.imageRequired") || 'Gambar proyek wajib diunggah');
-      return;
-    }
+    // Removed image requirement validation - image is now optional
 
     try {
       setSaving(true);
       const formDataObj = new FormData();
-      formDataObj.append('title', formData.title);
+      formDataObj.append('title_id', formData.title_id);
+      formDataObj.append('title_en', formData.title_en);
       formDataObj.append('serviceCategory', formData.serviceCategory);
-      formDataObj.append('shortDescription', formData.shortDescription);
-      formDataObj.append('elaboration', formData.elaboration);
+      formDataObj.append('shortDescription_id', formData.shortDescription_id);
+      formDataObj.append('shortDescription_en', formData.shortDescription_en);
+      formDataObj.append('elaboration_id', formData.elaboration_id);
+      formDataObj.append('elaboration_en', formData.elaboration_en);
       formDataObj.append('languages', JSON.stringify(formData.languages.split(',').map(lang => lang.trim())));
       formDataObj.append('features', JSON.stringify(formData.features.split(',').map(feat => feat.trim())));
-      formDataObj.append('image', selectedFile);
+      
+      // Only append image if file is selected
+      if (selectedFile) {
+        formDataObj.append('image', selectedFile);
+      }
 
       const response = await projectsAPI.create(formDataObj);
       if (response.status === 'success') {
@@ -140,10 +157,13 @@ export default function ProjectsPage() {
   const handleEdit = (project: Project) => {
     setSelectedProject(project);
     setFormData({
-      title: project.title,
+      title_id: project.title_id,
+      title_en: project.title_en,
       serviceCategory: project.serviceCategory,
-      shortDescription: project.shortDescription,
-      elaboration: project.elaboration,
+      shortDescription_id: project.shortDescription_id,
+      shortDescription_en: project.shortDescription_en,
+      elaboration_id: project.elaboration_id,
+      elaboration_en: project.elaboration_en,
       languages: project.languages.join(', '),
       features: project.features.join(', '),
     });
@@ -157,10 +177,13 @@ export default function ProjectsPage() {
     try {
       setSaving(true);
       const formDataObj = new FormData();
-      formDataObj.append('title', formData.title);
+      formDataObj.append('title_id', formData.title_id);
+      formDataObj.append('title_en', formData.title_en);
       formDataObj.append('serviceCategory', formData.serviceCategory);
-      formDataObj.append('shortDescription', formData.shortDescription);
-      formDataObj.append('elaboration', formData.elaboration);
+      formDataObj.append('shortDescription_id', formData.shortDescription_id);
+      formDataObj.append('shortDescription_en', formData.shortDescription_en);
+      formDataObj.append('elaboration_id', formData.elaboration_id);
+      formDataObj.append('elaboration_en', formData.elaboration_en);
       formDataObj.append('languages', JSON.stringify(formData.languages.split(',').map(lang => lang.trim())));
       formDataObj.append('features', JSON.stringify(formData.features.split(',').map(feat => feat.trim())));
       
@@ -238,7 +261,7 @@ export default function ProjectsPage() {
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="space-y-2">
-                <Label>{t("admin.pages.projects.form.image") || "Gambar Proyek"} *</Label>
+                <Label>{t("admin.pages.projects.form.image") || "Gambar Proyek"} (Opsional)</Label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                   {previewUrl ? (
                     <div className="relative">
@@ -256,57 +279,103 @@ export default function ProjectsPage() {
                   ) : (
                     <div className="text-center">
                       <Image className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600">{t("admin.pages.projects.form.imagePlaceholder") || "Klik untuk upload gambar"}</p>
+                      <p className="text-sm text-gray-600">Klik untuk upload gambar (opsional)</p>
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        required
                       />
                     </div>
                   )}
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              {/* Title Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Judul Proyek / Project Title</h4>
                 <div className="space-y-2">
-                  <Label>{t("admin.pages.projects.form.title") || "Judul Proyek"} *</Label>
+                  <Label>Judul Proyek (Bahasa Indonesia) *</Label>
                   <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    value={formData.title_id}
+                    onChange={(e) => setFormData({...formData, title_id: e.target.value})}
+                    placeholder="Sistem Informasi Manajemen, Aplikasi E-Commerce, dll."
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t("admin.pages.projects.form.serviceCategory") || "Kategori Layanan"} *</Label>
+                  <Label>Project Title (English) *</Label>
+                  <Input
+                    value={formData.title_en}
+                    onChange={(e) => setFormData({...formData, title_en: e.target.value})}
+                    placeholder="Management Information System, E-Commerce Application, etc."
+                    required
+                  />
+                </div>
+              </div>
+              
+              {/* Service Category Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Kategori Layanan / Service Category</h4>
+                <div className="space-y-2">
+                  <Label>Kategori Layanan</Label>
                   <Input
                     value={formData.serviceCategory}
                     onChange={(e) => setFormData({...formData, serviceCategory: e.target.value})}
-                    placeholder="Web Development, Mobile App, etc."
+                    placeholder="Pengembangan Web, Aplikasi Mobile, dll."
                     required
                   />
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label>{t("admin.pages.projects.form.shortDescription") || "Deskripsi Singkat"} *</Label>
-                <Textarea
-                  value={formData.shortDescription}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription: e.target.value})}
-                  rows={3}
-                  required
-                />
+              {/* Short Description Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Deskripsi Singkat / Short Description</h4>
+                <div className="space-y-2">
+                  <Label>Deskripsi Singkat (Bahasa Indonesia) *</Label>
+                  <Textarea
+                    value={formData.shortDescription_id}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription_id: e.target.value})}
+                    rows={3}
+                    placeholder="Ringkasan singkat tentang proyek ini..."
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Short Description (English) *</Label>
+                  <Textarea
+                    value={formData.shortDescription_en}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription_en: e.target.value})}
+                    rows={3}
+                    placeholder="Brief summary about this project..."
+                    required
+                  />
+                </div>
               </div>
               
-              <div className="space-y-2">
-                <Label>{t("admin.pages.projects.form.elaboration") || "Elaborasi Detail"} *</Label>
-                <Textarea
-                  value={formData.elaboration}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration: e.target.value})}
-                  rows={4}
-                  required
-                />
+              {/* Elaboration Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Elaborasi Detail / Detailed Elaboration</h4>
+                <div className="space-y-2">
+                  <Label>Elaborasi Detail (Bahasa Indonesia) *</Label>
+                  <Textarea
+                    value={formData.elaboration_id}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration_id: e.target.value})}
+                    rows={4}
+                    placeholder="Penjelasan detail tentang proyek, tantangan, dan solusi yang diberikan..."
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Detailed Elaboration (English) *</Label>
+                  <Textarea
+                    value={formData.elaboration_en}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration_en: e.target.value})}
+                    rows={4}
+                    placeholder="Detailed explanation about the project, challenges, and solutions provided..."
+                    required
+                  />
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -384,19 +453,22 @@ export default function ProjectsPage() {
                   <TableRow key={project.id}>
                     <TableCell>
                       <img 
-                        src={project.imageUrl} 
-                        alt={project.title}
+                        src={getImageUrl(project.imageUrl)} 
+                        alt={locale === 'en' ? project.title_en : project.title_id}
                         className="w-16 h-16 object-cover rounded"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.png';
+                        }}
                       />
                     </TableCell>
                     <TableCell className="font-medium">
                       <div>
-                        <p className="font-medium">{project.title}</p>
-                        <p className="text-sm text-gray-500 line-clamp-1">{project.shortDescription}</p>
+                        <p className="font-medium">{locale === 'en' ? project.title_en : project.title_id}</p>
+                        <p className="text-sm text-gray-500 line-clamp-1">{locale === 'en' ? project.shortDescription_en : project.shortDescription_id}</p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{project.serviceCategory}</Badge>
+                      <Badge variant="outline">{locale === 'en' ? project.serviceCategory : project.serviceCategory}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
@@ -425,7 +497,7 @@ export default function ProjectsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(project.id, project.title)}
+                          onClick={() => handleDelete(project.id, locale === 'en' ? project.title_en : project.title_id)}
                           className="text-red-600 hover:text-red-800"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -449,7 +521,7 @@ export default function ProjectsPage() {
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="space-y-2">
-              <Label>Gambar Proyek</Label>
+              <Label>Gambar Proyek (Opsional)</Label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                 {previewUrl ? (
                   <div className="relative">
@@ -466,7 +538,7 @@ export default function ProjectsPage() {
                   </div>
                 ) : selectedProject?.imageUrl ? (
                   <div className="relative">
-                    <img src={selectedProject.imageUrl} alt="Current" className="w-full h-48 object-cover rounded" />
+                    <img src={getImageUrl(selectedProject.imageUrl)} alt="Current" className="w-full h-48 object-cover rounded" />
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                       <input
                         type="file"
@@ -474,13 +546,13 @@ export default function ProjectsPage() {
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <p className="text-white text-sm">Klik untuk ganti gambar</p>
+                      <p className="text-white text-sm">Klik untuk ganti gambar (opsional)</p>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center">
                     <Image className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">Klik untuk upload gambar</p>
+                    <p className="text-sm text-gray-600">Klik untuk upload gambar (opsional)</p>
                     <input
                       type="file"
                       accept="image/*"
@@ -492,43 +564,91 @@ export default function ProjectsPage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            {/* Title Fields - Bilingual */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Judul Proyek / Project Title</h4>
               <div className="space-y-2">
-                <Label>Judul Proyek *</Label>
+                <Label>Judul Proyek (Bahasa Indonesia) *</Label>
                 <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  value={formData.title_id}
+                  onChange={(e) => setFormData({...formData, title_id: e.target.value})}
+                  placeholder="Sistem Informasi Manajemen, Aplikasi E-Commerce, dll."
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label>Kategori Layanan *</Label>
+                <Label>Project Title (English) *</Label>
+                <Input
+                  value={formData.title_en}
+                  onChange={(e) => setFormData({...formData, title_en: e.target.value})}
+                  placeholder="Management Information System, E-Commerce Application, etc."
+                  required
+                />
+              </div>
+            </div>
+            
+            {/* Service Category Fields - Bilingual */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Kategori Layanan / Service Category</h4>
+              <div className="space-y-2">
+                <Label>Kategori Layanan</Label>
                 <Input
                   value={formData.serviceCategory}
                   onChange={(e) => setFormData({...formData, serviceCategory: e.target.value})}
+                  placeholder="Pengembangan Web, Aplikasi Mobile, dll."
                   required
                 />
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label>Deskripsi Singkat *</Label>
-              <Textarea
-                value={formData.shortDescription}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription: e.target.value})}
-                rows={3}
-                required
-              />
+            {/* Short Description Fields - Bilingual */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Deskripsi Singkat / Short Description</h4>
+              <div className="space-y-2">
+                <Label>Deskripsi Singkat (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={formData.shortDescription_id}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription_id: e.target.value})}
+                  rows={3}
+                  placeholder="Ringkasan singkat tentang proyek ini..."
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Short Description (English) *</Label>
+                <Textarea
+                  value={formData.shortDescription_en}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, shortDescription_en: e.target.value})}
+                  rows={3}
+                  placeholder="Brief summary about this project..."
+                  required
+                />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <Label>Elaborasi Detail *</Label>
-              <Textarea
-                value={formData.elaboration}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration: e.target.value})}
-                rows={4}
-                required
-              />
+            {/* Elaboration Fields - Bilingual */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Elaborasi Detail / Detailed Elaboration</h4>
+              <div className="space-y-2">
+                <Label>Elaborasi Detail (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={formData.elaboration_id}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration_id: e.target.value})}
+                  rows={4}
+                  placeholder="Penjelasan detail tentang proyek, tantangan, dan solusi yang diberikan..."
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Detailed Elaboration (English) *</Label>
+                <Textarea
+                  value={formData.elaboration_en}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, elaboration_en: e.target.value})}
+                  rows={4}
+                  placeholder="Detailed explanation about the project, challenges, and solutions provided..."
+                  required
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">

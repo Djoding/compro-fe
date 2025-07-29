@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { companyProfileAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,21 +13,31 @@ import { Save, Building2 } from "lucide-react";
 
 interface CompanyProfile {
   id: string;
-  companyOverview: string;
-  coreValues: string;
-  vision: string;
-  mission: string;
-  customerService: string;
+  companyOverview_id: string;
+  companyOverview_en: string;
+  coreValues_id: string;
+  coreValues_en: string;
+  vision_id: string;
+  vision_en: string;
+  mission_id: string;
+  mission_en: string;
+  customerService_id: string;
+  customerService_en: string;
 }
 
 export default function CompanyProfilePage() {
   const [profile, setProfile] = useState<CompanyProfile>({
     id: "",
-    companyOverview: "",
-    coreValues: "",
-    vision: "",
-    mission: "",
-    customerService: ""
+    companyOverview_id: "",
+    companyOverview_en: "",
+    coreValues_id: "",
+    coreValues_en: "",
+    vision_id: "",
+    vision_en: "",
+    mission_id: "",
+    mission_en: "",
+    customerService_id: "",
+    customerService_en: ""
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -67,7 +78,21 @@ export default function CompanyProfilePage() {
     setSaving(true);
 
     try {
-      const response = await companyProfileAPI.updateProfile({ ...profile });
+      // Send as JSON object instead of FormData since no file upload is needed
+      const response = await companyProfileAPI.updateProfile({
+        id: profile.id,
+        companyOverview_id: profile.companyOverview_id,
+        companyOverview_en: profile.companyOverview_en,
+        coreValues_id: profile.coreValues_id,
+        coreValues_en: profile.coreValues_en,
+        vision_id: profile.vision_id,
+        vision_en: profile.vision_en,
+        mission_id: profile.mission_id,
+        mission_en: profile.mission_en,
+        customerService_id: profile.customerService_id,
+        customerService_en: profile.customerService_en
+      });
+
       if (response.status === "success") {
         toast({
           title: t("admin.common.success") || "Berhasil",
@@ -85,10 +110,6 @@ export default function CompanyProfilePage() {
       setSaving(false);
     }
   };
-
-  const handleInputChange = useCallback((field: keyof CompanyProfile, value: string) => {
-    setProfile(prev => ({ ...prev, [field]: value }));
-  }, []);
 
   if (loading && !isInitialized) {
     return (
@@ -118,23 +139,38 @@ export default function CompanyProfilePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Company Overview - Bilingual */}
         <Card>
           <CardHeader>
             <CardTitle>{t("admin.pages.companyProfile.form.companyOverview") || "Gambaran Perusahaan"}</CardTitle>
             <CardDescription>Deskripsi singkat tentang perusahaan yang akan ditampilkan di halaman utama</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Textarea
-              value={profile.companyOverview}
-              onChange={e => setProfile(prev => ({ ...prev, companyOverview: e.target.value }))}
-              placeholder={
-                t("admin.pages.companyProfile.form.companyOverviewPlaceholder") || "Tulis gambaran umum tentang perusahaan..."
-              }
-              rows={4}
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Gambaran Perusahaan (Bilingual)</h4>
+              <div className="space-y-2">
+                <Label>Gambaran Perusahaan (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={profile.companyOverview_id}
+                  onChange={e => setProfile(prev => ({ ...prev, companyOverview_id: e.target.value }))}
+                  placeholder="Tulis gambaran umum tentang perusahaan dalam Bahasa Indonesia..."
+                  rows={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Company Overview (English) *</Label>
+                <Textarea
+                  value={profile.companyOverview_en}
+                  onChange={e => setProfile(prev => ({ ...prev, companyOverview_en: e.target.value }))}
+                  placeholder="Write general overview about the company in English..."
+                  rows={4}
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
+        {/* Vision - Bilingual */}
         <Card>
           <CardHeader>
             <CardTitle>{t("admin.pages.companyProfile.form.vision") || "Visi Perusahaan"}</CardTitle>
@@ -143,17 +179,34 @@ export default function CompanyProfilePage() {
                 "Pernyataan visi yang menggambarkan tujuan jangka panjang perusahaan"}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Textarea
-              placeholder={t("admin.pages.companyProfile.vision.placeholder") || "Masukkan visi perusahaan..."}
-              value={profile.vision}
-              onChange={e => handleInputChange("vision", e.target.value)}
-              rows={3}
-              className="resize-none"
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Visi / Vision</h4>
+              <div className="space-y-2">
+                <Label>Visi (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={profile.vision_id}
+                  onChange={e => setProfile(prev => ({ ...prev, vision_id: e.target.value }))}
+                  placeholder="Masukkan visi perusahaan dalam Bahasa Indonesia..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Vision (English) *</Label>
+                <Textarea
+                  value={profile.vision_en}
+                  onChange={e => setProfile(prev => ({ ...prev, vision_en: e.target.value }))}
+                  placeholder="Enter company vision in English..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
+        {/* Mission - Bilingual */}
         <Card>
           <CardHeader>
             <CardTitle>{t("admin.pages.companyProfile.mission.title") || "Misi Perusahaan"}</CardTitle>
@@ -162,17 +215,34 @@ export default function CompanyProfilePage() {
                 "Pernyataan misi yang menjelaskan cara perusahaan mencapai visinya"}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Textarea
-              placeholder={t("admin.pages.companyProfile.mission.placeholder") || "Masukkan misi perusahaan..."}
-              value={profile.mission}
-              onChange={e => handleInputChange("mission", e.target.value)}
-              rows={3}
-              className="resize-none"
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Misi / Mission</h4>
+              <div className="space-y-2">
+                <Label>Misi (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={profile.mission_id}
+                  onChange={e => setProfile(prev => ({ ...prev, mission_id: e.target.value }))}
+                  placeholder="Masukkan misi perusahaan dalam Bahasa Indonesia..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Mission (English) *</Label>
+                <Textarea
+                  value={profile.mission_en}
+                  onChange={e => setProfile(prev => ({ ...prev, mission_en: e.target.value }))}
+                  placeholder="Enter company mission in English..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
+        {/* Core Values - Bilingual */}
         <Card>
           <CardHeader>
             <CardTitle>{t("admin.pages.companyProfile.coreValues.title") || "Nilai-Nilai Inti"}</CardTitle>
@@ -181,17 +251,34 @@ export default function CompanyProfilePage() {
                 "Nilai-nilai fundamental yang menjadi landasan operasional perusahaan"}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Textarea
-              placeholder={t("admin.pages.companyProfile.coreValues.placeholder") || "Masukkan nilai-nilai inti perusahaan..."}
-              value={profile.coreValues}
-              onChange={e => handleInputChange("coreValues", e.target.value)}
-              rows={3}
-              className="resize-none"
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Nilai-Nilai Inti / Core Values</h4>
+              <div className="space-y-2">
+                <Label>Nilai-Nilai Inti (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={profile.coreValues_id}
+                  onChange={e => setProfile(prev => ({ ...prev, coreValues_id: e.target.value }))}
+                  placeholder="Masukkan nilai-nilai inti perusahaan dalam Bahasa Indonesia..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Core Values (English) *</Label>
+                <Textarea
+                  value={profile.coreValues_en}
+                  onChange={e => setProfile(prev => ({ ...prev, coreValues_en: e.target.value }))}
+                  placeholder="Enter company core values in English..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
+        {/* Customer Service - Bilingual */}
         <Card>
           <CardHeader>
             <CardTitle>{t("admin.pages.companyProfile.customerService.title") || "Layanan Pelanggan"}</CardTitle>
@@ -200,16 +287,30 @@ export default function CompanyProfilePage() {
                 "Komitmen perusahaan terhadap pelayanan pelanggan"}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Textarea
-              placeholder={
-                t("admin.pages.companyProfile.customerService.placeholder") || "Masukkan komitmen layanan pelanggan..."
-              }
-              value={profile.customerService}
-              onChange={e => handleInputChange("customerService", e.target.value)}
-              rows={3}
-              className="resize-none"
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-4 p-4 border rounded-lg">
+              <h4 className="font-medium text-gray-900">Layanan Pelanggan / Customer Service</h4>
+              <div className="space-y-2">
+                <Label>Layanan Pelanggan (Bahasa Indonesia) *</Label>
+                <Textarea
+                  value={profile.customerService_id}
+                  onChange={e => setProfile(prev => ({ ...prev, customerService_id: e.target.value }))}
+                  placeholder="Masukkan komitmen layanan pelanggan dalam Bahasa Indonesia..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Customer Service (English) *</Label>
+                <Textarea
+                  value={profile.customerService_en}
+                  onChange={e => setProfile(prev => ({ ...prev, customerService_en: e.target.value }))}
+                  placeholder="Enter customer service commitment in English..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 

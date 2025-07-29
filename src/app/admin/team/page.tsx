@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,6 +11,7 @@ import { teamAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
+import { getImageUrl } from "@/lib/utils";
 import { Plus, Edit, Trash2, Users, Linkedin, Github, Twitter, Globe } from "lucide-react";
 
 interface SocialMedia {
@@ -23,9 +23,9 @@ interface SocialMedia {
 interface TeamMember {
   id: string;
   name: string;
-  position: string;
+  position_id: string;
+  position_en: string;
   roleCategory: string;
-  specialization: string;
   imageUrl: string;
   socialMedia: SocialMedia[];
   createdAt: string;
@@ -34,9 +34,9 @@ interface TeamMember {
 
 interface TeamMemberForm {
   name: string;
-  position: string;
+  position_id: string;
+  position_en: string;
   roleCategory: string;
-  specialization: string;
   socialMedia: { platform: string; url: string }[];
 }
 
@@ -47,15 +47,15 @@ export default function TeamPage() {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [form, setForm] = useState<TeamMemberForm>({
+    const [form, setForm] = useState<TeamMemberForm>({
     name: "",
-    position: "",
+    position_id: "",
+    position_en: "",
     roleCategory: "",
-    specialization: "",
-    socialMedia: [{ platform: "", url: "" }],
+    socialMedia: []
   });
   const { toast } = useToast();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   const fetchTeamMembers = useCallback(async () => {
     try {
@@ -86,9 +86,9 @@ export default function TeamPage() {
     try {
       const formData = new FormData();
       formData.append("name", form.name);
-      formData.append("position", form.position);
+      formData.append("position_id", form.position_id);
+      formData.append("position_en", form.position_en);
       formData.append("roleCategory", form.roleCategory);
-      formData.append("specialization", form.specialization);
       formData.append("socialMedia", JSON.stringify(form.socialMedia.filter(sm => sm.platform && sm.url)));
       
       if (imageFile) {
@@ -148,9 +148,9 @@ export default function TeamPage() {
   const resetForm = () => {
     setForm({
       name: "",
-      position: "",
+      position_id: "",
+      position_en: "",
       roleCategory: "",
-      specialization: "",
       socialMedia: [{ platform: "", url: "" }],
     });
     setEditingMember(null);
@@ -161,9 +161,9 @@ export default function TeamPage() {
     setEditingMember(member);
     setForm({
       name: member.name,
-      position: member.position,
+      position_id: member.position_id,
+      position_en: member.position_en,
       roleCategory: member.roleCategory,
-      specialization: member.specialization,
       socialMedia: member.socialMedia.length > 0 
         ? member.socialMedia.map(sm => ({ platform: sm.platform, url: sm.url }))
         : [{ platform: "", url: "" }],
@@ -255,28 +255,44 @@ export default function TeamPage() {
                     required
                   />
                 </div>
+              </div>
+              
+              {/* Position Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Posisi / Position</h4>
                 <div className="space-y-2">
-                  <Label htmlFor="position">Posisi</Label>
+                  <Label>Posisi (Bahasa Indonesia) *</Label>
                   <Input
-                    id="position"
-                    value={form.position}
-                    onChange={(e) => setForm(prev => ({ ...prev, position: e.target.value }))}
+                    value={form.position_id}
+                    onChange={(e) => setForm(prev => ({ ...prev, position_id: e.target.value }))}
+                    placeholder="Software Engineer, UI/UX Designer, dll."
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Position (English) *</Label>
+                  <Input
+                    value={form.position_en}
+                    onChange={(e) => setForm(prev => ({ ...prev, position_en: e.target.value }))}
+                    placeholder="Software Engineer, UI/UX Designer, etc."
                     required
                   />
                 </div>
               </div>
               
+              {/* Role Category Field */}
+              <div className="space-y-2">
+                <Label htmlFor="roleCategory">Kategori Role</Label>
+                <Input
+                  id="roleCategory"
+                  value={form.roleCategory}
+                  onChange={(e) => setForm(prev => ({ ...prev, roleCategory: e.target.value }))}
+                  placeholder="Developer, Designer, Management"
+                  required
+                />
+              </div>
+              
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="roleCategory">Kategori Role</Label>
-                  <Input
-                    id="roleCategory"
-                    value={form.roleCategory}
-                    onChange={(e) => setForm(prev => ({ ...prev, roleCategory: e.target.value }))}
-                    placeholder="e.g. Developer, Designer, Management"
-                    required
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="image">Foto Profil</Label>
                   <Input
@@ -287,17 +303,6 @@ export default function TeamPage() {
                     required={!editingMember}
                   />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="specialization">Spesialisasi</Label>
-                <Textarea
-                  id="specialization"
-                  value={form.specialization}
-                  onChange={(e) => setForm(prev => ({ ...prev, specialization: e.target.value }))}
-                  placeholder="e.g. React, Node.js, UI/UX Design"
-                  rows={2}
-                />
               </div>
 
               <div className="space-y-2">
@@ -352,17 +357,19 @@ export default function TeamPage() {
           <Card key={member.id} className="overflow-hidden">
             <div className="aspect-square relative">
               <img
-                src={member.imageUrl || "/placeholder.png"}
+                src={getImageUrl(member.imageUrl)}
                 alt={member.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.png";
+                }}
               />
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg">{member.name}</h3>
-                <p className="text-sm text-gray-600">{member.position}</p>
+                <p className="text-sm text-gray-600">{locale === 'en' ? member.position_en : member.position_id}</p>
                 <Badge variant="outline">{member.roleCategory}</Badge>
-                <p className="text-xs text-gray-500">{member.specialization}</p>
                 
                 {member.socialMedia.length > 0 && (
                   <div className="flex gap-2 pt-2">

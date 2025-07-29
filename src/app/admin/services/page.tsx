@@ -24,16 +24,20 @@ import { Plus, Edit, Trash2, Briefcase, Code } from "lucide-react";
 
 interface Service {
   id: string;
-  name: string;
-  description: string;
+  name_id: string;
+  name_en: string;
+  description_id: string;
+  description_en: string;
   technologies: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 interface ServiceForm {
-  name: string;
-  description: string;
+  name_id: string;
+  name_en: string;
+  description_id: string;
+  description_en: string;
   technologies: string;
 }
 
@@ -44,12 +48,14 @@ export default function ServicesPage() {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<ServiceForm>({
-    name: "",
-    description: "",
+    name_id: "",
+    name_en: "",
+    description_id: "",
+    description_en: "",
     technologies: ""
   });
   const { toast } = useToast();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   const fetchServices = useCallback(
     async () => {
@@ -84,20 +90,24 @@ export default function ServicesPage() {
     setSubmitting(true);
 
     try {
-      const serviceData = {
-        name: form.name,
-        description: form.description,
-        technologies: form.technologies
-          .split(",")
-          .map(tech => tech.trim())
-          .filter(tech => tech !== "")
+      const technologies = form.technologies
+        .split(",")
+        .map(tech => tech.trim())
+        .filter(tech => tech !== "");
+
+      const data = {
+        name_id: form.name_id,
+        name_en: form.name_en,
+        description_id: form.description_id,
+        description_en: form.description_en,
+        technologies: technologies
       };
 
       let response;
       if (editingService) {
-        response = await servicesAPI.update(editingService.id, serviceData);
+        response = await servicesAPI.update(editingService.id, data);
       } else {
-        response = await servicesAPI.create(serviceData);
+        response = await servicesAPI.create(data);
       }
 
       if (response.status === "success") {
@@ -147,20 +157,24 @@ export default function ServicesPage() {
 
   const resetForm = () => {
     setForm({
-      name: "",
-      description: "",
+      name_id: "",
+      name_en: "",
+      description_id: "",
+      description_en: "",
       technologies: ""
     });
     setEditingService(null);
   };
 
   const openEditDialog = (service: Service) => {
-    setEditingService(service);
     setForm({
-      name: service.name,
-      description: service.description,
+      name_id: service.name_id,
+      name_en: service.name_en,
+      description_id: service.description_id,
+      description_en: service.description_en,
       technologies: service.technologies.join(", ")
     });
+    setEditingService(service);
     setDialogOpen(true);
   };
 
@@ -196,7 +210,7 @@ export default function ServicesPage() {
               {t("admin.pages.services.addService") || "Tambah Layanan"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingService
@@ -210,29 +224,56 @@ export default function ServicesPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">{t("admin.pages.services.form.name") || "Nama Layanan"}</Label>
-                <Input
-                  id="name"
-                  value={form.name}
-                  onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g. Full-Stack Development"
-                  required
-                />
+              {/* Name Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Nama Layanan / Service Name</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Nama Layanan (ID) *</Label>
+                    <Input
+                      value={form.name_id}
+                      onChange={e => setForm(prev => ({ ...prev, name_id: e.target.value }))}
+                      placeholder="Pengembangan Aplikasi Web"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Service Name (EN) *</Label>
+                    <Input
+                      value={form.name_en}
+                      onChange={e => setForm(prev => ({ ...prev, name_en: e.target.value }))}
+                      placeholder="Web Application Development"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">{t("admin.pages.services.form.description") || "Deskripsi"}</Label>
-                <Textarea
-                  id="description"
-                  value={form.description}
-                  onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder={
-                    t("admin.pages.services.form.descriptionPlaceholder") || "Deskripsi lengkap tentang layanan ini..."
-                  }
-                  rows={4}
-                  required
-                />
+              {/* Description Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Deskripsi / Description</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Deskripsi (ID) *</Label>
+                    <Textarea
+                      value={form.description_id}
+                      onChange={e => setForm(prev => ({ ...prev, description_id: e.target.value }))}
+                      rows={3}
+                      placeholder="Deskripsi lengkap tentang layanan ini..."
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description (EN) *</Label>
+                    <Textarea
+                      value={form.description_en}
+                      onChange={e => setForm(prev => ({ ...prev, description_en: e.target.value }))}
+                      rows={3}
+                      placeholder="Complete description of this service..."
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -271,9 +312,9 @@ export default function ServicesPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Briefcase className="h-5 w-5" />
-                {service.name}
+                {locale === "en" ? service.name_en : service.name_id}
               </CardTitle>
-              <CardDescription>{service.description}</CardDescription>
+              <CardDescription>{locale === "en" ? service.description_en : service.description_id}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

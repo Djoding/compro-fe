@@ -11,24 +11,29 @@ import { platformsAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslations } from "@/hooks/use-translations";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
+import { getImageUrl } from "@/lib/utils";
 import { Plus, Edit, Trash2, Code } from "lucide-react";
 
 interface Platform {
   id: string;
-  name: string;
-  description: string;
+  name_id: string;
+  name_en: string;
+  description_id: string;
+  description_en: string;
   imageUrl: string;
   createdAt: string;
   updatedAt: string;
 }
 
 interface PlatformForm {
-  name: string;
-  description: string;
+  name_id: string;
+  name_en: string;
+  description_id: string;
+  description_en: string;
 }
 
 export default function PlatformsPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -36,8 +41,10 @@ export default function PlatformsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [form, setForm] = useState<PlatformForm>({
-    name: "",
-    description: "",
+    name_id: "",
+    name_en: "",
+    description_id: "",
+    description_en: "",
   });
   const { toast } = useToast();
 
@@ -70,8 +77,10 @@ export default function PlatformsPage() {
 
     try {
       const formData = new FormData();
-      formData.append("name", form.name);
-      formData.append("description", form.description);
+      formData.append("name_id", form.name_id);
+      formData.append("name_en", form.name_en);
+      formData.append("description_id", form.description_id);
+      formData.append("description_en", form.description_en);
       
       if (imageFile) {
         formData.append("image", imageFile);
@@ -129,8 +138,10 @@ export default function PlatformsPage() {
 
   const resetForm = () => {
     setForm({
-      name: "",
-      description: "",
+      name_id: "",
+      name_en: "",
+      description_id: "",
+      description_en: "",
     });
     setEditingPlatform(null);
     setImageFile(null);
@@ -139,8 +150,10 @@ export default function PlatformsPage() {
   const openEditDialog = (platform: Platform) => {
     setEditingPlatform(platform);
     setForm({
-      name: platform.name,
-      description: platform.description,
+      name_id: platform.name_id,
+      name_en: platform.name_en,
+      description_id: platform.description_id,
+      description_en: platform.description_en,
     });
     setDialogOpen(true);
   };
@@ -177,7 +190,7 @@ export default function PlatformsPage() {
               {t("admin.pages.platforms.addButton") || "Tambah Platform"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingPlatform ? (t("admin.pages.platforms.addDialog.editTitle") || "Edit Platform") : (t("admin.pages.platforms.addDialog.title") || "Tambah Platform")}
@@ -187,27 +200,60 @@ export default function PlatformsPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">{t("admin.pages.platforms.form.name") || "Nama Platform"}</Label>
-                <Input
-                  id="name"
-                  value={form.name}
-                  onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder={t("admin.pages.platforms.form.namePlaceholder") || "e.g. React, Node.js, AWS"}
-                  required
-                />
+              {/* Name Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Nama Platform / Platform Name</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name_id">Nama Platform (ID)</Label>
+                    <Input
+                      id="name_id"
+                      value={form.name_id}
+                      onChange={(e) => setForm(prev => ({ ...prev, name_id: e.target.value }))}
+                      placeholder="React, Node.js, AWS"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name_en">Platform Name (EN)</Label>
+                    <Input
+                      id="name_en"
+                      value={form.name_en}
+                      onChange={(e) => setForm(prev => ({ ...prev, name_en: e.target.value }))}
+                      placeholder="React, Node.js, AWS"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">{t("admin.pages.platforms.form.description") || "Deskripsi"}</Label>
-                <Textarea
-                  id="description"
-                  value={form.description}
-                  onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder={t("admin.pages.platforms.form.descriptionPlaceholder") || "Deskripsi penggunaan platform ini..."}
-                  rows={3}
-                  required
-                />
+              {/* Description Fields - Bilingual */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="font-medium text-gray-900">Deskripsi / Description</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="description_id">Deskripsi (ID)</Label>
+                    <Textarea
+                      id="description_id"
+                      value={form.description_id}
+                      onChange={(e) => setForm(prev => ({ ...prev, description_id: e.target.value }))}
+                      placeholder="Deskripsi penggunaan platform ini..."
+                      rows={2}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description_en">Description (EN)</Label>
+                    <Textarea
+                      id="description_en"
+                      value={form.description_en}
+                      onChange={(e) => setForm(prev => ({ ...prev, description_en: e.target.value }))}
+                      placeholder="Description of this platform usage..."
+                      rows={2}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -242,15 +288,22 @@ export default function PlatformsPage() {
           <Card key={platform.id} className="overflow-hidden">
             <div className="aspect-square relative bg-gray-50 flex items-center justify-center">
               <img
-                src={platform.imageUrl || "/placeholder.png"}
-                alt={platform.name}
+                src={getImageUrl(platform.imageUrl)}
+                alt={locale === 'en' ? platform.name_en : platform.name_id}
                 className="w-16 h-16 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.png";
+                }}
               />
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
-                <h3 className="font-semibold text-lg">{platform.name}</h3>
-                <p className="text-sm text-gray-600 line-clamp-3">{platform.description}</p>
+                <h3 className="font-semibold text-lg">
+                  {locale === 'en' ? platform.name_en : platform.name_id}
+                </h3>
+                <p className="text-sm text-gray-600 line-clamp-3">
+                  {locale === 'en' ? platform.description_en : platform.description_id}
+                </p>
               </div>
               
               <div className="flex gap-2 mt-4">

@@ -6,7 +6,6 @@ export const translations = {
       about: "Tentang Kami",
       solutions: "Solusi",
       expertise: "Keahlian",
-      news: "Berita",
       contact: "Kontak",
       team: "Tim",
       certificates: "Sertifikat"
@@ -545,7 +544,6 @@ export const translations = {
       about: "About Us",
       solutions: "Solutions",
       expertise: "Expertise",
-      news: "News",
       contact: "Contact",
       team: "Team",
       certificates: "Certificates"

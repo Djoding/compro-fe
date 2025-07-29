@@ -1,11 +1,16 @@
 // src/app/team/page.tsx
+"use client";
+
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { MagicCard } from "@/components/magicui/magic-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mail, Linkedin, Twitter } from "lucide-react";
+import { useTranslations } from "@/hooks/use-translations";
+import { useTeamData } from "@/hooks/use-team-data";
 
-const leadership = [
+// Fallback team data
+const fallbackLeadership = [
   {
     name: "Budi Santoso",
     position: "Chief Executive Officer",
@@ -89,6 +94,49 @@ const leadership = [
 const departments = ["All", "Executive", "Technology", "Engineering", "Design", "Operations", "Business"];
 
 export default function TeamPage() {
+  const { locale } = useTranslations();
+  const { team, loading } = useTeamData();
+
+  // Prepare team data with fallback
+  const leadership =
+    team && team.length > 0
+      ? team.map(member => ({
+          name: member.name || "Team Member",
+          position:
+            locale === "id"
+              ? member.position_id || member.position_en || "Position"
+              : member.position_en || member.position_id || "Position",
+          department: member.department || "Team",
+          bio:
+            locale === "id"
+              ? member.bio_id || member.bio_en || "Team member bio"
+              : member.bio_en || member.bio_id || "Team member bio",
+          expertise: member.expertise || ["Technology"],
+          avatar: member.name
+            ? member.name
+                .split(" ")
+                .map(n => n[0])
+                .join("")
+            : "TM",
+          image: member.image,
+          social: {
+            linkedin: member.linkedin || "#",
+            twitter: member.twitter || "#",
+            email: member.email || "info@teknalogi.id"
+          }
+        }))
+      : fallbackLeadership;
+
+  if (loading) {
+    return (
+      <div className="pt-20 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading team information...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="pt-20">
       {/* Hero Section */}

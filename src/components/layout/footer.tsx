@@ -7,7 +7,6 @@ const quickLinks = [
   { name: "About Us", href: "/about" },
   { name: "Solutions", href: "/solutions" },
   { name: "Expertise", href: "/expertise" },
-  { name: "News & Insights", href: "/news" },
   { name: "Contact", href: "/contact" },
 ];
 

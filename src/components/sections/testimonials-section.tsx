@@ -2,11 +2,30 @@
 
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Marquee } from "@/components/magicui/marquee";
-import { Quote, Star } from "lucide-react";
+import { Quote, Star, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { testimonialsAPI } from "@/lib/api";
+import { useLanguage } from "@/contexts/language-context";
+import { getImageUrl } from "@/lib/utils";
 
-const testimonials = [
+interface Testimonial {
+  id: string;
+  name_id: string;
+  name_en: string;
+  position_id: string;
+  position_en: string;
+  company_id: string;
+  company_en: string;
+  content_id: string;
+  content_en: string;
+  rating: number;
+  imageUrl?: string;
+}
+
+// Fallback testimonials
+const fallbackTestimonials = [
   {
-    id: 1,
+    id: "1",
     name: "Sarah Johnson",
     position: "CEO",
     company: "TechStart Solutions",
@@ -16,7 +35,7 @@ const testimonials = [
     avatar: "SJ",
   },
   {
-    id: 2,
+    id: "2",
     name: "Michael Chen",
     position: "CTO",
     company: "InnovateCorp",
@@ -26,7 +45,7 @@ const testimonials = [
     avatar: "MC",
   },
   {
-    id: 3,
+    id: "3",
     name: "Emma Rodriguez",
     position: "Founder",
     company: "GreenTech Innovations",
@@ -36,7 +55,7 @@ const testimonials = [
     avatar: "ER",
   },
   {
-    id: 4,
+    id: "4",
     name: "David Park",
     position: "Operations Director",
     company: "LogiFlow Systems",
@@ -46,7 +65,7 @@ const testimonials = [
     avatar: "DP",
   },
   {
-    id: 5,
+    id: "5",
     name: "Lisa Anderson",
     position: "Marketing Director",
     company: "BrandMax Agency",
@@ -56,7 +75,7 @@ const testimonials = [
     avatar: "LA",
   },
   {
-    id: 6,
+    id: "6",
     name: "Robert Kim",
     position: "IT Manager",
     company: "SecureBank Ltd",
@@ -69,41 +88,121 @@ const testimonials = [
 
 const TestimonialCard = ({
   testimonial,
+  locale
 }: {
-  testimonial: (typeof testimonials)[0];
-}) => (
-  <div className="bg-card border border-border rounded-xl p-6 w-80 mx-4 shadow-sm hover:shadow-lg transition-all duration-300">
-    <div className="flex items-center mb-4">
-      {[...Array(testimonial.rating)].map((_, i) => (
-        <Star
-          key={`star-${testimonial.id}-${i}`}
-          className="w-4 h-4 text-yellow-400 fill-current"
-        />
-      ))}
-    </div>
+  testimonial: Testimonial | (typeof fallbackTestimonials)[0];
+  locale: string;
+}) => {
+  // Check if it's API testimonial or fallback
+  const isApiTestimonial = 'name_id' in testimonial;
+  
+  const name = isApiTestimonial 
+    ? (locale === "id" ? testimonial.name_id : testimonial.name_en)
+    : testimonial.name;
+  
+  const position = isApiTestimonial 
+    ? (locale === "id" ? testimonial.position_id : testimonial.position_en)
+    : testimonial.position;
+    
+  const company = isApiTestimonial 
+    ? (locale === "id" ? testimonial.company_id : testimonial.company_en)
+    : testimonial.company;
+    
+  const content = isApiTestimonial 
+    ? (locale === "id" ? testimonial.content_id : testimonial.content_en)
+    : testimonial.content;
 
-    <div className="mb-4">
-      <Quote className="w-8 h-8 text-primary/20 mb-2" />
-      <p className="text-muted-foreground leading-relaxed">
-        {testimonial.content}
-      </p>
-    </div>
+  const avatar = isApiTestimonial 
+    ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'avatar' in testimonial ? testimonial.avatar : name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-    <div className="flex items-center">
-      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
-        <span className="text-primary font-semibold">{testimonial.avatar}</span>
+  return (
+    <div className="bg-card border border-border rounded-xl p-6 w-80 mx-4 shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className="flex items-center mb-4">
+        {[...Array(testimonial.rating)].map((_, i) => (
+          <Star
+            key={`star-${testimonial.id}-${i}`}
+            className="w-4 h-4 text-yellow-400 fill-current"
+          />
+        ))}
       </div>
-      <div>
-        <h4 className="font-semibold text-foreground">{testimonial.name}</h4>
-        <p className="text-sm text-muted-foreground">
-          {testimonial.position} at {testimonial.company}
+
+      <div className="mb-4">
+        <Quote className="w-8 h-8 text-primary/20 mb-2" />
+        <p className="text-muted-foreground leading-relaxed">
+          {content}
         </p>
       </div>
+
+      <div className="flex items-center">
+        {isApiTestimonial && testimonial.imageUrl ? (
+          <img 
+            src={getImageUrl(testimonial.imageUrl)}
+            alt={name}
+            className="w-12 h-12 rounded-full object-cover mr-4"
+            onError={(e) => {
+              // Fallback to avatar initials if image fails to load
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <div className={`w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 ${isApiTestimonial && testimonial.imageUrl ? 'hidden' : ''}`}>
+          <span className="text-primary font-semibold">{avatar}</span>
+        </div>
+        <div>
+          <h4 className="font-semibold text-foreground">{name}</h4>
+          <p className="text-sm text-muted-foreground">
+            {position} at {company}
+          </p>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function TestimonialsSection() {
+  const { locale } = useLanguage();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+
+        const response = await testimonialsAPI.getAll();
+        
+        if (response.status === "success" && Array.isArray(response.data)) {
+          setTestimonials(response.data);
+        }
+      } catch (err) {
+        console.error("Error fetching testimonials:", err);
+        // Silently fail and use fallback data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, [locale]);
+
+  // Use API data if available, otherwise fallback to static data
+  const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
+
+  if (loading) {
+    return (
+      <section className="py-24 bg-background overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading testimonials...</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-24 bg-background overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -134,10 +233,11 @@ export default function TestimonialsSection() {
         <BlurFade delay={0.8} inView>
           <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
             <Marquee pauseOnHover className="[--duration:25s]">
-              {testimonials.map((testimonial) => (
+              {displayTestimonials.map((testimonial) => (
                 <TestimonialCard
                   key={testimonial.id}
                   testimonial={testimonial}
+                  locale={locale}
                 />
               ))}
             </Marquee>
@@ -158,7 +258,7 @@ export default function TestimonialsSection() {
             </div>
             <div className="text-center">
               <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
-                50+
+                {displayTestimonials.length > 10 ? '50+' : '50+'}
               </div>
               <p className="text-muted-foreground">Projects Delivered</p>
             </div>
