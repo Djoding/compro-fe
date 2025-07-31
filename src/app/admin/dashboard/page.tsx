@@ -10,6 +10,7 @@ interface Stats {
   projectsCompleted: number;
   teamMembers: number;
   clientTestimonials: number;
+  productsCompleted: number;
 }
 
 interface RecentActivity {
@@ -42,7 +43,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({
     projectsCompleted: 0,
     teamMembers: 0,
-    clientTestimonials: 0
+    clientTestimonials: 0,
+    productsCompleted: 0
   });
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
@@ -159,6 +161,16 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-blue-900">{stats.projectsCompleted}</div>
             <p className="text-xs text-blue-600">Total proyek yang telah diselesaikan</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-blue-800">Produk Selesai</CardTitle>
+            <FolderOpen className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-900">{stats.productsCompleted}</div>
+            <p className="text-xs text-blue-600">Total produk yang telah diselesaikan</p>
           </CardContent>
         </Card>
 

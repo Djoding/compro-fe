@@ -7,7 +7,6 @@ import { AbstractWavePattern } from "@/components/ui/abstract-wave-pattern";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  WavySeparator,
   WavySeparatorSmooth,
 } from "@/components/ui/wavy-separator";
 import { useContactData } from "@/hooks/use-contact-data";

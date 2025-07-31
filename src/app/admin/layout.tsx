@@ -22,7 +22,8 @@ import {
   HelpCircle,
   Monitor,
   Award,
-  MapPin
+  MapPin,
+  PackageOpen
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -48,6 +49,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       label: t("admin.menu.projects"),
       href: "/admin/projects",
       icon: FolderOpen
+    },
+    {
+      label: t("admin.menu.products"),
+      href: "/admin/products",
+      icon: PackageOpen
     },
     {
       label: t("admin.menu.team"),

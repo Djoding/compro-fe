@@ -11,7 +11,7 @@ interface AbstractWavePatternProps {
 // Flowing Pattern Component
 const FlowingPattern = ({
   intensity = "medium",
-  animated = true,
+  animated = true
 }: {
   readonly intensity?: "subtle" | "medium" | "strong";
   readonly animated?: boolean;
@@ -19,7 +19,7 @@ const FlowingPattern = ({
   const opacityMap = {
     subtle: "opacity-5",
     medium: "opacity-10",
-    strong: "opacity-20",
+    strong: "opacity-20"
   };
 
   return (
@@ -32,20 +32,10 @@ const FlowingPattern = ({
       transition={{ duration: 2 }}
     >
       <defs>
-        <linearGradient
-          id="flowingGradient"
-          x1="0%"
-          y1="0%"
-          x2="100%"
-          y2="100%"
-        >
+        <linearGradient id="flowingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
           <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.2" />
-          <stop
-            offset="100%"
-            stopColor="#8b5cf6"
-            stopOpacity="0.1"
-          />
+          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.1" />
         </linearGradient>
       </defs>
 
@@ -67,8 +57,8 @@ const FlowingPattern = ({
             d: [
               "M0,500 Q300,300 600,450 T1200,400 L1200,800 L0,800 Z",
               "M0,450 Q300,250 600,400 T1200,350 L1200,800 L0,800 Z",
-              "M0,500 Q300,300 600,450 T1200,400 L1200,800 L0,800 Z",
-            ],
+              "M0,500 Q300,300 600,450 T1200,400 L1200,800 L0,800 Z"
+            ]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -80,7 +70,7 @@ const FlowingPattern = ({
 // Organic Pattern Component
 const OrganicPattern = ({
   intensity = "medium",
-  animated = true,
+  animated = true
 }: {
   readonly intensity?: "subtle" | "medium" | "strong";
   readonly animated?: boolean;
@@ -88,23 +78,15 @@ const OrganicPattern = ({
   const opacityMap = {
     subtle: "opacity-5",
     medium: "opacity-10",
-    strong: "opacity-20",
+    strong: "opacity-20"
   };
 
   return (
-    <motion.svg
-      className="absolute inset-0 w-full h-full"
-      viewBox="0 0 1200 800"
-      preserveAspectRatio="xMidYMid slice"
-    >
+    <motion.svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
       <defs>
         <radialGradient id="organicGradient" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2" />
-          <stop
-            offset="100%"
-            stopColor="#3b82f6"
-            stopOpacity="0.05"
-          />
+          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
         </radialGradient>
       </defs>
 
@@ -120,7 +102,7 @@ const OrganicPattern = ({
         transition={{
           duration: animated ? 20 : 2,
           repeat: animated ? Infinity : 0,
-          ease: "linear",
+          ease: "linear"
         }}
       />
 
@@ -136,7 +118,7 @@ const OrganicPattern = ({
         transition={{
           duration: animated ? 25 : 2,
           repeat: animated ? Infinity : 0,
-          ease: "linear",
+          ease: "linear"
         }}
       />
     </motion.svg>
@@ -146,7 +128,7 @@ const OrganicPattern = ({
 // Geometric Pattern Component
 const GeometricPattern = ({
   intensity = "medium",
-  animated = true,
+  animated = true
 }: {
   readonly intensity?: "subtle" | "medium" | "strong";
   readonly animated?: boolean;
@@ -154,29 +136,14 @@ const GeometricPattern = ({
   const opacityMap = {
     subtle: "opacity-5",
     medium: "opacity-10",
-    strong: "opacity-20",
+    strong: "opacity-20"
   };
 
   return (
-    <motion.svg
-      className="absolute inset-0 w-full h-full"
-      viewBox="0 0 1200 800"
-      preserveAspectRatio="xMidYMid slice"
-    >
+    <motion.svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <pattern
-          id="geometricPattern"
-          x="0"
-          y="0"
-          width="100"
-          height="100"
-          patternUnits="userSpaceOnUse"
-        >
-          <polygon
-            points="50,10 90,90 10,90"
-            fill="#8b5cf6"
-            className={cn(opacityMap[intensity])}
-          />
+        <pattern id="geometricPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+          <polygon points="50,10 90,90 10,90" fill="#8b5cf6" className={cn(opacityMap[intensity])} />
         </pattern>
       </defs>
 
@@ -211,7 +178,7 @@ const GeometricPattern = ({
 // Fluid Pattern Component
 const FluidPattern = ({
   intensity = "medium",
-  animated = true,
+  animated = true
 }: {
   readonly intensity?: "subtle" | "medium" | "strong";
   readonly animated?: boolean;
@@ -219,15 +186,11 @@ const FluidPattern = ({
   const opacityMap = {
     subtle: "opacity-5",
     medium: "opacity-10",
-    strong: "opacity-20",
+    strong: "opacity-20"
   };
 
   return (
-    <motion.svg
-      className="absolute inset-0 w-full h-full"
-      viewBox="0 0 1200 800"
-      preserveAspectRatio="xMidYMid slice"
-    >
+    <motion.svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
       <defs>
         <filter id="fluidFilter">
           <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
@@ -246,14 +209,14 @@ const FluidPattern = ({
             ? {
                 cx: [200, 400, 200],
                 cy: [150, 300, 150],
-                r: [100, 150, 100],
+                r: [100, 150, 100]
               }
             : {}
         }
         transition={{
           duration: 6,
           repeat: animated ? Infinity : 0,
-          ease: "easeInOut",
+          ease: "easeInOut"
         }}
       />
 
@@ -269,14 +232,14 @@ const FluidPattern = ({
             ? {
                 cx: [1000, 800, 1000],
                 cy: [650, 450, 650],
-                r: [120, 80, 120],
+                r: [120, 80, 120]
               }
             : {}
         }
         transition={{
           duration: 8,
           repeat: animated ? Infinity : 0,
-          ease: "easeInOut",
+          ease: "easeInOut"
         }}
       />
     </motion.svg>
@@ -288,22 +251,17 @@ export function AbstractWavePattern({
   variant = "flowing",
   intensity = "medium",
   className,
-  animated = true,
+  animated = true
 }: AbstractWavePatternProps) {
   const PatternComponent = {
     flowing: FlowingPattern,
     organic: OrganicPattern,
     geometric: GeometricPattern,
-    fluid: FluidPattern,
+    fluid: FluidPattern
   }[variant];
 
   return (
-    <div
-      className={cn(
-        "absolute inset-0 pointer-events-none overflow-hidden",
-        className
-      )}
-    >
+    <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", className)}>
       <PatternComponent intensity={intensity} animated={animated} />
     </div>
   );
@@ -311,21 +269,14 @@ export function AbstractWavePattern({
 
 // Connected Flowing Pattern for full page coverage
 export function ConnectedFlowingPattern({
-  intensity = "medium",
   animated = true,
-  className,
+  className
 }: {
-  readonly intensity?: "subtle" | "medium" | "strong";
   readonly animated?: boolean;
   readonly className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "fixed inset-0 pointer-events-none overflow-hidden z-0",
-        className
-      )}
-    >
+    <div className={cn("fixed inset-0 pointer-events-none overflow-hidden z-0", className)}>
       <motion.svg
         className="absolute inset-0 w-full h-full"
         viewBox="0 0 1200 800"
@@ -335,33 +286,11 @@ export function ConnectedFlowingPattern({
         transition={{ duration: 3 }}
       >
         <defs>
-          <linearGradient
-            id="connectedGradient"
-            x1="0%"
-            y1="0%"
-            x2="100%"
-            y2="100%"
-          >
-            <stop
-              offset="0%"
-              stopColor="#8b5cf6"
-              stopOpacity="0.15"
-            />
-            <stop
-              offset="25%"
-              stopColor="#3b82f6"
-              stopOpacity="0.1"
-            />
-            <stop
-              offset="75%"
-              stopColor="#8b5cf6"
-              stopOpacity="0.08"
-            />
-            <stop
-              offset="100%"
-              stopColor="#3b82f6"
-              stopOpacity="0.05"
-            />
+          <linearGradient id="connectedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.15" />
+            <stop offset="25%" stopColor="#3b82f6" stopOpacity="0.1" />
+            <stop offset="75%" stopColor="#8b5cf6" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
           </linearGradient>
 
           <filter id="connectedBlur">
@@ -381,15 +310,15 @@ export function ConnectedFlowingPattern({
                     "M0,0 Q300,200 600,100 T1200,150 L1200,0 Z",
                     "M0,0 Q300,100 600,200 T1200,100 L1200,0 Z",
                     "M0,0 Q300,150 600,50 T1200,200 L1200,0 Z",
-                    "M0,0 Q300,200 600,100 T1200,150 L1200,0 Z",
-                  ],
+                    "M0,0 Q300,200 600,100 T1200,150 L1200,0 Z"
+                  ]
                 }
               : {}
           }
           transition={{
             duration: 15,
             repeat: animated ? Infinity : 0,
-            ease: "easeInOut",
+            ease: "easeInOut"
           }}
         />
 
@@ -405,15 +334,15 @@ export function ConnectedFlowingPattern({
                     "M0,800 Q300,600 600,700 T1200,650 L1200,800 Z",
                     "M0,800 Q300,700 600,600 T1200,700 L1200,800 Z",
                     "M0,800 Q300,650 600,750 T1200,600 L1200,800 Z",
-                    "M0,800 Q300,600 600,700 T1200,650 L1200,800 Z",
-                  ],
+                    "M0,800 Q300,600 600,700 T1200,650 L1200,800 Z"
+                  ]
                 }
               : {}
           }
           transition={{
             duration: 18,
             repeat: animated ? Infinity : 0,
-            ease: "easeInOut",
+            ease: "easeInOut"
           }}
         />
 
@@ -429,15 +358,15 @@ export function ConnectedFlowingPattern({
                   d: [
                     "M0,300 Q400,100 800,400 L800,500 Q400,200 0,400 Z",
                     "M0,350 Q400,150 800,350 L800,450 Q400,250 0,450 Z",
-                    "M0,300 Q400,100 800,400 L800,500 Q400,200 0,400 Z",
-                  ],
+                    "M0,300 Q400,100 800,400 L800,500 Q400,200 0,400 Z"
+                  ]
                 }
               : {}
           }
           transition={{
             duration: 12,
             repeat: animated ? Infinity : 0,
-            ease: "easeInOut",
+            ease: "easeInOut"
           }}
         />
       </motion.svg>

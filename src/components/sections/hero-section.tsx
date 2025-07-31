@@ -1,7 +1,6 @@
 "use client";
 
 import { FlipText } from "@/components/magicui/flip-text";
-import { OrbitingCircles } from "@/components/magicui/orbiting-circles";
 import { Particles } from "@/components/magicui/particles";
 import { TypingAnimation } from "@/components/magicui/typing-animation";
 import { AnimatedGridPattern } from "@/components/magicui/animated-grid-pattern";
@@ -9,13 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useHomeData } from "@/hooks/use-home-data";
 import { useTranslations } from "@/hooks/use-translations";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Play,
-  Sparkles,
-  Loader2,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Play, Sparkles, Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,32 +20,22 @@ export default function HeroSection() {
   const icon4Ref = useRef<HTMLDivElement>(null);
 
   const { t, locale } = useTranslations();
-  const { data, loading, error } = useHomeData();
-
-  const [stats, setStats] = useState({
-    projects: 50,
-    clients: 25,
-    years: 5,
-    experts: 15,
-  });
+  const { loading, error } = useHomeData();
 
   // Static texts dari translations
   const heroTexts = {
     badge: t("sections.hero.badge") || "PT. Teknalogi Transformasi Digital",
     accelerating: locale === "id" ? "Mempercepat" : "Accelerating",
-    businessThrough:
-      locale === "id" ? "Bisnis Anda Melalui" : "Your Business Through",
-    digitalInnovation:
-      locale === "id" ? "Inovasi Digital" : "Digital Innovation",
+    businessThrough: locale === "id" ? "Bisnis Anda Melalui" : "Your Business Through",
+    digitalInnovation: locale === "id" ? "Inovasi Digital" : "Digital Innovation",
     startProject: t("buttons.startProject"),
     watchStory: t("buttons.watchStory"),
     loading: t("ui.loading"),
-    errorLoadData:
-      locale === "id" ? "Gagal memuat data" : "Failed to load data",
+    errorLoadData: locale === "id" ? "Gagal memuat data" : "Failed to load data",
     defaultDescription:
       locale === "id"
         ? "Kami adalah mitra inovasi digital yang berdedikasi fokus pada percepatan pertumbuhan bisnis, merancang dan membangun solusi teknologi khusus yang meningkatkan efisiensi dan membuka potensi baru bagi klien kami."
-        : "We are dedicated digital innovation partners focused on accelerating business growth, designing and building custom technology solutions that enhance efficiency and unlock new potential for our clients.",
+        : "We are dedicated digital innovation partners focused on accelerating business growth, designing and building custom technology solutions that enhance efficiency and unlock new potential for our clients."
   };
 
   useEffect(() => {
@@ -74,28 +58,13 @@ export default function HeroSection() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Update stats dari backend jika ada
-  useEffect(() => {
-    if (data?.companyProfile) {
-      // Mapping stats dari backend response
-      setStats({
-        projects: 50,
-        clients: 25,
-        years: 5,
-        experts: 15,
-      });
-    }
-  }, [data]);
-
   // Loading state
   if (loading) {
     return (
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
         <div className="flex items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <span className="text-lg text-muted-foreground">
-            {heroTexts.loading}
-          </span>
+          <span className="text-lg text-muted-foreground">{heroTexts.loading}</span>
         </div>
       </section>
     );
@@ -106,9 +75,7 @@ export default function HeroSection() {
     return (
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
         <div className="text-center">
-          <div className="text-red-500 mb-4 text-lg font-semibold">
-            {heroTexts.errorLoadData}
-          </div>
+          <div className="text-red-500 mb-4 text-lg font-semibold">{heroTexts.errorLoadData}</div>
           <p className="text-muted-foreground mb-4">{error}</p>
           <Button onClick={() => window.location.reload()} variant="outline">
             {t("ui.retry")}
@@ -119,8 +86,7 @@ export default function HeroSection() {
   }
 
   // Dynamic content dari backend (sudah dalam bahasa yang sesuai)
-  const companyDescription =
-    heroTexts.defaultDescription;
+  const companyDescription = heroTexts.defaultDescription;
 
   return (
     <section
@@ -129,26 +95,15 @@ export default function HeroSection() {
     >
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <Particles
-          className="absolute inset-0"
-          color="#8B5CF6"
-        />
+        <Particles className="absolute inset-0" color="#8B5CF6" />
       </div>
 
       {/* Warp Background for central focus */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <AnimatedGridPattern
-          className="w-full h-full opacity-20"
-          numSquares={100}
-        >
-          <div
-            ref={centerRef}
-            className="w-20 h-20 bg-primary/20 rounded-full"
-          />
+        <AnimatedGridPattern className="w-full h-full opacity-20" numSquares={100}>
+          <div ref={centerRef} className="w-20 h-20 bg-primary/20 rounded-full" />
         </AnimatedGridPattern>
       </div>
-
-      
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -173,9 +128,7 @@ export default function HeroSection() {
           >
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-foreground leading-tight">
               <div className="block mb-4">
-                <FlipText className="text-primary">
-                  {heroTexts.accelerating}
-                </FlipText>
+                <FlipText className="text-primary">{heroTexts.accelerating}</FlipText>
               </div>
 
               <div className="block mb-4">{heroTexts.businessThrough}</div>
@@ -195,11 +148,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="max-w-4xl mx-auto"
           >
-            <TypingAnimation
-              className="text-lg sm:text-xl text-muted-foreground leading-relaxed"
-              duration={50}
-              delay={1000}
-            >
+            <TypingAnimation className="text-lg sm:text-xl text-muted-foreground leading-relaxed" duration={50} delay={1000}>
               {companyDescription}
             </TypingAnimation>
           </motion.div>
@@ -225,7 +174,6 @@ export default function HeroSection() {
               {heroTexts.watchStory}
             </Button>
           </motion.div>
-
         </div>
       </div>
     </section>

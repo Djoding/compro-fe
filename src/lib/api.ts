@@ -161,6 +161,25 @@ export const projectsAPI = {
     })
 };
 
+export const productsAPI = {
+  getAll: () => apiCall("/products"),
+  getById: (id: string) => apiCall(`/products/${id}`),
+  create: (formData: FormData) =>
+    apiCallFormData("/products", {
+      method: "POST",
+      body: formData
+    }),
+  update: (id: string, formData: FormData) =>
+    apiCallFormData(`/products/${id}`, {
+      method: "PUT",
+      body: formData
+    }),
+  delete: (id: string) =>
+    apiCall(`/products/${id}`, {
+      method: "DELETE"
+    })
+};
+
 // Articles API
 export const articlesAPI = {
   getAll: () => apiCall("/articles"),

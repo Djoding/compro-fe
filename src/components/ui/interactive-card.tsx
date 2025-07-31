@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Eye, Heart, Share2, Star } from "lucide-react";
+import { ArrowRight, Heart, Share2, Star } from "lucide-react";
 import React, { useState } from "react";
 
 interface InteractiveCardProps {
@@ -42,9 +42,6 @@ export function InteractiveCard({
 }: InteractiveCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [viewCount, setViewCount] = useState(
-    Math.floor(Math.random() * 1000) + 100
-  );
 
   const sizeClasses = {
     sm: "h-80",
@@ -53,7 +50,6 @@ export function InteractiveCard({
   };
 
   const handleView = () => {
-    setViewCount((prev) => prev + 1);
     onAction?.();
   };
 
