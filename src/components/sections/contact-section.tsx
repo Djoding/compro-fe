@@ -1,14 +1,26 @@
 "use client";
 
 import { BlurFade } from "@/components/magicui/blur-fade";
+import { AbstractWavePattern } from "@/components/ui/abstract-wave-pattern";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { CheckCircle, Mail, MapPin, Phone, Send, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { contactAPI } from "@/lib/api";
+import {
+  InteractiveCard,
+  InteractiveCardGrid,
+} from "@/components/ui/interactive-card";
 import { useLanguage } from "@/contexts/language-context";
+import { useContactData } from "@/hooks/use-contact-data";
+import {
+  Clock,
+  Loader2,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Send,
+} from "lucide-react";
 
-interface ContactInfo {
+interface ContactData {
   phone_id?: string;
   phone_en?: string;
   email?: string;
@@ -18,301 +30,258 @@ interface ContactInfo {
   operatingHours_en?: string;
 }
 
-// Fallback contact info
-const fallbackContactInfo = [
+interface TransformedContactInfo {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  category: string;
+  rating: number;
+  actionLabel: string;
+}
+
+// Extract fallback data constant
+const FALLBACK_CONTACT_DATA = [
   {
-    icon: Mail,
-    title: "Email Us",
-    content: "info@teknalogi.id",
-    description: "Send us an email anytime"
+    id: "1",
+    titleId: "Email Kami",
+    titleEn: "Email Us",
+    descriptionId:
+      "Kirim email kapan saja, kami akan merespons dalam 24 jam. Tim support kami siap membantu menjawab pertanyaan dan kebutuhan bisnis Anda.",
+    descriptionEn:
+      "Send us an email anytime, we'll respond within 24 hours. Our support team is ready to help answer your questions and business needs.",
+    categoryId: "info@teknalogi.id",
+    categoryEn: "info@teknalogi.id",
+    actionLabelId: "Kirim Email",
+    actionLabelEn: "Send Email",
+    iconType: "mail",
   },
   {
-    icon: Phone,
-    title: "Call Us",
-    content: "+62 21 1234 5678",
-    description: "Mon-Fri from 9am to 6pm"
+    id: "2",
+    titleId: "Telepon Kami",
+    titleEn: "Call Us",
+    descriptionId:
+      "Hubungi langsung tim kami untuk konsultasi gratis. Tersedia Senin-Jumat 09:00-18:00 WIB. Dapatkan jawaban cepat untuk kebutuhan proyek Anda.",
+    descriptionEn:
+      "Call our team directly for free consultation. Available Monday-Friday 09:00-18:00 WIB. Get quick answers for your project needs.",
+    categoryId: "+62 21 1234 5678",
+    categoryEn: "+62 21 1234 5678",
+    actionLabelId: "Hubungi Sekarang",
+    actionLabelEn: "Call Now",
+    iconType: "phone",
   },
   {
-    icon: MapPin,
-    title: "Visit Us",
-    content: "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345",
-    description: "Come say hello at our office"
-  }
+    id: "3",
+    titleId: "Kunjungi Kantor",
+    titleEn: "Visit Our Office",
+    descriptionId:
+      "Datang langsung ke kantor kami untuk meeting dan diskusi proyek. Lokasi strategis di Jakarta Selatan dengan akses mudah transportasi umum.",
+    descriptionEn:
+      "Come directly to our office for meetings and project discussions. Strategic location in South Jakarta with easy public transportation access.",
+    categoryId: "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345",
+    categoryEn: "Jl. Teknologi Digital No. 123, South Jakarta 12345",
+    actionLabelId: "Lihat Peta",
+    actionLabelEn: "View Map",
+    iconType: "map",
+  },
+  {
+    id: "4",
+    titleId: "Jam Operasional",
+    titleEn: "Operating Hours",
+    descriptionId:
+      "Senin - Jumat: 09:00 - 18:00 WIB. Sabtu: 09:00 - 15:00 WIB. Minggu: Tutup. Untuk keperluan urgent di luar jam kerja, silakan email kami.",
+    descriptionEn:
+      "Monday - Friday: 09:00 - 18:00 WIB. Saturday: 09:00 - 15:00 WIB. Sunday: Closed. For urgent matters outside working hours, please email us.",
+    categoryId: "Senin - Jumat: 09:00 - 18:00",
+    categoryEn: "Monday - Friday: 09:00 - 18:00",
+    actionLabelId: "Jadwalkan Meeting",
+    actionLabelEn: "Schedule Meeting",
+    iconType: "clock",
+  },
 ];
+
+// Helper function to get icon
+const getIconForType = (iconType: string) => {
+  const iconMap = {
+    mail: <Mail className="w-6 h-6" />,
+    phone: <Phone className="w-6 h-6" />,
+    map: <MapPin className="w-6 h-6" />,
+    clock: <Clock className="w-6 h-6" />,
+  };
+  return (
+    iconMap[iconType as keyof typeof iconMap] || (
+      <MessageCircle className="w-6 h-6" />
+    )
+  );
+};
+
+// Extract fallback data generator
+const generateFallbackContact = (locale: string): TransformedContactInfo[] =>
+  FALLBACK_CONTACT_DATA.map((item) => ({
+    id: item.id,
+    title: locale === "id" ? item.titleId : item.titleEn,
+    description: locale === "id" ? item.descriptionId : item.descriptionEn,
+    icon: getIconForType(item.iconType),
+    category: locale === "id" ? item.categoryId : item.categoryEn,
+    rating: 5,
+    actionLabel: locale === "id" ? item.actionLabelId : item.actionLabelEn,
+  }));
+
+// Extract data transformation function
+const transformApiContact = (
+  contact: ContactData,
+  locale: string
+): TransformedContactInfo[] =>
+  generateFallbackContact(locale)
+    .filter((item) => {
+      if (item.id === "1" && contact.email) return true;
+      if (item.id === "2" && (contact.phone_id || contact.phone_en))
+        return true;
+      if (item.id === "3" && (contact.address_id || contact.address_en))
+        return true;
+      return false;
+    })
+    .map((item) => {
+      if (item.id === "1" && contact.email) {
+        return { ...item, category: contact.email };
+      }
+      if (item.id === "2") {
+        const phone = locale === "id" ? contact.phone_id : contact.phone_en;
+        return { ...item, category: phone || item.category };
+      }
+      if (item.id === "3") {
+        const address =
+          locale === "id" ? contact.address_id : contact.address_en;
+        return { ...item, category: address || item.category };
+      }
+      return item;
+    });
+
+// Extract loading component
+const LoadingState = ({ locale }: { locale: string }) => (
+  <section className="relative py-24 px-6">
+    <div className="max-w-7xl mx-auto text-center">
+      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+      <p className="text-muted-foreground">
+        {locale === "id"
+          ? "Memuat informasi kontak..."
+          : "Loading contact information..."}
+      </p>
+    </div>
+  </section>
+);
+
+// Extract header component
+const ContactHeader = ({ locale }: { locale: string }) => (
+  <BlurFade delay={0.25}>
+    <div className="text-center mb-16">
+      <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+        <MessageCircle className="w-4 h-4 mr-2" />
+        {locale === "id" ? "Hubungi Kami" : "Contact Us"}
+      </Badge>
+
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+        {locale === "id" ? "Mari Berkolaborasi" : "Let's Collaborate"}
+      </h2>
+
+      <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+        {locale === "id"
+          ? "Siap memulai proyek teknologi Anda? Tim ahli kami siap membantu mewujudkan visi digital Anda. Hubungi kami untuk konsultasi gratis dan diskusi solusi terbaik."
+          : "Ready to start your technology project? Our expert team is ready to help realize your digital vision. Contact us for free consultation and discussion of the best solutions."}
+      </p>
+    </div>
+  </BlurFade>
+);
+
+// CTA section
+const ContactCTA = ({ locale }: { locale: string }) => (
+  <BlurFade delay={0.1}>
+    <div className="mt-16 text-center bg-card p-8 rounded-lg border">
+      <h3 className="text-2xl font-semibold mb-4">
+        {locale === "id"
+          ? "Siap Memulai Proyek Anda?"
+          : "Ready to Start Your Project?"}
+      </h3>
+      <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+        {locale === "id"
+          ? "Konsultasi gratis dengan tim ahli kami. Kami akan membantu menganalisis kebutuhan dan memberikan solusi terbaik untuk bisnis Anda."
+          : "Free consultation with our expert team. We will help analyze your needs and provide the best solutions for your business."}
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Button
+          size="lg"
+          onClick={() => (window.location.href = "mailto:info@teknalogi.id")}
+        >
+          <Send className="w-4 h-4 mr-2" />
+          {locale === "id" ? "Mulai Konsultasi" : "Start Consultation"}
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => (window.location.href = "tel:+6221234567")}
+        >
+          <Phone className="w-4 h-4 mr-2" />
+          {locale === "id" ? "Hubungi Langsung" : "Call Directly"}
+        </Button>
+      </div>
+    </div>
+  </BlurFade>
+);
 
 export default function ContactSection() {
   const { locale } = useLanguage();
-  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    message: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const { contactInfo, loading } = useContactData();
 
-  useEffect(
-    () => {
-      const fetchContactInfo = async () => {
-        try {
-          setLoading(true);
-          const response = await contactAPI.getInfo();
+  if (loading) {
+    return <LoadingState locale={locale} />;
+  }
 
-          if (response.status === "success" && response.data) {
-            setContactInfo(response.data);
-          }
-        } catch (err) {
-          console.error("Error fetching contact info:", err);
-          // Silently fail and use fallback data
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchContactInfo();
-    },
-    [locale]
-  );
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // TODO: Implement actual form submission to API
-    // For now, simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData({ name: "", email: "", company: "", message: "" });
-
-    // Reset success state after 3 seconds
-    setTimeout(() => setIsSubmitted(false), 3000);
-  };
-
-  // Prepare contact info for display
-  const displayContactInfo = contactInfo
-    ? [
-        {
-          icon: Mail,
-          title: "Email Us",
-          content: contactInfo.email || "info@teknalogi.id",
-          description: "Send us an email anytime"
-        },
-        {
-          icon: Phone,
-          title: "Call Us",
-          content: locale === "id" ? contactInfo.phone_id || "+62 21 1234 5678" : contactInfo.phone_en || "+62 21 1234 5678",
-          description:
-            locale === "id"
-              ? contactInfo.operatingHours_id || "Senin-Jumat 09:00 - 18:00"
-              : contactInfo.operatingHours_en || "Mon-Fri from 9am to 6pm"
-        },
-        {
-          icon: MapPin,
-          title: "Visit Us",
-          content:
-            locale === "id"
-              ? contactInfo.address_id || "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345"
-              : contactInfo.address_en || "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345",
-          description: "Come say hello at our office"
-        }
-      ]
-    : fallbackContactInfo;
+  const transformedContact = contactInfo
+    ? transformApiContact(contactInfo, locale)
+    : generateFallbackContact(locale);
 
   return (
-    <section className="py-24 bg-muted/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <BlurFade delay={0.2} inView>
-            <span className="inline-block px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-4">
-              Get In Touch
-            </span>
-          </BlurFade>
+    <section className="relative py-24 px-6">
+      <AbstractWavePattern
+        variant="flowing"
+        intensity="subtle"
+        animated={true}
+      />
 
-          <BlurFade delay={0.4} inView>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">Let&apos;s Start Your Project</h2>
-          </BlurFade>
+      <div className="max-w-7xl mx-auto relative z-20">
+        <ContactHeader locale={locale} />
 
-          <BlurFade delay={0.6} inView>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Ready to transform your business? Get in touch with our team to discuss your project requirements and discover how
-              we can help you achieve your digital goals.
-            </p>
-          </BlurFade>
-        </div>
+        <BlurFade delay={0.1}>
+          <InteractiveCardGrid
+            columns={2}
+            gap={8}
+            className="flex justify-center"
+          >
+            {transformedContact.map((contact) => (
+              <InteractiveCard
+                key={contact.id}
+                title={contact.title}
+                description={contact.description}
+                icon={contact.icon}
+                category={contact.category}
+                actionLabel={contact.actionLabel}
+                size="md"
+                className="w-lg"
+                onAction={() => {
+                  if (contact.id === "1") {
+                    window.location.href = `mailto:${contact.category}`;
+                  } else if (contact.id === "2") {
+                    window.location.href = `tel:${contact.category}`;
+                  } else {
+                    console.log(`Clicked on ${contact.title}`);
+                  }
+                }}
+              />
+            ))}
+          </InteractiveCardGrid>
+        </BlurFade>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Contact Info */}
-          <div className="space-y-8">
-            <BlurFade delay={0.8} inView>
-              <div>
-                <h3 className="text-2xl font-semibold text-foreground mb-6">Get In Touch</h3>
-                <p className="text-muted-foreground mb-8">
-                  We&apos;d love to hear from you. Choose the most convenient way to reach out to us.
-                </p>
-              </div>
-            </BlurFade>
-
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="ml-2 text-muted-foreground">Loading contact info...</span>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {displayContactInfo.map((info, index) => {
-                  const Icon = info.icon;
-                  return (
-                    <BlurFade key={info.title} delay={1.0 + index * 0.1} inView>
-                      <div className="flex items-start space-x-4 p-4 bg-card rounded-lg border border-border hover:shadow-md transition-all duration-300">
-                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground mb-1">{info.title}</h4>
-                          <p className="text-foreground font-medium mb-1">{info.content}</p>
-                          <p className="text-sm text-muted-foreground">{info.description}</p>
-                        </div>
-                      </div>
-                    </BlurFade>
-                  );
-                })}
-              </div>
-            )}
-
-            <BlurFade delay={1.4} inView>
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
-                <h4 className="font-semibold text-foreground mb-2">Response Time</h4>
-                <p className="text-muted-foreground text-sm">
-                  We typically respond to all inquiries within 24 hours during business days. For urgent matters, please call us
-                  directly.
-                </p>
-              </div>
-            </BlurFade>
-          </div>
-
-          {/* Contact Form */}
-          <BlurFade delay={1.0} inView>
-            <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
-              <h3 className="text-2xl font-semibold text-foreground mb-6">Send us a message</h3>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                      placeholder="Your full name"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-foreground mb-2">
-                    Company Name
-                  </label>
-                  <input
-                    type="text"
-                    id="company"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                    placeholder="Your company name"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
-                    Project Details *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={5}
-                    className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-                    placeholder="Tell us about your project requirements..."
-                  />
-                </div>
-
-                <Button type="submit" disabled={isSubmitting || isSubmitted} className="w-full" size="lg">
-                  {(() => {
-                    if (isSubmitting) {
-                      return (
-                        <>
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "linear"
-                            }}
-                            className="w-5 h-5 border-2 border-current border-t-transparent rounded-full mr-2"
-                          />
-                          Sending...
-                        </>
-                      );
-                    }
-
-                    if (isSubmitted) {
-                      return (
-                        <>
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Message Sent!
-                        </>
-                      );
-                    }
-
-                    return (
-                      <>
-                        <Send className="w-5 h-5 mr-2" />
-                        Send Message
-                      </>
-                    );
-                  })()}
-                </Button>
-              </form>
-            </div>
-          </BlurFade>
-        </div>
+        <ContactCTA locale={locale} />
       </div>
     </section>
   );

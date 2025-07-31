@@ -1,18 +1,35 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { teamAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslations } from "@/hooks/use-translations";
+import { teamAPI } from "@/lib/api";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { getImageUrl } from "@/lib/utils";
-import { Plus, Edit, Trash2, Users, Linkedin, Github, Twitter, Globe } from "lucide-react";
+import {
+  Edit,
+  Github,
+  Globe,
+  Linkedin,
+  Plus,
+  Trash2,
+  Twitter,
+  Users,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 interface SocialMedia {
   id: string;
@@ -47,12 +64,12 @@ export default function TeamPage() {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-    const [form, setForm] = useState<TeamMemberForm>({
+  const [form, setForm] = useState<TeamMemberForm>({
     name: "",
     position_id: "",
     position_en: "",
     roleCategory: "",
-    socialMedia: []
+    socialMedia: [],
   });
   const { toast } = useToast();
   const { t, locale } = useTranslations();
@@ -68,7 +85,7 @@ export default function TeamPage() {
       toast({
         title: "Error",
         description: getFriendlyErrorMessage(error),
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -89,8 +106,11 @@ export default function TeamPage() {
       formData.append("position_id", form.position_id);
       formData.append("position_en", form.position_en);
       formData.append("roleCategory", form.roleCategory);
-      formData.append("socialMedia", JSON.stringify(form.socialMedia.filter(sm => sm.platform && sm.url)));
-      
+      formData.append(
+        "socialMedia",
+        JSON.stringify(form.socialMedia.filter((sm) => sm.platform && sm.url))
+      );
+
       if (imageFile) {
         formData.append("image", imageFile);
       }
@@ -105,7 +125,9 @@ export default function TeamPage() {
       if (response.status === "success") {
         toast({
           title: t("admin.common.success"),
-          description: editingMember ? t("admin.pages.team.updateSuccess") : t("admin.pages.team.addSuccess"),
+          description: editingMember
+            ? t("admin.pages.team.updateSuccess")
+            : t("admin.pages.team.addSuccess"),
           variant: "success",
         });
         fetchTeamMembers();
@@ -164,42 +186,54 @@ export default function TeamPage() {
       position_id: member.position_id,
       position_en: member.position_en,
       roleCategory: member.roleCategory,
-      socialMedia: member.socialMedia.length > 0 
-        ? member.socialMedia.map(sm => ({ platform: sm.platform, url: sm.url }))
-        : [{ platform: "", url: "" }],
+      socialMedia:
+        member.socialMedia.length > 0
+          ? member.socialMedia.map((sm) => ({
+              platform: sm.platform,
+              url: sm.url,
+            }))
+          : [{ platform: "", url: "" }],
     });
     setDialogOpen(true);
   };
 
   const addSocialMediaField = () => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      socialMedia: [...prev.socialMedia, { platform: "", url: "" }]
+      socialMedia: [...prev.socialMedia, { platform: "", url: "" }],
     }));
   };
 
   const removeSocialMediaField = (index: number) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      socialMedia: prev.socialMedia.filter((_, i) => i !== index)
+      socialMedia: prev.socialMedia.filter((_, i) => i !== index),
     }));
   };
 
-  const updateSocialMediaField = (index: number, field: "platform" | "url", value: string) => {
-    setForm(prev => ({
+  const updateSocialMediaField = (
+    index: number,
+    field: "platform" | "url",
+    value: string
+  ) => {
+    setForm((prev) => ({
       ...prev,
-      socialMedia: prev.socialMedia.map((sm, i) => 
+      socialMedia: prev.socialMedia.map((sm, i) =>
         i === index ? { ...sm, [field]: value } : sm
-      )
+      ),
     }));
   };
 
   const getSocialIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
-      case "linkedin": return <Linkedin className="h-4 w-4" />;
-      case "github": return <Github className="h-4 w-4" />;
-      case "twitter": return <Twitter className="h-4 w-4" />;
-      default: return <Globe className="h-4 w-4" />;
+      case "linkedin":
+        return <Linkedin className="h-4 w-4" />;
+      case "github":
+        return <Github className="h-4 w-4" />;
+      case "twitter":
+        return <Twitter className="h-4 w-4" />;
+      default:
+        return <Globe className="h-4 w-4" />;
     }
   };
 
@@ -224,7 +258,9 @@ export default function TeamPage() {
         <div className="flex items-center gap-3">
           <Users className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.team.title")}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {t("admin.pages.team.title")}
+            </h1>
             <p className="text-gray-600">{t("admin.pages.team.subtitle")}</p>
           </div>
         </div>
@@ -238,10 +274,14 @@ export default function TeamPage() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingMember ? t("admin.pages.team.editMember") : t("admin.pages.team.addMember")}
+                {editingMember
+                  ? t("admin.pages.team.editMember")
+                  : t("admin.pages.team.addMember")}
               </DialogTitle>
               <DialogDescription>
-                {editingMember ? t("admin.pages.team.editDescription") : t("admin.pages.team.addDescription")}
+                {editingMember
+                  ? t("admin.pages.team.editDescription")
+                  : t("admin.pages.team.addDescription")}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -251,12 +291,14 @@ export default function TeamPage() {
                   <Input
                     id="name"
                     value={form.name}
-                    onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, name: e.target.value }))
+                    }
                     required
                   />
                 </div>
               </div>
-              
+
               {/* Position Fields - Bilingual */}
               <div className="space-y-4 p-4 border rounded-lg">
                 <h4 className="font-medium text-gray-900">Posisi / Position</h4>
@@ -264,7 +306,12 @@ export default function TeamPage() {
                   <Label>Posisi (Bahasa Indonesia) *</Label>
                   <Input
                     value={form.position_id}
-                    onChange={(e) => setForm(prev => ({ ...prev, position_id: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        position_id: e.target.value,
+                      }))
+                    }
                     placeholder="Software Engineer, UI/UX Designer, dll."
                     required
                   />
@@ -273,25 +320,35 @@ export default function TeamPage() {
                   <Label>Position (English) *</Label>
                   <Input
                     value={form.position_en}
-                    onChange={(e) => setForm(prev => ({ ...prev, position_en: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        position_en: e.target.value,
+                      }))
+                    }
                     placeholder="Software Engineer, UI/UX Designer, etc."
                     required
                   />
                 </div>
               </div>
-              
+
               {/* Role Category Field */}
               <div className="space-y-2">
                 <Label htmlFor="roleCategory">Kategori Role</Label>
                 <Input
                   id="roleCategory"
                   value={form.roleCategory}
-                  onChange={(e) => setForm(prev => ({ ...prev, roleCategory: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      roleCategory: e.target.value,
+                    }))
+                  }
                   placeholder="Developer, Designer, Management"
                   required
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="image">Foto Profil</Label>
@@ -308,7 +365,12 @@ export default function TeamPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Media Sosial</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addSocialMediaField}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addSocialMediaField}
+                  >
                     <Plus className="h-3 w-3 mr-1" />
                     Tambah
                   </Button>
@@ -318,17 +380,25 @@ export default function TeamPage() {
                     <Input
                       placeholder="Platform (LinkedIn, GitHub, etc.)"
                       value={sm.platform}
-                      onChange={(e) => updateSocialMediaField(index, "platform", e.target.value)}
+                      onChange={(e) =>
+                        updateSocialMediaField(
+                          index,
+                          "platform",
+                          e.target.value
+                        )
+                      }
                     />
                     <Input
                       placeholder="URL"
                       value={sm.url}
-                      onChange={(e) => updateSocialMediaField(index, "url", e.target.value)}
+                      onChange={(e) =>
+                        updateSocialMediaField(index, "url", e.target.value)
+                      }
                     />
                     {form.socialMedia.length > 1 && (
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         size="icon"
                         onClick={() => removeSocialMediaField(index)}
                       >
@@ -340,11 +410,19 @@ export default function TeamPage() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                >
                   Batal
                 </Button>
                 <Button type="submit" disabled={submitting}>
-                  {submitting ? "Menyimpan..." : editingMember ? "Perbarui" : "Tambah"}
+                  {submitting
+                    ? "Menyimpan..."
+                    : editingMember
+                    ? "Perbarui"
+                    : "Tambah"}
                 </Button>
               </DialogFooter>
             </form>
@@ -361,16 +439,18 @@ export default function TeamPage() {
                 alt={member.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = "/placeholder.png";
+                  e.currentTarget.src = "/placeholder.svg";
                 }}
               />
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg">{member.name}</h3>
-                <p className="text-sm text-gray-600">{locale === 'en' ? member.position_en : member.position_id}</p>
+                <p className="text-sm text-gray-600">
+                  {locale === "en" ? member.position_en : member.position_id}
+                </p>
                 <Badge variant="outline">{member.roleCategory}</Badge>
-                
+
                 {member.socialMedia.length > 0 && (
                   <div className="flex gap-2 pt-2">
                     {member.socialMedia.map((sm) => (
@@ -387,7 +467,7 @@ export default function TeamPage() {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="outline"
@@ -416,9 +496,12 @@ export default function TeamPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Users className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada anggota tim</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Belum ada anggota tim
+            </h3>
             <p className="text-gray-500 text-center mb-4">
-              Mulai tambahkan anggota tim untuk menampilkan profil mereka di website
+              Mulai tambahkan anggota tim untuk menampilkan profil mereka di
+              website
             </p>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />

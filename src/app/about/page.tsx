@@ -1,14 +1,18 @@
 // src/app/about/page.tsx
-'use client';
+"use client";
 
-import AboutSection from "@/components/sections/about-section";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { VelocityScroll } from "@/components/magicui/scroll-based-velocity";
+import AboutSection from "@/components/sections/about-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, Target, Heart, Zap } from "lucide-react";
-import { useTranslations } from "@/hooks/use-translations";
+import {
+  WavySeparator,
+  WavySeparatorSmooth,
+} from "@/components/ui/wavy-separator";
 import { useAboutData } from "@/hooks/use-about-data";
+import { useTranslations } from "@/hooks/use-translations";
+import { ArrowRight, BadgeInfo, Eye, Heart, Target, Zap } from "lucide-react";
 
 // Fallback vision/mission data
 const fallbackVisionMission = [
@@ -65,39 +69,45 @@ const fallbackTimeline = [
   {
     year: "2019",
     title: "Company Founded",
-    description: "PT Teknalogi was established with a vision to transform businesses through technology.",
-    milestone: "Started with 3 founding members"
+    description:
+      "PT Teknalogi was established with a vision to transform businesses through technology.",
+    milestone: "Started with 3 founding members",
   },
   {
-    year: "2020", 
+    year: "2020",
     title: "First Major Client",
-    description: "Successfully delivered our first enterprise-level digital transformation project.",
-    milestone: "Team expanded to 8 professionals"
+    description:
+      "Successfully delivered our first enterprise-level digital transformation project.",
+    milestone: "Team expanded to 8 professionals",
   },
   {
     year: "2021",
-    title: "Service Expansion", 
-    description: "Expanded our services to include cloud solutions, mobile development, and cybersecurity.",
-    milestone: "Served 25+ clients across Indonesia"
+    title: "Service Expansion",
+    description:
+      "Expanded our services to include cloud solutions, mobile development, and cybersecurity.",
+    milestone: "Served 25+ clients across Indonesia",
   },
   {
     year: "2022",
     title: "Technology Partnerships",
-    description: "Formed strategic partnerships with major technology providers and cloud platforms.",
-    milestone: "Achieved AWS Partner status"
+    description:
+      "Formed strategic partnerships with major technology providers and cloud platforms.",
+    milestone: "Achieved AWS Partner status",
   },
   {
     year: "2023",
     title: "Innovation Focus",
-    description: "Launched our AI and machine learning practice to help clients leverage advanced analytics.",
-    milestone: "Delivered 50+ successful projects"
+    description:
+      "Launched our AI and machine learning practice to help clients leverage advanced analytics.",
+    milestone: "Delivered 50+ successful projects",
   },
   {
     year: "2024",
     title: "Continued Growth",
-    description: "Expanding our team and capabilities to serve more clients with comprehensive digital solutions.",
-    milestone: "15+ expert developers and consultants"
-  }
+    description:
+      "Expanding our team and capabilities to serve more clients with comprehensive digital solutions.",
+    milestone: "15+ expert developers and consultants",
+  },
 ];
 
 export default function AboutPage() {
@@ -109,17 +119,23 @@ export default function AboutPage() {
     {
       icon: Eye,
       title: "Vision",
-      content: companyProfile?.vision_id && companyProfile?.vision_en
-        ? (locale === 'id' ? companyProfile.vision_id : companyProfile.vision_en)
-        : fallbackVisionMission[0].content,
+      content:
+        companyProfile?.vision_id && companyProfile?.vision_en
+          ? locale === "id"
+            ? companyProfile.vision_id
+            : companyProfile.vision_en
+          : fallbackVisionMission[0].content,
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: Target,
       title: "Mission",
-      content: companyProfile?.mission_id && companyProfile?.mission_en
-        ? (locale === 'id' ? companyProfile.mission_id : companyProfile.mission_en)
-        : fallbackVisionMission[1].content,
+      content:
+        companyProfile?.mission_id && companyProfile?.mission_en
+          ? locale === "id"
+            ? companyProfile.mission_id
+            : companyProfile.mission_en
+          : fallbackVisionMission[1].content,
       color: "from-purple-500 to-pink-500",
     },
   ];
@@ -128,14 +144,24 @@ export default function AboutPage() {
   const coreValues = fallbackCoreValues;
 
   // Get timeline from journey data with fallback
-  const timeline = journey && journey.length > 0 
-    ? journey.map((item) => ({
-        year: item.year?.toString() || "2024",
-        title: locale === 'id' ? (item.title_id || item.title_en || "Milestone") : (item.title_en || item.title_id || "Milestone"),
-        description: locale === 'id' ? (item.description_id || item.description_en || "") : (item.description_en || item.description_id || ""),
-        milestone: locale === 'id' ? (item.achievement_id || item.achievement_en || "") : (item.achievement_en || item.achievement_id || "")
-      }))
-    : fallbackTimeline;
+  const timeline =
+    journey && journey.length > 0
+      ? journey.map((item) => ({
+          year: item.year?.toString() || "2024",
+          title:
+            locale === "id"
+              ? item.title_id || item.title_en || "Milestone"
+              : item.title_en || item.title_id || "Milestone",
+          description:
+            locale === "id"
+              ? item.description_id || item.description_en || ""
+              : item.description_en || item.description_id || "",
+          milestone:
+            locale === "id"
+              ? item.achievement_id || item.achievement_en || ""
+              : item.achievement_en || item.achievement_id || "",
+        }))
+      : fallbackTimeline;
 
   if (loading) {
     return (
@@ -152,13 +178,14 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-b from-primary/5 to-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <BlurFade delay={0.2} inView>
-            <Badge variant="outline" className="mb-6">
+          <BlurFade delay={0.1} inView>
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+              <BadgeInfo className="w-4 h-4 mr-2" />
               About Teknalogi
             </Badge>
           </BlurFade>
 
-          <BlurFade delay={0.4} inView>
+          <BlurFade delay={0.1} inView>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
               Leading Digital Innovation
               <br />
@@ -168,7 +195,7 @@ export default function AboutPage() {
             </h1>
           </BlurFade>
 
-          <BlurFade delay={0.6} inView>
+          <BlurFade delay={0.1} inView>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               PT. Teknalogi Transformasi Digital has been at the forefront of
               digital innovation, helping businesses transform and thrive in the
@@ -178,10 +205,13 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Wavy Separator */}
+      <WavySeparator className="fill-muted/20" />
+
       {/* Vision & Mission Section */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <BlurFade delay={0.2} inView>
+          <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                 Our Vision & Mission
@@ -196,7 +226,7 @@ export default function AboutPage() {
             {visionMission.map((item, index) => {
               const Icon = item.icon;
               return (
-                <BlurFade key={item.title} delay={0.4 + index * 0.2} inView>
+                <BlurFade key={item.title} delay={0.1 + index * 0.1} inView>
                   <div
                     className={`relative p-8 rounded-2xl bg-gradient-to-br ${item.color} text-white overflow-hidden`}
                   >
@@ -231,7 +261,7 @@ export default function AboutPage() {
       {/* Core Values */}
       <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <BlurFade delay={0.2} inView>
+          <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                 Our Core Values
@@ -246,7 +276,7 @@ export default function AboutPage() {
             {coreValues.map((value, index) => {
               const Icon = value.icon;
               return (
-                <BlurFade key={value.title} delay={0.4 + index * 0.1} inView>
+                <BlurFade key={value.title} delay={0.1 + index * 0.1} inView>
                   <div className="group bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 h-full">
                     <div
                       className={`w-12 h-12 bg-gradient-to-r ${value.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
@@ -267,13 +297,16 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Wavy Separator */}
+      <WavySeparatorSmooth rotated className="fill-primary/10" />
+
       {/* About Section (existing) */}
       <AboutSection />
 
       {/* Company Journey */}
       <section className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <BlurFade delay={0.2} inView>
+          <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                 Our Journey
@@ -293,7 +326,11 @@ export default function AboutPage() {
               {timeline.map((milestone, index) => {
                 const side = index % 2 === 0 ? "left" : "right";
                 return (
-                  <BlurFade key={milestone.year} delay={0.4 + index * 0.1} inView>
+                  <BlurFade
+                    key={milestone.year}
+                    delay={0.1 + index * 0.1}
+                    inView
+                  >
                     <div
                       className={`flex items-center ${
                         side === "right" ? "flex-row-reverse" : ""
@@ -306,9 +343,7 @@ export default function AboutPage() {
                       >
                         <div
                           className={`${
-                            side === "right"
-                              ? "text-left"
-                              : "text-right"
+                            side === "right" ? "text-left" : "text-right"
                           }`}
                         >
                           <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
@@ -350,7 +385,7 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <BlurFade delay={0.2} inView>
+          <BlurFade delay={0.1} inView>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
               Ready to Start Your Digital Journey?
             </h2>

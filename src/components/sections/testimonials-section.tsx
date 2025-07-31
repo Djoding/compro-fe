@@ -2,225 +2,281 @@
 
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Marquee } from "@/components/magicui/marquee";
-import { Quote, Star, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { testimonialsAPI } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/language-context";
-import { getImageUrl } from "@/lib/utils";
+import { useTestimonialsData } from "@/hooks/use-testimonials-data";
+import { Loader2, Quote, Star } from "lucide-react";
 
-interface Testimonial {
+interface TestimonialData {
   id: string;
-  name_id: string;
-  name_en: string;
-  position_id: string;
-  position_en: string;
-  company_id: string;
-  company_en: string;
-  content_id: string;
-  content_en: string;
+  company: string;
+  content: string;
+  position?: string;
   rating: number;
-  imageUrl?: string;
 }
 
-// Fallback testimonials
-const fallbackTestimonials = [
+// Fallback testimonials data
+const FALLBACK_TESTIMONIALS = [
   {
     id: "1",
-    name: "Sarah Johnson",
-    position: "CEO",
-    company: "TechStart Solutions",
-    content:
-      "Teknalogi transformed our outdated systems into a modern, efficient platform. Their expertise in digital transformation is unmatched. The team delivered beyond our expectations.",
+    nameId: "Ahmad Wijaya",
+    nameEn: "Ahmad Wijaya",
+    companyId: "PT. Maju Bersama",
+    companyEn: "PT. Maju Bersama",
+    positionId: "CEO",
+    positionEn: "CEO",
+    contentId:
+      "Tim Teknalogi sangat profesional dalam menangani proyek digitalisasi kami. Hasil kerja mereka melampaui ekspektasi dan delivery tepat waktu.",
+    contentEn:
+      "Teknalogi team is very professional in handling our digitalization project. Their work exceeded expectations and delivered on time.",
     rating: 5,
-    avatar: "SJ",
   },
   {
     id: "2",
-    name: "Michael Chen",
-    position: "CTO",
-    company: "InnovateCorp",
-    content:
-      "Working with Teknalogi was a game-changer for our company. They developed a robust mobile application that increased our customer engagement by 300%. Highly recommended!",
+    nameId: "Sarah Chen",
+    nameEn: "Sarah Chen",
+    companyId: "Startup Inovatif",
+    companyEn: "Startup Inovatif",
+    positionId: "Founder",
+    positionEn: "Founder",
+    contentId:
+      "Berkat bantuan Teknalogi, kami berhasil mengembangkan MVP yang solid dan mendapat funding Series A. Tim mereka memahami kebutuhan startup dengan sangat baik.",
+    contentEn:
+      "Thanks to Teknalogi's help, we successfully developed a solid MVP and received Series A funding. Their team understands startup needs very well.",
     rating: 5,
-    avatar: "MC",
   },
   {
     id: "3",
-    name: "Emma Rodriguez",
-    position: "Founder",
-    company: "GreenTech Innovations",
-    content:
-      "The cloud migration project was executed flawlessly. Teknalogi's team handled complex requirements with professionalism and delivered a scalable solution on time and within budget.",
-    rating: 5,
-    avatar: "ER",
+    nameId: "Budi Santoso",
+    nameEn: "Budi Santoso",
+    companyId: "UMKM Digital",
+    companyEn: "UMKM Digital",
+    positionId: "Owner",
+    positionEn: "Owner",
+    contentId:
+      "Platform e-commerce yang dikembangkan meningkatkan penjualan kami hingga 300%. Support team yang responsif dan solusi yang tepat sasaran.",
+    contentEn:
+      "The e-commerce platform developed increased our sales by 300%. Responsive support team and targeted solutions.",
+    rating: 4,
   },
   {
     id: "4",
-    name: "David Park",
-    position: "Operations Director",
-    company: "LogiFlow Systems",
-    content:
-      "Their data analytics platform revolutionized how we understand our business. The insights we gain from their solution have directly contributed to a 25% increase in operational efficiency.",
+    nameId: "Lisa Rodriguez",
+    nameEn: "Lisa Rodriguez",
+    companyId: "TechCorp Industries",
+    companyEn: "TechCorp Industries",
+    positionId: "CTO",
+    positionEn: "CTO",
+    contentId:
+      "Implementasi cloud infrastructure yang sangat impressive. Performa sistem meningkat drastis dan maintenance cost berkurang signifikan.",
+    contentEn:
+      "Very impressive cloud infrastructure implementation. System performance increased drastically and maintenance costs reduced significantly.",
     rating: 5,
-    avatar: "DP",
   },
   {
     id: "5",
-    name: "Lisa Anderson",
-    position: "Marketing Director",
-    company: "BrandMax Agency",
-    content:
-      "Teknalogi created an amazing e-commerce platform for our client. The user experience is exceptional, and the admin panel makes management incredibly easy. Outstanding work!",
-    rating: 5,
-    avatar: "LA",
+    nameId: "Michael Kim",
+    nameEn: "Michael Kim",
+    companyId: "Creative Agency Plus",
+    companyEn: "Creative Agency Plus",
+    positionId: "Director",
+    positionEn: "Director",
+    contentId:
+      "Website dan sistem manajemen klien yang dikembangkan sangat membantu workflow kami. Interface yang intuitif dan fitur yang lengkap.",
+    contentEn:
+      "The website and client management system developed greatly helped our workflow. Intuitive interface and complete features.",
+    rating: 4,
   },
   {
     id: "6",
-    name: "Robert Kim",
-    position: "IT Manager",
-    company: "SecureBank Ltd",
-    content:
-      "Security is our top priority, and Teknalogi delivered a solution that exceeds industry standards. Their attention to detail and security best practices gave us complete confidence.",
+    nameId: "Jennifer Wilson",
+    nameEn: "Jennifer Wilson",
+    companyId: "Global Trading Co",
+    companyEn: "Global Trading Co",
+    positionId: "Operations Manager",
+    positionEn: "Operations Manager",
+    contentId:
+      "Sistem ERP yang dikembangkan mengintegrasikan semua departemen dengan sempurna. ROI yang terukur dan proses bisnis yang jauh lebih efisien.",
+    contentEn:
+      "The ERP system developed perfectly integrates all departments. Measurable ROI and much more efficient business processes.",
     rating: 5,
-    avatar: "RK",
   },
 ];
 
+// Transform API data to display format
+const transformTestimonial = (
+  testimonial: TestimonialData,
+  locale: string
+) => ({
+  id: testimonial.id,
+  name: testimonial.company,
+  company: testimonial.company,
+  position: testimonial.position || (locale === "id" ? "Klien" : "Client"),
+  content: testimonial.content,
+  rating: testimonial.rating,
+});
+
+// Transform fallback data
+const transformFallbackTestimonial = (
+  testimonial: (typeof FALLBACK_TESTIMONIALS)[0],
+  locale: string
+) => ({
+  id: testimonial.id,
+  name: locale === "id" ? testimonial.nameId : testimonial.nameEn,
+  company: locale === "id" ? testimonial.companyId : testimonial.companyEn,
+  position: locale === "id" ? testimonial.positionId : testimonial.positionEn,
+  content: locale === "id" ? testimonial.contentId : testimonial.contentEn,
+  rating: testimonial.rating,
+});
+
+// Testimonial type
+interface TransformedTestimonial {
+  id: string;
+  name: string;
+  company: string;
+  position: string;
+  content: string;
+  rating: number;
+}
+
+// Testimonial card component
 const TestimonialCard = ({
   testimonial,
-  locale
 }: {
-  testimonial: Testimonial | (typeof fallbackTestimonials)[0];
-  locale: string;
-}) => {
-  // Check if it's API testimonial or fallback
-  const isApiTestimonial = 'name_id' in testimonial;
-  
-  const name = isApiTestimonial 
-    ? (locale === "id" ? testimonial.name_id : testimonial.name_en) || "Anonymous"
-    : testimonial.name || "Anonymous";
-  
-  const position = isApiTestimonial 
-    ? (locale === "id" ? testimonial.position_id : testimonial.position_en)
-    : testimonial.position;
-    
-  const company = isApiTestimonial 
-    ? (locale === "id" ? testimonial.company_id : testimonial.company_en)
-    : testimonial.company;
-    
-  const content = isApiTestimonial 
-    ? (locale === "id" ? testimonial.content_id : testimonial.content_en)
-    : testimonial.content;
+  testimonial: TransformedTestimonial;
+}) => (
+  <div className="relative bg-card/50 backdrop-blur-sm py-6 px-16 rounded-lg border border-border/50 shadow-lg max-w-xl">
+    <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+      <Quote className="w-4 h-4 text-primary" />
+    </div>
 
-  const avatar = isApiTestimonial 
-    ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'avatar' in testimonial ? testimonial.avatar : name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    <div className="flex items-center mb-4">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={`${testimonial.id}-star-${i}`}
+          className={`w-4 h-4 ${
+            i < testimonial.rating
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300"
+          }`}
+        />
+      ))}
+    </div>
 
-  return (
-    <div className="bg-card border border-border rounded-xl p-6 w-80 mx-4 shadow-sm hover:shadow-lg transition-all duration-300">
-      <div className="flex items-center mb-4">
-        {[...Array(testimonial.rating)].map((_, i) => (
-          <Star
-            key={`star-${testimonial.id}-${i}`}
-            className="w-4 h-4 text-yellow-400 fill-current"
-          />
-        ))}
-      </div>
+    <p className="text-muted-foreground mb-4 text-sm leading-relaxed line-clamp-4">
+      "{testimonial.content}"
+    </p>
 
-      <div className="mb-4">
-        <Quote className="w-8 h-8 text-primary/20 mb-2" />
-        <p className="text-muted-foreground leading-relaxed">
-          {content}
-        </p>
-      </div>
+    <div className="border-t border-border/50 pt-4">
+      <p className="font-semibold text-foreground text-sm">
+        {testimonial.name}
+      </p>
+      <p className="text-xs text-muted-foreground">{testimonial.position}</p>
+      <p className="text-xs text-primary font-medium">{testimonial.company}</p>
+    </div>
+  </div>
+);
 
-      <div className="flex items-center">
-        {isApiTestimonial && testimonial.imageUrl ? (
-          <img 
-            src={getImageUrl(testimonial.imageUrl)}
-            alt={name}
-            className="w-12 h-12 rounded-full object-cover mr-4"
-            onError={(e) => {
-              // Fallback to avatar initials if image fails to load
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            }}
-          />
-        ) : null}
-        <div className={`w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 ${isApiTestimonial && testimonial.imageUrl ? 'hidden' : ''}`}>
-          <span className="text-primary font-semibold">{avatar}</span>
+// Loading component
+const LoadingState = ({ locale }: { locale: string }) => (
+  <section className="relative py-24 px-6">
+    <div className="max-w-7xl mx-auto text-center">
+      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+      <p className="text-muted-foreground">
+        {locale === "id" ? "Memuat testimoni..." : "Loading testimonials..."}
+      </p>
+    </div>
+  </section>
+);
+
+// Header component
+const TestimonialsHeader = ({ locale }: { locale: string }) => (
+  <BlurFade delay={0.1}>
+    <div className="text-center mb-16">
+      <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+        <Star className="w-4 h-4 mr-2" />
+        {locale === "id" ? "Testimoni Klien" : "Client Testimonials"}
+      </Badge>
+
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+        {locale === "id" ? "Apa Kata Klien Kami" : "What Our Clients Say"}
+      </h2>
+
+      <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+        {locale === "id"
+          ? "Kepercayaan dan kepuasan klien adalah prioritas utama kami. Lihat bagaimana kami membantu bisnis berkembang dengan solusi teknologi yang tepat."
+          : "Client trust and satisfaction are our top priorities. See how we help businesses grow with the right technology solutions."}
+      </p>
+    </div>
+  </BlurFade>
+);
+
+// Stats component
+const StatsSection = ({ locale }: { locale: string }) => (
+  <BlurFade delay={0.1}>
+    <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div className="space-y-2">
+        <div className="text-4xl font-bold text-primary">150+</div>
+        <div className="text-sm text-muted-foreground uppercase tracking-wider">
+          {locale === "id" ? "Proyek Selesai" : "Projects Completed"}
         </div>
-        <div>
-          <h4 className="font-semibold text-foreground">{name}</h4>
-          <p className="text-sm text-muted-foreground">
-            {position} at {company}
-          </p>
+      </div>
+      <div className="space-y-2">
+        <div className="text-4xl font-bold text-primary">98%</div>
+        <div className="text-sm text-muted-foreground uppercase tracking-wider">
+          {locale === "id" ? "Kepuasan Klien" : "Client Satisfaction"}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="text-4xl font-bold text-primary">5+</div>
+        <div className="text-sm text-muted-foreground uppercase tracking-wider">
+          {locale === "id" ? "Tahun Pengalaman" : "Years Experience"}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="text-4xl font-bold text-primary">24/7</div>
+        <div className="text-sm text-muted-foreground uppercase tracking-wider">
+          {locale === "id" ? "Support Tersedia" : "Support Available"}
         </div>
       </div>
     </div>
-  );
-};
+  </BlurFade>
+);
 
 export default function TestimonialsSection() {
   const { locale } = useLanguage();
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        setLoading(true);
-
-        const response = await testimonialsAPI.getAll();
-        
-        if (response.status === "success" && Array.isArray(response.data)) {
-          setTestimonials(response.data);
-        }
-      } catch (err) {
-        console.error("Error fetching testimonials:", err);
-        // Silently fail and use fallback data
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTestimonials();
-  }, [locale]);
-
-  // Use API data if available, otherwise fallback to static data
-  const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
+  const { testimonials, loading } = useTestimonialsData();
 
   if (loading) {
-    return (
-      <section className="py-24 bg-background overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Loading testimonials...</span>
-          </div>
-        </div>
-      </section>
-    );
+    return <LoadingState locale={locale} />;
   }
+
+  // Use API data if available, otherwise fallback data
+  const displayTestimonials =
+    testimonials.length > 0
+      ? testimonials.map((t) => transformTestimonial(t, locale))
+      : FALLBACK_TESTIMONIALS.map((t) =>
+          transformFallbackTestimonial(t, locale)
+        );
 
   return (
     <section className="py-24 bg-background overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <BlurFade delay={0.2} inView>
+          <BlurFade delay={0.1} inView>
             <span className="inline-block px-4 py-2 bg-accent/10 text-accent text-sm font-semibold rounded-full mb-4">
               Client Testimonials
             </span>
           </BlurFade>
 
-          <BlurFade delay={0.4} inView>
+          <BlurFade delay={0.1} inView>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
               What Our Clients Say
             </h2>
           </BlurFade>
 
-          <BlurFade delay={0.6} inView>
+          <BlurFade delay={0.1} inView>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Don&apos;t just take our word for it. Here&apos;s what our clients
               have to say about their experience working with Teknalogi and the
@@ -230,52 +286,23 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Testimonials Marquee */}
-        <BlurFade delay={0.8} inView>
+        <BlurFade delay={0.1} inView>
           <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
             <Marquee pauseOnHover className="[--duration:25s]">
               {displayTestimonials.map((testimonial) => (
                 <TestimonialCard
                   key={testimonial.id}
                   testimonial={testimonial}
-                  locale={locale}
                 />
               ))}
             </Marquee>
             {/* Gradient overlays */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background"></div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background"></div>
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-background"></div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-background"></div>
           </div>
         </BlurFade>
 
-        {/* Stats */}
-        <BlurFade delay={1.0} inView>
-          <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
-                98%
-              </div>
-              <p className="text-muted-foreground">Client Satisfaction</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
-                {displayTestimonials.length > 10 ? '50+' : '50+'}
-              </div>
-              <p className="text-muted-foreground">Projects Delivered</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
-                25+
-              </div>
-              <p className="text-muted-foreground">Happy Clients</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
-                5
-              </div>
-              <p className="text-muted-foreground">Years Experience</p>
-            </div>
-          </div>
-        </BlurFade>
+        <StatsSection locale={locale} />
       </div>
     </section>
   );

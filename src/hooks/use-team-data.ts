@@ -1,29 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { teamAPI } from "@/lib/api";
+import { useEffect, useState } from "react";
 
-interface TeamMember {
-  id?: string | number;
-  name?: string;
-  position_id?: string;
-  position_en?: string;
+interface SocialMedia {
+  id: string;
+  platform: string;
+  url: string;
+  teamMemberId: string;
+}
+
+interface TeamMemberData {
+  id: string;
+  name: string;
+  position_id: string;
+  position_en: string;
+  imageUrl: string;
+  roleCategory: string;
+  createdAt: string;
+  updatedAt: string;
+  socialMedia: SocialMedia[];
+  position: string;
+  // Fallback fields for compatibility
   department?: string;
   email?: string;
   phone?: string;
   bio_id?: string;
   bio_en?: string;
-  image?: string;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
   expertise?: string[];
   is_active?: boolean;
   order_position?: number;
 }
 
 export function useTeamData() {
-  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [team, setTeam] = useState<TeamMemberData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +46,9 @@ export function useTeamData() {
       setTeam(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Error fetching team data:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch team data");
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch team data"
+      );
       setTeam([]);
     } finally {
       setLoading(false);
@@ -51,6 +63,6 @@ export function useTeamData() {
     team,
     loading,
     error,
-    refetch: fetchData
+    refetch: fetchData,
   };
 }

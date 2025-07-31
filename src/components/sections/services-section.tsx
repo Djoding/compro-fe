@@ -1,301 +1,413 @@
 "use client";
 
 import { BlurFade } from "@/components/magicui/blur-fade";
-import { Dock, DockIcon } from "@/components/magicui/dock";
-import { MagicCard } from "@/components/magicui/magic-card";
-import { Button } from "@/components/ui/button";
-import { servicesAPI, platformsAPI } from "@/lib/api";
+import { AbstractWavePattern } from "@/components/ui/abstract-wave-pattern";
+import { Badge } from "@/components/ui/badge";
+import {
+  InteractiveCard,
+  InteractiveCardGrid,
+} from "@/components/ui/interactive-card";
 import { useLanguage } from "@/contexts/language-context";
-import { getImageUrl } from "@/lib/utils";
-import { ArrowRight, CheckCircle, Cloud, Database, Globe, Settings, Shield, Smartphone, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { usePlatformsData } from "@/hooks/use-platforms-data";
+import { useServicesData } from "@/hooks/use-services-data";
+import {
+  Cloud,
+  Code,
+  Database,
+  Globe,
+  Loader2,
+  Palette,
+  Settings,
+  Shield,
+  Smartphone,
+  Target,
+  Wrench,
+  Zap,
+} from "lucide-react";
 
-interface Service {
+interface ServiceData {
   id: string;
-  title_id: string;
-  title_en: string;
-  description_id: string;
-  description_en: string;
+  title_id?: string;
+  title_en?: string;
+  description_id?: string;
+  description_en?: string;
   features?: string[];
-  icon?: string;
-  color?: string;
+  category_id?: string;
+  category_en?: string;
 }
 
-interface Platform {
+interface PlatformData {
   id: string;
-  name_id: string;
-  name_en: string;
-  logoUrl: string;
-  websiteUrl?: string;
+  name_id?: string;
+  name_en?: string;
+  description_id?: string;
+  description_en?: string;
+  category_id?: string;
+  category_en?: string;
 }
 
-// Fallback services with icons mapping
-const fallbackServices = [
+interface TransformedService {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  category: string;
+  rating: number;
+  actionLabel: string;
+}
+
+// Extract fallback data constant
+const FALLBACK_SERVICES_DATA = [
   {
-    icon: Globe,
-    title: "Web Development",
-    description: "Custom web applications built with modern frameworks and technologies",
-    features: ["React & Next.js", "Progressive Web Apps", "E-commerce Solutions", "CMS Development"],
-    color: "from-blue-500 to-cyan-500"
+    id: "1",
+    titleId: "Pengembangan Web",
+    titleEn: "Web Development",
+    descriptionId:
+      "Aplikasi web kustom yang dibangun dengan framework dan teknologi modern. Solusi end-to-end dari konsep hingga deployment dengan performa tinggi.",
+    descriptionEn:
+      "Custom web applications built with modern frameworks and technologies. End-to-end solutions from concept to deployment with high performance.",
+    categoryId: "Pengembangan",
+    categoryEn: "Development",
+    actionLabelId: "Pelajari Lebih",
+    actionLabelEn: "Learn More",
+    iconType: "globe",
   },
   {
-    icon: Smartphone,
-    title: "Mobile Development",
-    description: "Native and cross-platform mobile applications for iOS and Android",
-    features: ["React Native", "Flutter", "Native iOS/Android", "App Store Optimization"],
-    color: "from-purple-500 to-pink-500"
+    id: "2",
+    titleId: "Pengembangan Mobile",
+    titleEn: "Mobile Development",
+    descriptionId:
+      "Aplikasi mobile native dan cross-platform untuk iOS dan Android. User experience yang optimal dengan performa native dan design yang menarik.",
+    descriptionEn:
+      "Native and cross-platform mobile applications for iOS and Android. Optimal user experience with native performance and attractive design.",
+    categoryId: "Aplikasi Mobile",
+    categoryEn: "Mobile Apps",
+    actionLabelId: "Lihat Portfolio",
+    actionLabelEn: "View Portfolio",
+    iconType: "smartphone",
   },
   {
-    icon: Cloud,
-    title: "Cloud Solutions",
-    description: "Scalable cloud infrastructure and deployment strategies",
-    features: ["AWS & Azure", "DevOps & CI/CD", "Microservices", "Container Orchestration"],
-    color: "from-green-500 to-emerald-500"
+    id: "3",
+    titleId: "Solusi Cloud",
+    titleEn: "Cloud Solutions",
+    descriptionId:
+      "Infrastruktur cloud yang scalable dan strategi deployment modern. Optimasi biaya dengan keamanan enterprise dan monitoring 24/7.",
+    descriptionEn:
+      "Scalable cloud infrastructure and modern deployment strategies. Cost optimization with enterprise security and 24/7 monitoring.",
+    categoryId: "Cloud Computing",
+    categoryEn: "Cloud Computing",
+    actionLabelId: "Konsultasi",
+    actionLabelEn: "Consult",
+    iconType: "cloud",
   },
   {
-    icon: Database,
-    title: "Data Solutions",
-    description: "Database design, analytics, and business intelligence systems",
-    features: ["Database Design", "Data Analytics", "Business Intelligence", "API Development"],
-    color: "from-orange-500 to-red-500"
+    id: "4",
+    titleId: "Solusi Data",
+    titleEn: "Data Solutions",
+    descriptionId:
+      "Design database, analytics, dan sistem business intelligence. Transform data menjadi insights yang actionable untuk pengambilan keputusan bisnis.",
+    descriptionEn:
+      "Database design, analytics, and business intelligence systems. Transform data into actionable insights for business decision making.",
+    categoryId: "Data & Analytics",
+    categoryEn: "Data & Analytics",
+    actionLabelId: "Eksplorasi",
+    actionLabelEn: "Explore",
+    iconType: "database",
   },
   {
-    icon: Shield,
-    title: "Security Solutions",
-    description: "Comprehensive cybersecurity and data protection services",
-    features: ["Security Audits", "Penetration Testing", "Compliance", "Threat Monitoring"],
-    color: "from-gray-500 to-slate-500"
+    id: "5",
+    titleId: "Keamanan Cyber",
+    titleEn: "Cybersecurity",
+    descriptionId:
+      "Audit keamanan, penetration testing, dan implementasi standar keamanan enterprise. Proteksi menyeluruh dari berbagai ancaman cyber.",
+    descriptionEn:
+      "Security audits, penetration testing, and enterprise security standards implementation. Comprehensive protection from various cyber threats.",
+    categoryId: "Keamanan",
+    categoryEn: "Security",
+    actionLabelId: "Audit Gratis",
+    actionLabelEn: "Free Audit",
+    iconType: "shield",
   },
   {
-    icon: Settings,
-    title: "Digital Transformation",
-    description: "End-to-end digital transformation and process optimization",
-    features: ["Process Automation", "Legacy Modernization", "Digital Strategy", "Change Management"],
-    color: "from-indigo-500 to-purple-500"
-  }
+    id: "6",
+    titleId: "DevOps & Automation",
+    titleEn: "DevOps & Automation",
+    descriptionId:
+      "CI/CD pipeline, infrastructure as code, dan automation untuk mempercepat development lifecycle dengan quality assurance yang ketat.",
+    descriptionEn:
+      "CI/CD pipelines, infrastructure as code, and automation to accelerate development lifecycle with strict quality assurance.",
+    categoryId: "DevOps",
+    categoryEn: "DevOps",
+    actionLabelId: "Setup Otomasi",
+    actionLabelEn: "Setup Automation",
+    iconType: "settings",
+  },
 ];
 
-// Icon mapping
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Globe: Globe,
-  Smartphone: Smartphone,
-  Cloud: Cloud,
-  Database: Database,
-  Shield: Shield,
-  Settings: Settings
+const FALLBACK_PLATFORMS_DATA = [
+  {
+    id: "1",
+    nameId: "React & Next.js",
+    nameEn: "React & Next.js",
+    descriptionId:
+      "Framework JavaScript modern untuk aplikasi web yang cepat dan SEO-friendly dengan server-side rendering.",
+    descriptionEn:
+      "Modern JavaScript framework for fast and SEO-friendly web applications with server-side rendering.",
+    categoryId: "Frontend Framework",
+    categoryEn: "Frontend Framework",
+    iconType: "code",
+  },
+  {
+    id: "2",
+    nameId: "Node.js & Express",
+    nameEn: "Node.js & Express",
+    descriptionId:
+      "Backend yang powerful dan scalable dengan JavaScript runtime yang cepat dan ecosystem yang kaya.",
+    descriptionEn:
+      "Powerful and scalable backend with fast JavaScript runtime and rich ecosystem.",
+    categoryId: "Backend Technology",
+    categoryEn: "Backend Technology",
+    iconType: "settings",
+  },
+  {
+    id: "3",
+    nameId: "AWS & Azure",
+    nameEn: "AWS & Azure",
+    descriptionId:
+      "Cloud platform terdepan untuk deployment, scaling, dan management aplikasi dengan uptime 99.9%.",
+    descriptionEn:
+      "Leading cloud platforms for deployment, scaling, and application management with 99.9% uptime.",
+    categoryId: "Cloud Platform",
+    categoryEn: "Cloud Platform",
+    iconType: "cloud",
+  },
+  {
+    id: "4",
+    nameId: "PostgreSQL & MongoDB",
+    nameEn: "PostgreSQL & MongoDB",
+    descriptionId:
+      "Database yang robust untuk relational dan NoSQL data dengan performa tinggi dan reliability.",
+    descriptionEn:
+      "Robust databases for relational and NoSQL data with high performance and reliability.",
+    categoryId: "Database",
+    categoryEn: "Database",
+    iconType: "database",
+  },
+];
+
+// Helper function to get icon
+const getIconForType = (iconType: string) => {
+  const iconMap = {
+    globe: <Globe className="w-6 h-6" />,
+    smartphone: <Smartphone className="w-6 h-6" />,
+    cloud: <Cloud className="w-6 h-6" />,
+    database: <Database className="w-6 h-6" />,
+    shield: <Shield className="w-6 h-6" />,
+    settings: <Settings className="w-6 h-6" />,
+    code: <Code className="w-6 h-6" />,
+    palette: <Palette className="w-6 h-6" />,
+    target: <Target className="w-6 h-6" />,
+    zap: <Zap className="w-6 h-6" />,
+  };
+  return (
+    iconMap[iconType as keyof typeof iconMap] || <Wrench className="w-6 h-6" />
+  );
 };
 
-// Color mapping for services
-const colorClasses = [
-  "from-blue-500 to-cyan-500",
-  "from-purple-500 to-pink-500",
-  "from-green-500 to-emerald-500",
-  "from-orange-500 to-red-500",
-  "from-gray-500 to-slate-500",
-  "from-indigo-500 to-purple-500"
-];
+// Extract fallback data generators
+const generateFallbackServices = (locale: string): TransformedService[] =>
+  FALLBACK_SERVICES_DATA.map((service) => ({
+    id: service.id,
+    title: locale === "id" ? service.titleId : service.titleEn,
+    description:
+      locale === "id" ? service.descriptionId : service.descriptionEn,
+    icon: getIconForType(service.iconType),
+    category: locale === "id" ? service.categoryId : service.categoryEn,
+    rating: 5,
+    actionLabel:
+      locale === "id" ? service.actionLabelId : service.actionLabelEn,
+  }));
+
+const generateFallbackPlatforms = (locale: string): TransformedService[] =>
+  FALLBACK_PLATFORMS_DATA.map((platform) => ({
+    id: platform.id,
+    title: locale === "id" ? platform.nameId : platform.nameEn,
+    description:
+      locale === "id" ? platform.descriptionId : platform.descriptionEn,
+    icon: getIconForType(platform.iconType),
+    category: locale === "id" ? platform.categoryId : platform.categoryEn,
+    rating: 5,
+    actionLabel: locale === "id" ? "Pelajari Teknologi" : "Learn Technology",
+  }));
+
+// Extract data transformation functions
+const transformApiServices = (
+  services: ServiceData[],
+  locale: string
+): TransformedService[] =>
+  services.map((service) => ({
+    id: service.id,
+    title: (locale === "id" ? service.title_id : service.title_en) || "Service",
+    description:
+      (locale === "id" ? service.description_id : service.description_en) ||
+      "No description",
+    icon: <Wrench className="w-6 h-6" />,
+    category:
+      (locale === "id" ? service.category_id : service.category_en) ||
+      (locale === "id" ? "Layanan" : "Service"),
+    rating: 5,
+    actionLabel: locale === "id" ? "Pelajari Lebih" : "Learn More",
+  }));
+
+const transformApiPlatforms = (
+  platforms: PlatformData[],
+  locale: string
+): TransformedService[] =>
+  platforms.map((platform) => ({
+    id: platform.id,
+    title:
+      (locale === "id" ? platform.name_id : platform.name_en) || "Platform",
+    description:
+      (locale === "id" ? platform.description_id : platform.description_en) ||
+      "No description",
+    icon: <Settings className="w-6 h-6" />,
+    category:
+      (locale === "id" ? platform.category_id : platform.category_en) ||
+      "Platform",
+    rating: 5,
+    actionLabel: locale === "id" ? "Pelajari Teknologi" : "Learn Technology",
+  }));
+
+// Extract loading component
+const LoadingState = ({ locale }: { locale: string }) => (
+  <section className="relative py-24 px-6">
+    <div className="max-w-7xl mx-auto text-center">
+      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+      <p className="text-muted-foreground">
+        {locale === "id" ? "Memuat layanan..." : "Loading services..."}
+      </p>
+    </div>
+  </section>
+);
+
+// Extract header component
+const ServicesHeader = ({ locale }: { locale: string }) => (
+  <BlurFade delay={0.1}>
+    <div className="text-center mb-16">
+      <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+        <Wrench className="w-4 h-4 mr-2" />
+        {locale === "id" ? "Layanan Kami" : "Our Services"}
+      </Badge>
+
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+        {locale === "id"
+          ? "Solusi Teknologi Terdepan"
+          : "Leading Technology Solutions"}
+      </h2>
+
+      <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+        {locale === "id"
+          ? "Kami menyediakan berbagai layanan teknologi inovatif untuk membantu bisnis Anda berkembang di era digital. Dari pengembangan aplikasi hingga solusi cloud enterprise."
+          : "We provide various innovative technology services to help your business thrive in the digital era. From application development to enterprise cloud solutions."}
+      </p>
+    </div>
+  </BlurFade>
+);
+
+// Extract platforms section
+const PlatformsSection = ({
+  platforms,
+  locale,
+}: {
+  platforms: TransformedService[];
+  locale: string;
+}) => (
+  <div className="mt-24">
+    <BlurFade delay={0.1}>
+      <div className="text-center mb-12">
+        <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+          {locale === "id"
+            ? "Teknologi & Platform"
+            : "Technologies & Platforms"}
+        </h3>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          {locale === "id"
+            ? "Teknologi modern yang kami gunakan untuk memberikan solusi terbaik dan terscale untuk bisnis Anda."
+            : "Modern technologies we use to deliver the best and scalable solutions for your business."}
+        </p>
+      </div>
+    </BlurFade>
+
+    <BlurFade delay={0.1}>
+      <InteractiveCardGrid columns={3} gap={6}>
+        {platforms.slice(0, 4).map((platform) => (
+          <InteractiveCard
+            key={platform.id}
+            title={platform.title}
+            description={platform.description}
+            icon={platform.icon}
+            category={platform.category}
+            actionLabel={platform.actionLabel}
+            size="md"
+            onAction={() => console.log(`Clicked on ${platform.title}`)}
+          />
+        ))}
+      </InteractiveCardGrid>
+    </BlurFade>
+  </div>
+);
 
 export default function ServicesSection() {
   const { locale } = useLanguage();
-  const [services, setServices] = useState<Service[]>([]);
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { services, loading: servicesLoading } = useServicesData();
+  const { platforms, loading: platformsLoading } = usePlatformsData();
 
-  useEffect(
-    () => {
-      const fetchData = async () => {
-        try {
-          setLoading(true);
-
-          const [servicesResponse, platformsResponse] = await Promise.all([servicesAPI.getAll(), platformsAPI.getAll()]);
-
-          if (servicesResponse.status === "success" && Array.isArray(servicesResponse.data)) {
-            setServices(servicesResponse.data);
-          }
-
-          if (platformsResponse.status === "success" && Array.isArray(platformsResponse.data)) {
-            setPlatforms(platformsResponse.data);
-          }
-        } catch (err) {
-          console.error("Error fetching services data:", err);
-          // Silently fail and use fallback data
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    },
-    [locale]
-  );
-
-  // Use API data if available, otherwise fallback to static data
-  const displayServices = services.length > 0 ? services : fallbackServices;
-
-  if (loading) {
-    return (
-      <section className="py-24 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Loading services...</span>
-          </div>
-        </div>
-      </section>
-    );
+  if (servicesLoading || platformsLoading) {
+    return <LoadingState locale={locale} />;
   }
 
+  const transformedServices =
+    services.length > 0
+      ? transformApiServices(services, locale)
+      : generateFallbackServices(locale);
+
+  const transformedPlatforms =
+    platforms.length > 0
+      ? transformApiPlatforms(platforms, locale)
+      : generateFallbackPlatforms(locale);
+
   return (
-    <section className="py-24 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <BlurFade delay={0.2} inView>
-            <span className="inline-block px-4 py-2 bg-accent/10 text-accent text-sm font-semibold rounded-full mb-4">
-              Our Expertise
-            </span>
-          </BlurFade>
+    <section className="relative py-24 px-6">
+      <AbstractWavePattern
+        variant="organic"
+        intensity="medium"
+        animated={true}
+      />
 
-          <BlurFade delay={0.4} inView>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">Comprehensive Digital Solutions</h2>
-          </BlurFade>
+      <div className="max-w-7xl mx-auto relative z-20">
+        <ServicesHeader locale={locale} />
 
-          <BlurFade delay={0.6} inView>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              From web development to cloud solutions, we offer a full spectrum of digital services to help your business thrive
-              in the modern technological landscape.
-            </p>
-          </BlurFade>
-        </div>
-
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-          {displayServices.map((service, index) => {
-            // For API services, use dynamic data
-            const isApiService = "title_id" in service;
-            const title = isApiService ? (locale === "id" ? service.title_id : service.title_en) : service.title;
-            const description = isApiService
-              ? locale === "id"
-                ? service.description_id
-                : service.description_en
-              : service.description;
-
-            // Generate unique key
-            const serviceKey = isApiService ? `api-service-${service.id}` : `fallback-service-${index}-${title}`;
-
-            // Get icon (fallback to Globe if not found)
-            const IconComponent = isApiService ? (service.icon && iconMap[service.icon]) || Globe : service.icon || Globe;
-
-            // Debug logging for development
-            if (process.env.NODE_ENV === "development" && isApiService) {
-              console.log("Service icon:", service.icon, "IconComponent:", IconComponent);
-            }
-
-            // Safety check - ensure IconComponent is always a valid React component
-            const SafeIconComponent = typeof IconComponent === "function" ? IconComponent : Globe;
-
-            // Get color class
-            const colorClass = isApiService ? service.color || colorClasses[index % colorClasses.length] : service.color;
-
-            return (
-              <BlurFade key={serviceKey} delay={0.8 + index * 0.1} inView>
-                <MagicCard className="group h-full">
-                  <div className="p-6 h-full flex flex-col">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-r ${colorClass} rounded-lg flex items-center justify-center mb-4`}
-                    >
-                      <SafeIconComponent className="w-6 h-6 text-white" />
-                    </div>
-
-                    <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
-                      {title}
-                    </h3>
-
-                    <p className="text-muted-foreground mb-4 flex-grow">{description}</p>
-
-                    {service.features && (
-                      <ul className="space-y-2 mb-6">
-                        {service.features.map((feature, featureIndex) => (
-                          <li
-                            key={`${isApiService ? service.id : title}-feature-${featureIndex}`}
-                            className="flex items-center text-sm text-muted-foreground"
-                          >
-                            <CheckCircle className="w-4 h-4 text-primary mr-2 flex-shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <Button
-                      variant="ghost"
-                      className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all"
-                    >
-                      Learn More
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </div>
-                </MagicCard>
-              </BlurFade>
-            );
-          })}
-        </div>
-
-        {/* Technologies with Dock */}
-        {platforms.length > 0 && (
-          <BlurFade delay={1.4} inView>
-            <div className="text-center">
-              <h3 className="text-2xl font-semibold text-foreground mb-8">Technologies We Work With</h3>
-              <div className="flex justify-center">
-                <Dock
-                  iconMagnification={60}
-                  iconDistance={140}
-                  direction="middle"
-                  className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-4"
-                >
-                  {platforms.slice(0, 8).map(platform => (
-                    <DockIcon
-                      key={`platform-${platform.id}`}
-                      className="bg-white/10 hover:bg-white/20 transition-colors duration-300"
-                    >
-                      <div className="flex flex-col items-center justify-center w-full h-full">
-                        <img
-                          src={getImageUrl(platform.logoUrl)}
-                          alt={locale === "id" ? platform.name_id : platform.name_en}
-                          className="w-8 h-8 object-contain"
-                          onError={e => {
-                            e.currentTarget.src = "/placeholder.png";
-                          }}
-                        />
-                      </div>
-                    </DockIcon>
-                  ))}
-                </Dock>
-              </div>
-            </div>
-          </BlurFade>
-        )}
-
-        {/* CTA */}
-        <BlurFade delay={1.6} inView>
-          <div className="mt-20 text-center">
-            <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 lg:p-12">
-              <h3 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">Ready to Transform Your Business?</h3>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Let&apos;s discuss how our expertise can help you achieve your digital transformation goals.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="px-8">
-                  Start Your Project
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Button variant="outline" size="lg" className="px-8">
-                  View Our Portfolio
-                </Button>
-              </div>
-            </div>
-          </div>
+        {/* Main Services */}
+        <BlurFade delay={0.1}>
+          <InteractiveCardGrid columns={3} gap={8}>
+            {transformedServices.map((service) => (
+              <InteractiveCard
+                key={service.id}
+                title={service.title}
+                description={service.description}
+                icon={service.icon}
+                category={service.category}
+                rating={service.rating}
+                actionLabel={service.actionLabel}
+                size="md"
+                onAction={() => console.log(`Clicked on ${service.title}`)}
+              />
+            ))}
+          </InteractiveCardGrid>
         </BlurFade>
+
+        {/* Platforms Section */}
+        <PlatformsSection platforms={transformedPlatforms} locale={locale} />
       </div>
     </section>
   );

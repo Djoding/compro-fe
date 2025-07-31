@@ -4,7 +4,7 @@ import { FlipText } from "@/components/magicui/flip-text";
 import { OrbitingCircles } from "@/components/magicui/orbiting-circles";
 import { Particles } from "@/components/magicui/particles";
 import { TypingAnimation } from "@/components/magicui/typing-animation";
-import { WarpBackground } from "@/components/magicui/warp-background";
+import { AnimatedGridPattern } from "@/components/magicui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
 import { useHomeData } from "@/hooks/use-home-data";
 import { useTranslations } from "@/hooks/use-translations";
@@ -131,55 +131,24 @@ export default function HeroSection() {
       <div className="absolute inset-0">
         <Particles
           className="absolute inset-0"
-          quantity={300}
-          size={0.8}
-          staticity={30}
           color="#8B5CF6"
         />
       </div>
 
       {/* Warp Background for central focus */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <WarpBackground
-          className="w-full h-full opacity-60"
-          beamsPerSide={1}
-          beamSize={1}
+        <AnimatedGridPattern
+          className="w-full h-full opacity-20"
+          numSquares={100}
         >
           <div
             ref={centerRef}
             className="w-20 h-20 bg-primary/20 rounded-full"
           />
-        </WarpBackground>
+        </AnimatedGridPattern>
       </div>
 
-      {/* Orbiting Circles */}
-      <div className="absolute inset-0 pointer-events-none">
-        <OrbitingCircles
-          className="size-[30px] border-none bg-transparent"
-          duration={20}
-          delay={20}
-          radius={80}
-        >
-          <div className="size-6 bg-primary/20 rounded-full" />
-        </OrbitingCircles>
-        <OrbitingCircles
-          className="size-[50px] border-none bg-transparent"
-          duration={25}
-          delay={10}
-          radius={190}
-        >
-          <div className="size-8 bg-accent/20 rounded-full" />
-        </OrbitingCircles>
-        <OrbitingCircles
-          className="size-[30px] border-none bg-transparent"
-          duration={30}
-          delay={0}
-          radius={120}
-          reverse
-        >
-          <div className="size-6 bg-primary/30 rounded-full" />
-        </OrbitingCircles>
-      </div>
+      
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -257,47 +226,6 @@ export default function HeroSection() {
             </Button>
           </motion.div>
 
-          {/* Stats Preview - Data dari Backend dengan Labels Statis */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-12 max-w-2xl mx-auto"
-          >
-            {[
-              {
-                number: `${stats.projects}+`,
-                label:
-                  t("sections.stats.projects") ||
-                  (locale === "id" ? "Proyek" : "Projects"),
-              },
-              {
-                number: `${stats.clients}+`,
-                label:
-                  t("sections.stats.clients") ||
-                  (locale === "id" ? "Klien" : "Clients"),
-              },
-              {
-                number: `${stats.years}+`,
-                label:
-                  t("sections.stats.years") ||
-                  (locale === "id" ? "Tahun" : "Years"),
-              },
-              {
-                number: `${stats.experts}+`,
-                label:
-                  t("sections.stats.experts") ||
-                  (locale === "id" ? "Ahli" : "Experts"),
-              },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-primary mb-1">
-                  {stat.number}
-                </div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </div>
     </section>

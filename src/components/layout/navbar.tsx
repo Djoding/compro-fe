@@ -25,15 +25,13 @@ export default function Navbar() {
       href: "/about",
       submenu: [
         { name: "Company Overview", href: "/about" },
-        { name: "Vision & Mission", href: "/about#vision-mission" },
         { name: t("nav.team"), href: "/team" },
-        { name: "Company Journey", href: "/about#journey" },
-        { name: t("nav.certificates"), href: "/certificates" }
-      ]
+        { name: t("nav.certificates"), href: "/certificates" },
+      ],
     },
     { name: t("nav.solutions"), href: "/solutions" },
     { name: t("nav.expertise"), href: "/expertise" },
-    { name: t("nav.contact"), href: "/contact" }
+    { name: t("nav.contact"), href: "/contact" },
   ];
 
   useEffect(() => {
@@ -61,10 +59,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 lg:h-20">
           {/* Logo */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <Link href="/" className="flex items-center space-x-3">
               <TeknaLogiIcon className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">Teknalogi</span>
+              <span className="text-xl font-bold text-foreground">
+                Teknalogi
+              </span>
             </Link>
           </motion.div>
 
@@ -83,7 +87,8 @@ export default function Navbar() {
                         "flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors duration-200",
                         pathname.startsWith(item.href) ||
                           (pathname === "/team" && item.name === "About Us") ||
-                          (pathname === "/certificates" && item.name === "About Us")
+                          (pathname === "/certificates" &&
+                            item.name === "About Us")
                           ? "text-primary"
                           : "text-foreground hover:text-primary"
                       )}
@@ -101,7 +106,7 @@ export default function Navbar() {
                           transition={{ duration: 0.2 }}
                           className="absolute top-full left-0 mt-2 w-64 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
                         >
-                          {item.submenu.map(subItem => (
+                          {item.submenu.map((subItem) => (
                             <Link
                               key={subItem.name}
                               href={subItem.href}
@@ -124,7 +129,9 @@ export default function Navbar() {
                       href={item.href}
                       className={cn(
                         "px-3 py-2 text-sm font-medium transition-colors duration-200",
-                        pathname === item.href ? "text-primary" : "text-foreground hover:text-primary"
+                        pathname === item.href
+                          ? "text-primary"
+                          : "text-foreground hover:text-primary"
                       )}
                     >
                       {item.name}
@@ -143,7 +150,11 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-foreground hover:text-primary transition-colors duration-200"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -159,7 +170,7 @@ export default function Navbar() {
               className="lg:hidden border-t border-border"
             >
               <div className="py-4 space-y-2">
-                {navigation.map(item => (
+                {navigation.map((item) => (
                   <div key={item.name}>
                     {item.submenu ? (
                       <div>
@@ -184,7 +195,7 @@ export default function Navbar() {
                               transition={{ duration: 0.2 }}
                               className="ml-4 space-y-1"
                             >
-                              {item.submenu.map(subItem => (
+                              {item.submenu.map((subItem) => (
                                 <Link
                                   key={subItem.name}
                                   href={subItem.href}
@@ -204,7 +215,9 @@ export default function Navbar() {
                         onClick={() => setIsOpen(false)}
                         className={cn(
                           "block px-4 py-2 text-sm font-medium transition-colors duration-200",
-                          pathname === item.href ? "text-primary" : "text-foreground hover:text-primary"
+                          pathname === item.href
+                            ? "text-primary"
+                            : "text-foreground hover:text-primary"
                         )}
                       >
                         {item.name}

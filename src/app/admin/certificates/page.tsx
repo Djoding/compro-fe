@@ -1,18 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { certificatesAPI } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/contexts/language-context";
 import { useTranslations } from "@/hooks/use-translations";
+import { certificatesAPI } from "@/lib/api";
 import { getFriendlyErrorMessage } from "@/lib/error-messages";
 import { getImageUrl } from "@/lib/utils";
-import { Plus, Trash2, Award, Upload } from "lucide-react";
-import { useLanguage } from "@/contexts/language-context";
+import { Award, Plus, Trash2, Upload } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Certificate {
   id: string;
@@ -41,7 +49,7 @@ export default function CertificatesPage() {
   const [form, setForm] = useState<CertificateForm>({
     title_id: "",
     title_en: "",
-    issueDate: ""
+    issueDate: "",
   });
   const { toast } = useToast();
 
@@ -55,8 +63,11 @@ export default function CertificatesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: t("admin.pages.certificates.fetchError").replace("{error}", getFriendlyErrorMessage(error)),
-        variant: "destructive"
+        description: t("admin.pages.certificates.fetchError").replace(
+          "{error}",
+          getFriendlyErrorMessage(error)
+        ),
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -73,13 +84,19 @@ export default function CertificatesPage() {
     if (!selectedFile) {
       toast({
         title: "Error",
-        description: t("admin.pages.certificates.form.noFileSelected") || "Pilih file sertifikat terlebih dahulu",
+        description:
+          t("admin.pages.certificates.form.noFileSelected") ||
+          "Pilih file sertifikat terlebih dahulu",
         variant: "destructive",
       });
       return;
     }
 
-        if (!form.title_id.trim() || !form.title_en.trim() || !form.issueDate.trim()) {
+    if (
+      !form.title_id.trim() ||
+      !form.title_en.trim() ||
+      !form.issueDate.trim()
+    ) {
       alert("Mohon isi semua field yang wajib");
       return;
     }
@@ -104,7 +121,9 @@ export default function CertificatesPage() {
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: t("admin.pages.certificates.addSuccess") || "Sertifikat berhasil ditambahkan",
+          description:
+            t("admin.pages.certificates.addSuccess") ||
+            "Sertifikat berhasil ditambahkan",
           variant: "success",
         });
         fetchCertificates();
@@ -115,7 +134,10 @@ export default function CertificatesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: t("admin.pages.certificates.error").replace("{error}", getFriendlyErrorMessage(error)),
+        description: t("admin.pages.certificates.error").replace(
+          "{error}",
+          getFriendlyErrorMessage(error)
+        ),
         variant: "destructive",
       });
     } finally {
@@ -124,14 +146,22 @@ export default function CertificatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t("admin.pages.certificates.deleteConfirm") || "Apakah Anda yakin ingin menghapus sertifikat ini?")) return;
+    if (
+      !confirm(
+        t("admin.pages.certificates.deleteConfirm") ||
+          "Apakah Anda yakin ingin menghapus sertifikat ini?"
+      )
+    )
+      return;
 
     try {
       const response = await certificatesAPI.delete(id);
       if (response.status === "success") {
         toast({
           title: "Berhasil",
-          description: t("admin.pages.certificates.deleteSuccess") || "Sertifikat berhasil dihapus",
+          description:
+            t("admin.pages.certificates.deleteSuccess") ||
+            "Sertifikat berhasil dihapus",
           variant: "success",
         });
         fetchCertificates();
@@ -139,17 +169,20 @@ export default function CertificatesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: t("admin.pages.certificates.error").replace("{error}", getFriendlyErrorMessage(error)),
+        description: t("admin.pages.certificates.error").replace(
+          "{error}",
+          getFriendlyErrorMessage(error)
+        ),
         variant: "destructive",
       });
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -174,8 +207,13 @@ export default function CertificatesPage() {
         <div className="flex items-center gap-3">
           <Award className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t("admin.pages.certificates.title") || "Sertifikat"}</h1>
-            <p className="text-gray-600">{t("admin.pages.certificates.subtitle") || "Kelola sertifikat dan penghargaan perusahaan"}</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {t("admin.pages.certificates.title") || "Sertifikat"}
+            </h1>
+            <p className="text-gray-600">
+              {t("admin.pages.certificates.subtitle") ||
+                "Kelola sertifikat dan penghargaan perusahaan"}
+            </p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -187,20 +225,28 @@ export default function CertificatesPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t("admin.pages.certificates.addDialog.title") || "Tambah Sertifikat"}</DialogTitle>
+              <DialogTitle>
+                {t("admin.pages.certificates.addDialog.title") ||
+                  "Tambah Sertifikat"}
+              </DialogTitle>
               <DialogDescription>
-                {t("admin.pages.certificates.addDialog.description") || "Upload gambar sertifikat atau penghargaan perusahaan"}
+                {t("admin.pages.certificates.addDialog.description") ||
+                  "Upload gambar sertifikat atau penghargaan perusahaan"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Title Fields - Bilingual */}
               <div className="space-y-4 p-4 border rounded-lg">
-                <h4 className="font-medium text-gray-900">Judul Sertifikat / Certificate Title</h4>
+                <h4 className="font-medium text-gray-900">
+                  Judul Sertifikat / Certificate Title
+                </h4>
                 <div className="space-y-2">
                   <Label>Judul Sertifikat (Bahasa Indonesia) *</Label>
                   <Input
                     value={form.title_id}
-                    onChange={e => setForm(prev => ({ ...prev, title_id: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, title_id: e.target.value }))
+                    }
                     placeholder="Contoh: Sertifikat ISO 9001, Penghargaan Teknologi Terbaik, dll."
                     required
                   />
@@ -209,7 +255,9 @@ export default function CertificatesPage() {
                   <Label>Certificate Title (English) *</Label>
                   <Input
                     value={form.title_en}
-                    onChange={e => setForm(prev => ({ ...prev, title_en: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, title_en: e.target.value }))
+                    }
                     placeholder="Example: ISO 9001 Certificate, Best Technology Award, etc."
                     required
                   />
@@ -223,7 +271,9 @@ export default function CertificatesPage() {
                   id="issueDate"
                   type="date"
                   value={form.issueDate}
-                  onChange={e => setForm(prev => ({ ...prev, issueDate: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, issueDate: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -231,46 +281,74 @@ export default function CertificatesPage() {
               {/* File Upload */}
               <div className="space-y-2">
                 <label htmlFor="certificate" className="text-sm font-medium">
-                  {t("admin.pages.certificates.form.fileLabel") || "File Sertifikat"} *
+                  {t("admin.pages.certificates.form.fileLabel") ||
+                    "File Sertifikat"}{" "}
+                  *
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <div className="space-y-2">
                     <p className="text-sm text-gray-600">
-                      {t("admin.pages.certificates.form.clickToSelect") || "Klik untuk memilih file atau drag & drop"}
+                      {t("admin.pages.certificates.form.clickToSelect") ||
+                        "Klik untuk memilih file atau drag & drop"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {t("admin.pages.certificates.form.supportedFormats") || "Format yang didukung: JPG, PNG, PDF (Max 5MB)"}
+                      {t("admin.pages.certificates.form.supportedFormats") ||
+                        "Format yang didukung: JPG, PNG, PDF (Max 5MB)"}
                     </p>
                     <input
                       id="certificate"
                       type="file"
                       accept="image/*,.pdf"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      onChange={(e) =>
+                        setSelectedFile(e.target.files?.[0] || null)
+                      }
                       className="hidden"
                     />
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => document.getElementById('certificate')?.click()}
+                      onClick={() =>
+                        document.getElementById("certificate")?.click()
+                      }
                     >
-                      {t("admin.pages.certificates.form.selectFile") || "Pilih File"}
+                      {t("admin.pages.certificates.form.selectFile") ||
+                        "Pilih File"}
                     </Button>
                   </div>
                 </div>
                 {selectedFile && (
                   <p className="text-sm text-green-600">
-                    {t("admin.pages.certificates.form.selectedFile").replace("{filename}", selectedFile.name) || `File terpilih: ${selectedFile.name}`}
+                    {t("admin.pages.certificates.form.selectedFile").replace(
+                      "{filename}",
+                      selectedFile.name
+                    ) || `File terpilih: ${selectedFile.name}`}
                   </p>
                 )}
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                >
                   {t("admin.pages.certificates.form.cancel") || "Batal"}
                 </Button>
-                <Button type="submit" disabled={uploading || !selectedFile || !form.title_id.trim() || !form.title_en.trim() || !form.issueDate.trim()}>
-                  {uploading ? (t("admin.pages.certificates.form.uploading") || "Mengupload...") : (t("admin.pages.certificates.form.upload") || "Upload")}
+                <Button
+                  type="submit"
+                  disabled={
+                    uploading ||
+                    !selectedFile ||
+                    !form.title_id.trim() ||
+                    !form.title_en.trim() ||
+                    !form.issueDate.trim()
+                  }
+                >
+                  {uploading
+                    ? t("admin.pages.certificates.form.uploading") ||
+                      "Mengupload..."
+                    : t("admin.pages.certificates.form.upload") || "Upload"}
                 </Button>
               </DialogFooter>
             </form>
@@ -284,24 +362,35 @@ export default function CertificatesPage() {
             <div className="aspect-[4/3] relative">
               <img
                 src={getImageUrl(certificate.imageUrl)}
-                alt={locale === 'id' ? certificate.title_id : certificate.title_en}
+                alt={
+                  locale === "id" ? certificate.title_id : certificate.title_en
+                }
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = "/placeholder.png";
+                  e.currentTarget.src = "/placeholder.svg";
                 }}
               />
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
                 <h3 className="font-medium text-gray-900 line-clamp-2">
-                  {locale === 'id' ? certificate.title_id : certificate.title_en}
+                  {locale === "id"
+                    ? certificate.title_id
+                    : certificate.title_en}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Terbit: {new Date(certificate.issuedDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  Terbit:{" "}
+                  {new Date(certificate.issuedDate).toLocaleDateString(
+                    "id-ID",
+                    { year: "numeric", month: "long", day: "numeric" }
+                  )}
                 </p>
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-gray-500">
-                    {t("admin.pages.certificates.addedDate").replace("{date}", formatDate(certificate.createdAt)) || `Ditambahkan: ${formatDate(certificate.createdAt)}`}
+                    {t("admin.pages.certificates.addedDate").replace(
+                      "{date}",
+                      formatDate(certificate.createdAt)
+                    ) || `Ditambahkan: ${formatDate(certificate.createdAt)}`}
                   </p>
                   <Button
                     variant="outline"
@@ -322,13 +411,18 @@ export default function CertificatesPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Award className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{t("admin.pages.certificates.empty.title") || "Belum ada sertifikat"}</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {t("admin.pages.certificates.empty.title") ||
+                "Belum ada sertifikat"}
+            </h3>
             <p className="text-gray-500 text-center mb-4">
-              {t("admin.pages.certificates.empty.subtitle") || "Mulai upload sertifikat dan penghargaan perusahaan"}
+              {t("admin.pages.certificates.empty.subtitle") ||
+                "Mulai upload sertifikat dan penghargaan perusahaan"}
             </p>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              {t("admin.pages.certificates.empty.addFirst") || "Upload Sertifikat Pertama"}
+              {t("admin.pages.certificates.empty.addFirst") ||
+                "Upload Sertifikat Pertama"}
             </Button>
           </CardContent>
         </Card>
