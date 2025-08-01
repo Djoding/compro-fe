@@ -6,10 +6,7 @@ import ContactSection from "@/components/sections/contact-section";
 import { AbstractWavePattern } from "@/components/ui/abstract-wave-pattern";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  WavySeparator,
-  WavySeparatorSmooth,
-} from "@/components/ui/wavy-separator";
+import { WavySeparator } from "@/components/ui/wavy-separator";
 import { useContactData } from "@/hooks/use-contact-data";
 import { useFAQData } from "@/hooks/use-faq-data";
 import { useTranslations } from "@/hooks/use-translations";
@@ -50,7 +47,7 @@ const fallbackFaqs = [
 ];
 
 export default function ContactPage() {
-  const { locale } = useTranslations();
+  const { t, locale } = useTranslations();
   const { faqs } = useFAQData();
   const { contactInfo } = useContactData();
 
@@ -86,31 +83,31 @@ export default function ContactPage() {
   const quickContactData = [
     {
       icon: MapPin,
-      title: "Visit Our Office",
-      primary: "Jakarta Office",
+      title: t("pages.contact.quickContact.visitOffice"),
+      primary: t("pages.contact.quickContact.jakartaOffice"),
       secondary: getLocationText(),
-      action: "Get Directions",
+      action: t("pages.contact.quickContact.getDirections"),
     },
     {
       icon: Phone,
-      title: "Call Us",
+      title: t("pages.contact.quickContact.callUs"),
       primary: contactInfo?.phone || "+62 21 1234 5678",
-      secondary: "Available during business hours",
-      action: "Call Now",
+      secondary: t("pages.contact.quickContact.availableDuringHours"),
+      action: t("pages.contact.quickContact.callNow"),
     },
     {
       icon: Mail,
-      title: "Email Us",
+      title: t("pages.contact.quickContact.emailUs"),
       primary: contactInfo?.email || "info@teknalogi.id",
-      secondary: "We typically respond within 24 hours",
-      action: "Send Email",
+      secondary: t("pages.contact.quickContact.responseTime"),
+      action: t("pages.contact.quickContact.sendEmail"),
     },
     {
       icon: Clock,
-      title: "Business Hours",
+      title: t("pages.contact.quickContact.businessHours"),
       primary: getOperationHoursText(),
-      secondary: "Jakarta Time (GMT+7)",
-      action: "View Schedule",
+      secondary: t("pages.contact.quickContact.jakartaTime"),
+      action: t("pages.contact.quickContact.viewSchedule"),
     },
   ];
   return (
@@ -124,25 +121,23 @@ export default function ContactPage() {
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <Mail className="w-4 h-4 mr-2" />
-              Get In Touch
+              {t("pages.contact.badge")}
             </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-              Ready to Start
+              {t("pages.contact.title")}
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Your Project?
+                {t("pages.contact.titleSpan")}
               </span>
             </h1>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Let&apos;s discuss your digital transformation goals. Our team of
-              experts is ready to help you navigate the complexities of modern
-              technology and deliver exceptional results.
+              {t("pages.contact.subtitle")}
             </p>
           </BlurFade>
         </div>
@@ -165,10 +160,10 @@ export default function ContactPage() {
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                Frequently Asked Questions
+                {t("pages.contact.faq.title")}
               </h2>
               <p className="text-lg text-muted-foreground">
-                Quick answers to common questions about our services
+                {t("pages.contact.faq.subtitle")}
               </p>
             </div>
           </BlurFade>

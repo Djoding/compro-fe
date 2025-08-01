@@ -6,20 +6,10 @@ import { Particles } from "@/components/magicui/particles";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WavySeparator } from "@/components/ui/wavy-separator";
-import { useLanguage } from "@/contexts/language-context";
 import { useTeamData } from "@/hooks/use-team-data";
+import { useTranslations } from "@/hooks/use-translations";
 import { getImageUrl } from "@/lib/utils";
-import {
-  Github,
-  Globe,
-  Instagram,
-  Linkedin,
-  Loader2,
-  Mail,
-  Phone,
-  Twitter,
-  Users,
-} from "lucide-react";
+import { ExternalLink, Loader2, Mail, Phone, Users } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -172,32 +162,22 @@ const roleCategories = ["All", "Management", "Staff"];
 const TeamMemberCard = ({
   member,
   locale,
+  t,
 }: {
   member: TeamMemberData;
   locale: string;
+  t: (key: string) => string;
 }) => {
-  const name = member.name || (locale === "id" ? "Anggota Tim" : "Team Member");
+  const name = member.name || t("pages.team.fallbackMember");
   const position =
     (locale === "id" ? member.position_id : member.position_en) ||
-    (locale === "id" ? "Anggota Tim" : "Team Member");
+    t("pages.team.fallbackMember");
   const bio = (locale === "id" ? member.bio_id : member.bio_en) || "";
   const department = member.department || member.roleCategory || "";
 
   // Get social media icons
-  const getSocialIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case "linkedin":
-        return <Linkedin className="w-4 h-4" />;
-      case "github":
-      case "git":
-        return <Github className="w-4 h-4" />;
-      case "twitter":
-        return <Twitter className="w-4 h-4" />;
-      case "instagram":
-        return <Instagram className="w-4 h-4" />;
-      default:
-        return <Globe className="w-4 h-4" />;
-    }
+  const getSocialIcon = (_platform: string) => {
+    return <ExternalLink className="w-4 h-4" />;
   };
 
   return (
@@ -318,7 +298,7 @@ const sortTeamMembers = (team: TeamMemberData[]): TeamMemberData[] => {
 };
 
 export default function TeamPage() {
-  const { locale } = useLanguage();
+  const { t, locale } = useTranslations();
   const { team, loading } = useTeamData();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -327,11 +307,7 @@ export default function TeamPage() {
       <div className="pt-20 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">
-            {locale === "id"
-              ? "Memuat informasi tim..."
-              : "Loading team information..."}
-          </p>
+          <p className="text-muted-foreground">{t("pages.team.loading")}</p>
         </div>
       </div>
     );
@@ -362,7 +338,7 @@ export default function TeamPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-20">
           <BlurFade delay={0.1} inView>
-            <Badge variant="outline" className="mb-6">
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <Users className="w-4 h-4 mr-2" />
               {locale === "id" ? "Tim Kami" : "Our Team"}
             </Badge>
@@ -550,7 +526,7 @@ export default function TeamPage() {
                 delay={1.0 + index * 0.1}
                 inView
               >
-                <TeamMemberCard member={member} locale={locale} />
+                <TeamMemberCard member={member} locale={locale} t={t} />
               </BlurFade>
             ))}
           </div>

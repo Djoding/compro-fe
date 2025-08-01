@@ -10,6 +10,7 @@ import {
 import { useLanguage } from "@/contexts/language-context";
 import { usePlatformsData } from "@/hooks/use-platforms-data";
 import { useServicesData } from "@/hooks/use-services-data";
+import { useTranslations } from "@/hooks/use-translations";
 import {
   Cloud,
   Code,
@@ -311,16 +312,17 @@ const transformApiPlatforms = (
   }));
 
 // Extract loading component
-const LoadingState = ({ locale }: { locale: string }) => (
-  <section className="relative py-24 px-6">
-    <div className="max-w-7xl mx-auto text-center">
-      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">
-        {locale === "id" ? "Memuat layanan..." : "Loading services..."}
-      </p>
-    </div>
-  </section>
-);
+const LoadingState = () => {
+  const { t } = useTranslations();
+  return (
+    <section className="relative py-24 px-6">
+      <div className="max-w-7xl mx-auto text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">{t("ui.loadingServices")}</p>
+      </div>
+    </section>
+  );
+};
 
 // Extract header component
 const ServicesHeader = ({ locale }: { locale: string }) => (
@@ -396,7 +398,7 @@ export default function ServicesSection() {
   const { platforms, loading: platformsLoading } = usePlatformsData();
 
   if (servicesLoading || platformsLoading) {
-    return <LoadingState locale={locale} />;
+    return <LoadingState />;
   }
 
   const transformedServices =

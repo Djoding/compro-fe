@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
 import { useTeamData } from "@/hooks/use-team-data";
+import { useTranslations } from "@/hooks/use-translations";
 import { Loader2, Mail, Phone, Users } from "lucide-react";
 import Image from "next/image";
 
@@ -261,16 +262,17 @@ const sortTeamMembers = (team: TeamMemberData[]): TeamMemberData[] => {
 };
 
 // Extract loading component
-const LoadingState = ({ locale }: { locale: string }) => (
-  <section className="relative py-24 px-6">
-    <div className="max-w-7xl mx-auto text-center">
-      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">
-        {locale === "id" ? "Memuat tim..." : "Loading team..."}
-      </p>
-    </div>
-  </section>
-);
+const LoadingState = () => {
+  const { t } = useTranslations();
+  return (
+    <section className="relative py-24 px-6">
+      <div className="max-w-7xl mx-auto text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">{t("ui.loadingTeam")}</p>
+      </div>
+    </section>
+  );
+};
 
 // Extract header component
 const TeamHeader = ({ locale }: { locale: string }) => (
@@ -337,7 +339,7 @@ export default function TeamSection() {
   const { team, loading } = useTeamData();
 
   if (loading) {
-    return <LoadingState locale={locale} />;
+    return <LoadingState />;
   }
 
   // Use API data if available, otherwise fallback data

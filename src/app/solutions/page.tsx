@@ -1,3 +1,5 @@
+"use client";
+
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Particles } from "@/components/magicui/particles";
 import PortfolioSection from "@/components/sections/portfolio-section";
@@ -7,9 +9,12 @@ import {
   WavySeparator,
   WavySeparatorSmooth,
 } from "@/components/ui/wavy-separator";
+import { useTranslations } from "@/hooks/use-translations";
 import { Lightbulb } from "lucide-react";
 
 export default function SolutionsPage() {
+  const { t } = useTranslations();
+
   return (
     <div className="pt-20">
       {/* Hero Section */}
@@ -21,25 +26,23 @@ export default function SolutionsPage() {
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <Lightbulb className="w-4 h-4 mr-2" />
-              Our Solutions
+              {t("pages.solutions.badge")}
             </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-              Digital Solutions That
+              {t("pages.solutions.title")}
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Drive Results
+                {t("pages.solutions.titleSpan")}
               </span>
             </h1>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Explore our comprehensive portfolio of successful digital
-              transformation projects. Each solution is crafted to meet specific
-              business needs and deliver measurable impact.
+              {t("pages.solutions.subtitle")}
             </p>
           </BlurFade>
         </div>

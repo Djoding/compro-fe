@@ -2,9 +2,11 @@
 
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Marquee } from "@/components/magicui/marquee";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/language-context";
 import { useTestimonialsData } from "@/hooks/use-testimonials-data";
-import { Loader2, Quote, Star } from "lucide-react";
+import { useTranslations } from "@/hooks/use-translations";
+import { Loader2, Quote, Star, StarIcon } from "lucide-react";
 
 interface TestimonialData {
   id: string;
@@ -112,14 +114,15 @@ const FALLBACK_TESTIMONIALS = [
 // Transform API data to display format
 const transformTestimonial = (
   testimonial: TestimonialData,
-  locale: string
+  locale: string,
+  t: (key: string) => string
 ) => ({
   id: testimonial.id,
   name: testimonial.clientName,
   company: testimonial.company,
   position:
     (locale === "id" ? testimonial.position_id : testimonial.position_en) ||
-    (locale === "id" ? "Klien" : "Client"),
+    t("sections.testimonials.fallbackClient"),
   content:
     locale === "id" ? testimonial.testimonial_id : testimonial.testimonial_en,
   rating: 5, // Default rating since backend doesn't provide it
@@ -188,65 +191,72 @@ const TestimonialCard = ({
 );
 
 // Loading component
-const LoadingState = ({ locale }: { locale: string }) => (
-  <section className="relative py-24 px-6">
-    <div className="max-w-7xl mx-auto text-center">
-      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">
-        {locale === "id" ? "Memuat testimoni..." : "Loading testimonials..."}
-      </p>
-    </div>
-  </section>
-);
+const LoadingState = () => {
+  const { t } = useTranslations();
+  return (
+    <section className="relative py-24 px-6">
+      <div className="max-w-7xl mx-auto text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">{t("ui.loadingTestimonials")}</p>
+      </div>
+    </section>
+  );
+};
 
 // Stats component
 
 // Stats component
-const StatsSection = ({ locale }: { locale: string }) => (
-  <BlurFade delay={0.1}>
-    <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">150+</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Proyek Selesai" : "Projects Completed"}
+const StatsSection = () => {
+  const { t } = useTranslations();
+  return (
+    <BlurFade delay={0.1}>
+      <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="space-y-2">
+          <div className="text-4xl font-bold text-primary">150+</div>
+          <div className="text-sm text-muted-foreground uppercase tracking-wider">
+            {t("sections.testimonials.stats.projectsCompleted")}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="text-4xl font-bold text-primary">98%</div>
+          <div className="text-sm text-muted-foreground uppercase tracking-wider">
+            {t("sections.testimonials.stats.clientSatisfaction")}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="text-4xl font-bold text-primary">5+</div>
+          <div className="text-sm text-muted-foreground uppercase tracking-wider">
+            {t("sections.testimonials.stats.yearsExperience")}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="text-4xl font-bold text-primary">24/7</div>
+          <div className="text-sm text-muted-foreground uppercase tracking-wider">
+            {t("sections.testimonials.stats.supportAvailable")}
+          </div>
         </div>
       </div>
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">98%</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Kepuasan Klien" : "Client Satisfaction"}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">5+</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Tahun Pengalaman" : "Years Experience"}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">24/7</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Support Tersedia" : "Support Available"}
-        </div>
-      </div>
-    </div>
-  </BlurFade>
-);
+    </BlurFade>
+  );
+};
 
 export default function TestimonialsSection() {
   const { locale } = useLanguage();
+  const { t } = useTranslations();
   const { testimonials, loading } = useTestimonialsData();
 
   if (loading) {
-    return <LoadingState locale={locale} />;
+    return <LoadingState />;
   }
 
   // Use API data if available, otherwise fallback data
   const displayTestimonials =
     testimonials.length > 0
-      ? testimonials.map((t) => transformTestimonial(t, locale))
-      : FALLBACK_TESTIMONIALS.map((t) =>
-          transformFallbackTestimonial(t, locale)
+      ? testimonials.map((testimonial) =>
+          transformTestimonial(testimonial, locale, t)
+        )
+      : FALLBACK_TESTIMONIALS.map((testimonial) =>
+          transformFallbackTestimonial(testimonial, locale)
         );
 
   return (
@@ -255,22 +265,21 @@ export default function TestimonialsSection() {
         {/* Header */}
         <div className="text-center mb-16">
           <BlurFade delay={0.1} inView>
-            <span className="inline-block px-4 py-2 bg-accent/10 text-accent text-sm font-semibold rounded-full mb-4">
-              Client Testimonials
-            </span>
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+              <StarIcon className="w-4 h-4 mr-2" />
+              {t("sections.testimonials.badge")}
+            </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              What Our Clients Say
+              {t("sections.testimonials.title")}
             </h2>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Don&apos;t just take our word for it. Here&apos;s what our clients
-              have to say about their experience working with Teknalogi and the
-              results we&apos;ve delivered together.
+              {t("sections.testimonials.subtitle")}
             </p>
           </BlurFade>
         </div>
@@ -292,7 +301,7 @@ export default function TestimonialsSection() {
           </div>
         </BlurFade>
 
-        <StatsSection locale={locale} />
+        <StatsSection />
       </div>
     </section>
   );

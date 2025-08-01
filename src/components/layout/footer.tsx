@@ -1,35 +1,51 @@
 import { Button } from "@/components/ui/button";
 import TeknaLogiIcon from "@/components/ui/teknalogi-icon";
-import { ArrowRight, Mail, MapPin, Phone, Linkedin, Instagram, Twitter, Facebook } from "lucide-react";
+import { useTranslations } from "@/hooks/use-translations";
+import { ArrowRight, ExternalLink, FacebookIcon, InstagramIcon, LinkedinIcon, Mail, MapPin, Phone, TwitterIcon } from "lucide-react";
 import Link from "next/link";
-
-const quickLinks = [
-  { name: "About Us", href: "/about" },
-  { name: "Solutions", href: "/solutions" },
-  { name: "Expertise", href: "/expertise" },
-  { name: "Contact", href: "/contact" }
-];
-
-const services = [
-  { name: "Web Development", href: "/expertise#web-development" },
-  { name: "Mobile Apps", href: "/expertise#mobile-apps" },
-  { name: "Cloud Solutions", href: "/expertise#cloud-solutions" },
-  { name: "Digital Transformation", href: "/expertise#digital-transformation" },
-  { name: "Consulting", href: "/expertise#consulting" }
-];
 
 const socialLinks = [
   {
     name: "LinkedIn",
     href: "https://www.linkedin.com/company/teknalogi/",
-    icon: Linkedin,
+    icon: LinkedinIcon,
   },
-  { name: "Twitter", href: "#", icon: Twitter },
-  { name: "Facebook", href: "#", icon: Facebook },
-  { name: "Instagram", href: "https://www.instagram.com/teknalogi.id/", icon: Instagram },
+  { name: "Twitter", href: "#", icon: TwitterIcon },
+  { name: "Facebook", href: "#", icon: FacebookIcon },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/teknalogi.id/",
+    icon: InstagramIcon,
+  },
 ];
 
 export default function Footer() {
+  const { t } = useTranslations();
+
+  const quickLinks = [
+    { name: t("footer.quickLinks.aboutUs"), href: "/about" },
+    { name: t("footer.quickLinks.solutions"), href: "/solutions" },
+    { name: t("footer.quickLinks.expertise"), href: "/expertise" },
+    { name: t("footer.quickLinks.contact"), href: "/contact" },
+  ];
+
+  const services = [
+    {
+      name: t("footer.services.webDevelopment"),
+      href: "/expertise#web-development",
+    },
+    { name: t("footer.services.mobileApps"), href: "/expertise#mobile-apps" },
+    {
+      name: t("footer.services.cloudSolutions"),
+      href: "/expertise#cloud-solutions",
+    },
+    {
+      name: t("footer.services.digitalTransformation"),
+      href: "/expertise#digital-transformation",
+    },
+    { name: t("footer.services.consulting"), href: "/expertise#consulting" },
+  ];
+
   return (
     <footer className="bg-muted/30 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,14 +55,15 @@ export default function Footer() {
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
               <TeknaLogiIcon className="w-10 h-10 text-primary" />
-              <span className="text-2xl font-bold text-foreground">Teknalogi</span>
+              <span className="text-2xl font-bold text-foreground">
+                Teknalogi
+              </span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Accelerating Your Business Through Digital Innovation. We design and build custom technology solutions that
-              enhance efficiency and unlock new potential.
+              {t("footer.companyDescription")}
             </p>
             <div className="flex space-x-4">
-              {socialLinks.map(social => (
+              {socialLinks.map((social) => (
                 <Link
                   key={social.name}
                   href={social.href}
@@ -60,16 +77,20 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">Quick Links</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              {t("footer.quickLinks.title")}
+            </h3>
             <ul className="space-y-3">
-              {quickLinks.map(link => (
+              {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center group"
                   >
                     <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-200" />
-                    <span className="group-hover:translate-x-2 transition-transform duration-200">{link.name}</span>
+                    <span className="group-hover:translate-x-2 transition-transform duration-200">
+                      {link.name}
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -78,16 +99,20 @@ export default function Footer() {
 
           {/* Services */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">Our Services</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              {t("footer.services.title")}
+            </h3>
             <ul className="space-y-3">
-              {services.map(service => (
+              {services.map((service) => (
                 <li key={service.name}>
                   <Link
                     href={service.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center group"
                   >
                     <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-200" />
-                    <span className="group-hover:translate-x-2 transition-transform duration-200">{service.name}</span>
+                    <span className="group-hover:translate-x-2 transition-transform duration-200">
+                      {service.name}
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -96,12 +121,16 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">Contact Info</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              {t("footer.contactInfo.title")}
+            </h3>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Address</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {t("footer.contactInfo.address")}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     Jl. Teknologi Digital No. 123
                     <br />
@@ -114,15 +143,23 @@ export default function Footer() {
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Phone</p>
-                  <p className="text-sm text-muted-foreground">+62 21 1234 5678</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {t("footer.contactInfo.phone")}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    +62 21 1234 5678
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Email</p>
-                  <p className="text-sm text-muted-foreground">info@teknalogi.id</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {t("footer.contactInfo.email")}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    info@teknalogi.id
+                  </p>
                 </div>
               </div>
             </div>
@@ -133,19 +170,21 @@ export default function Footer() {
         <div className="py-8 border-t border-border">
           <div className="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">Stay Updated</h3>
+              <h3 className="text-lg font-semibold text-foreground">
+                {t("footer.newsletter.title")}
+              </h3>
               <p className="text-muted-foreground">
-                Subscribe to our newsletter for the latest tech insights and company updates.
+                {t("footer.newsletter.description")}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("footer.newsletter.placeholder")}
                 className="px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent flex-1 lg:w-64"
               />
               <Button className="whitespace-nowrap">
-                Subscribe
+                {t("footer.newsletter.subscribe")}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -154,13 +193,21 @@ export default function Footer() {
 
         {/* Bottom Footer */}
         <div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-          <p className="text-sm text-muted-foreground">© 2024 PT. Teknalogi Transformasi Digital. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">
+            {t("footer.copyright")}
+          </p>
           <div className="flex space-x-6">
-            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Privacy Policy
+            <Link
+              href="/privacy"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+            >
+              {t("footer.links.privacyPolicy")}
             </Link>
-            <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Terms of Service
+            <Link
+              href="/terms"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+            >
+              {t("footer.links.termsOfService")}
             </Link>
           </div>
         </div>

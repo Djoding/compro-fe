@@ -1,136 +1,149 @@
-import ServicesSection from "@/components/sections/services-section";
+"use client";
+
 import { BlurFade } from "@/components/magicui/blur-fade";
+import { Particles } from "@/components/magicui/particles";
 import { Badge } from "@/components/ui/badge";
+import { WavySeparator } from "@/components/ui/wavy-separator";
+import { useTranslations } from "@/hooks/use-translations";
 import {
+  Cloud,
   Code,
   Database,
-  Cloud,
+  Globe,
   Shield,
   Smartphone,
-  Globe,
-  Users,
   Zap,
 } from "lucide-react";
-import { Particles } from "@/components/magicui/particles";
-import { WavySeparator } from "@/components/ui/wavy-separator";
-
-const expertiseAreas = [
-  {
-    icon: Code,
-    title: "Full-Stack Development",
-    description:
-      "End-to-end web application development using modern frameworks and best practices.",
-    technologies: [
-      "React",
-      "Next.js",
-      "Node.js",
-      "TypeScript",
-      "Python",
-      "Java",
-    ],
-    projects: "25+ Projects",
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile Development",
-    description:
-      "Native and cross-platform mobile applications for iOS and Android platforms.",
-    technologies: ["React Native", "Flutter", "Swift", "Kotlin", "Ionic"],
-    projects: "15+ Apps",
-  },
-  {
-    icon: Cloud,
-    title: "Cloud Architecture",
-    description:
-      "Scalable cloud infrastructure design and deployment on major cloud platforms.",
-    technologies: [
-      "AWS",
-      "Azure",
-      "Google Cloud",
-      "Docker",
-      "Kubernetes",
-      "Terraform",
-    ],
-    projects: "20+ Migrations",
-  },
-  {
-    icon: Database,
-    title: "Data Engineering",
-    description:
-      "Big data processing, analytics, and business intelligence solutions.",
-    technologies: [
-      "PostgreSQL",
-      "MongoDB",
-      "Redis",
-      "Elasticsearch",
-      "Apache Spark",
-    ],
-    projects: "10+ Solutions",
-  },
-  {
-    icon: Shield,
-    title: "Cybersecurity",
-    description:
-      "Comprehensive security audits, penetration testing, and compliance solutions.",
-    technologies: [
-      "OWASP",
-      "SIEM",
-      "Penetration Testing",
-      "Compliance",
-      "Security Audits",
-    ],
-    projects: "30+ Audits",
-  },
-  {
-    icon: Globe,
-    title: "API Development",
-    description:
-      "RESTful and GraphQL API design, development, and documentation.",
-    technologies: [
-      "REST",
-      "GraphQL",
-      "OpenAPI",
-      "Microservices",
-      "API Gateway",
-    ],
-    projects: "40+ APIs",
-  },
-];
-
-const platforms = [
-  {
-    name: "Amazon Web Services",
-    description: "Certified cloud solutions partner",
-    level: "Advanced",
-  },
-  {
-    name: "Microsoft Azure",
-    description: "Enterprise cloud deployments",
-    level: "Intermediate",
-  },
-  {
-    name: "Google Cloud Platform",
-    description: "Machine learning and analytics",
-    level: "Intermediate",
-  },
-  {
-    name: "Vercel",
-    description: "Modern web application hosting",
-    level: "Expert",
-  },
-  {
-    name: "MongoDB Atlas",
-    description: "Database as a service solutions",
-    level: "Advanced",
-  },
-  {
-    name: "Stripe",
-    description: "Payment processing integration",
-    level: "Expert",
-  },
-];
 
 export default function ExpertisePage() {
+  const { t } = useTranslations();
+
+  // Get translated expertise areas
+  const expertiseAreas = [
+    {
+      icon: Code,
+      title: t("pages.expertise.expertiseAreas.fullStackDevelopment.title"),
+      description: t(
+        "pages.expertise.expertiseAreas.fullStackDevelopment.description"
+      ),
+      technologies: [
+        "React",
+        "Next.js",
+        "Node.js",
+        "TypeScript",
+        "Python",
+        "Java",
+      ],
+      projects: t(
+        "pages.expertise.expertiseAreas.fullStackDevelopment.projects"
+      ),
+    },
+    {
+      icon: Smartphone,
+      title: t("pages.expertise.expertiseAreas.mobileDevelopment.title"),
+      description: t(
+        "pages.expertise.expertiseAreas.mobileDevelopment.description"
+      ),
+      technologies: ["React Native", "Flutter", "Swift", "Kotlin", "Ionic"],
+      projects: t("pages.expertise.expertiseAreas.mobileDevelopment.projects"),
+    },
+    {
+      icon: Cloud,
+      title: t("pages.expertise.expertiseAreas.cloudArchitecture.title"),
+      description: t(
+        "pages.expertise.expertiseAreas.cloudArchitecture.description"
+      ),
+      technologies: [
+        "AWS",
+        "Azure",
+        "Google Cloud",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+      ],
+      projects: t("pages.expertise.expertiseAreas.cloudArchitecture.projects"),
+    },
+    {
+      icon: Database,
+      title: t("pages.expertise.expertiseAreas.dataEngineering.title"),
+      description: t(
+        "pages.expertise.expertiseAreas.dataEngineering.description"
+      ),
+      technologies: [
+        "PostgreSQL",
+        "MongoDB",
+        "Redis",
+        "Elasticsearch",
+        "Apache Spark",
+      ],
+      projects: t("pages.expertise.expertiseAreas.dataEngineering.projects"),
+    },
+    {
+      icon: Shield,
+      title: t("pages.expertise.expertiseAreas.cybersecurity.title"),
+      description: t(
+        "pages.expertise.expertiseAreas.cybersecurity.description"
+      ),
+      technologies: [
+        "OWASP",
+        "SIEM",
+        "Penetration Testing",
+        "Compliance",
+        "Security Audits",
+      ],
+      projects: t("pages.expertise.expertiseAreas.cybersecurity.projects"),
+    },
+    {
+      icon: Globe,
+      title: t("pages.expertise.expertiseAreas.apiDevelopment.title"),
+      description: t(
+        "pages.expertise.expertiseAreas.apiDevelopment.description"
+      ),
+      technologies: [
+        "REST",
+        "GraphQL",
+        "OpenAPI",
+        "Microservices",
+        "API Gateway",
+      ],
+      projects: t("pages.expertise.expertiseAreas.apiDevelopment.projects"),
+    },
+  ];
+
+  // Get translated platforms
+  const platforms = [
+    {
+      name: t("pages.expertise.platforms.aws.name"),
+      description: t("pages.expertise.platforms.aws.description"),
+      level: t("pages.expertise.platforms.aws.level"),
+    },
+    {
+      name: t("pages.expertise.platforms.azure.name"),
+      description: t("pages.expertise.platforms.azure.description"),
+      level: t("pages.expertise.platforms.azure.level"),
+    },
+    {
+      name: t("pages.expertise.platforms.gcp.name"),
+      description: t("pages.expertise.platforms.gcp.description"),
+      level: t("pages.expertise.platforms.gcp.level"),
+    },
+    {
+      name: t("pages.expertise.platforms.vercel.name"),
+      description: t("pages.expertise.platforms.vercel.description"),
+      level: t("pages.expertise.platforms.vercel.level"),
+    },
+    {
+      name: t("pages.expertise.platforms.mongodb.name"),
+      description: t("pages.expertise.platforms.mongodb.description"),
+      level: t("pages.expertise.platforms.mongodb.level"),
+    },
+    {
+      name: t("pages.expertise.platforms.stripe.name"),
+      description: t("pages.expertise.platforms.stripe.description"),
+      level: t("pages.expertise.platforms.stripe.level"),
+    },
+  ];
+
   return (
     <div className="pt-20">
       {/* Hero Section */}
@@ -142,25 +155,23 @@ export default function ExpertisePage() {
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <Zap className="w-4 h-4 mr-2" />
-              Our Expertise
+              {t("pages.expertise.badge")}
             </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-              Technical Excellence
+              {t("pages.expertise.title")}
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Across Technologies
+                {t("pages.expertise.titleSpan")}
               </span>
             </h1>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Our team of experts brings deep technical knowledge across a wide
-              range of technologies and platforms to deliver exceptional digital
-              solutions.
+              {t("pages.expertise.subtitle")}
             </p>
           </BlurFade>
         </div>
@@ -175,10 +186,10 @@ export default function ExpertisePage() {
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                Core Competencies
+                {t("pages.expertise.coreCompetencies.title")}
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Deep expertise across the full technology stack
+                {t("pages.expertise.coreCompetencies.subtitle")}
               </p>
             </div>
           </BlurFade>
@@ -231,10 +242,10 @@ export default function ExpertisePage() {
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                Platform Partners
+                {t("pages.expertise.platformPartners.title")}
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Certified partnerships with leading technology platforms
+                {t("pages.expertise.platformPartners.subtitle")}
               </p>
             </div>
           </BlurFade>

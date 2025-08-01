@@ -170,7 +170,7 @@ const companyAchievements = [
 ];
 
 export default function CertificatesPage() {
-  const { locale } = useTranslations();
+  const { t, locale } = useTranslations();
   const { certificates: certsData, loading } = useCertificatesData();
 
   // Prepare certificates data with fallback
@@ -214,7 +214,9 @@ export default function CertificatesPage() {
       <div className="pt-20 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading certificates...</p>
+          <p className="text-muted-foreground">
+            {t("pages.certificates.loading")}
+          </p>
         </div>
       </div>
     );
@@ -246,25 +248,23 @@ export default function CertificatesPage() {
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <ShieldCheck className="w-4 h-4 mr-2" />
-              Certifications & Credentials
+              {t("pages.certificates.badge")}
             </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-              Proven Expertise &
+              {t("pages.certificates.title")}
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Industry Recognition
+                {t("pages.certificates.titleSpan")}
               </span>
             </h1>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Our team holds industry-leading certifications and credentials,
-              ensuring we deliver solutions using the latest technologies and
-              best practices.
+              {t("pages.certificates.subtitle")}
             </p>
           </BlurFade>
         </div>
@@ -278,7 +278,7 @@ export default function CertificatesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <BlurFade delay={0.1} inView>
             <h2 className="text-2xl font-bold text-foreground text-center mb-12">
-              Company Certifications & Partnerships
+              {t("pages.certificates.companyAchievements")}
             </h2>
           </BlurFade>
 

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/interactive-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useProjectsData } from "@/hooks/use-projects-data";
+import { useTranslations } from "@/hooks/use-translations";
 import {
   Code,
   Cpu,
@@ -210,16 +211,17 @@ const transformApiProjects = (
     image: project.imageUrl,
     features: project.features || [],
   })); // Extract loading component
-const LoadingState = ({ locale }: { locale: string }) => (
-  <section className="relative py-24 px-6">
-    <div className="max-w-7xl mx-auto text-center">
-      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">
-        {locale === "id" ? "Memuat portfolio..." : "Loading portfolio..."}
-      </p>
-    </div>
-  </section>
-);
+const LoadingState = () => {
+  const { t } = useTranslations();
+  return (
+    <section className="relative py-24 px-6">
+      <div className="max-w-7xl mx-auto text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">{t("ui.loadingPortfolio")}</p>
+      </div>
+    </section>
+  );
+};
 
 // Extract header component
 const PortfolioHeader = ({ locale }: { locale: string }) => (
@@ -250,7 +252,7 @@ export default function PortfolioSection() {
   const { projects, loading } = useProjectsData();
 
   if (loading) {
-    return <LoadingState locale={locale} />;
+    return <LoadingState />;
   }
 
   const transformedProjects =

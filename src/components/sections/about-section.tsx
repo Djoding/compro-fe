@@ -3,9 +3,10 @@
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { MorphingText } from "@/components/magicui/morphing-text";
 import { NumberTicker } from "@/components/magicui/number-ticker";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
+import { useTranslations } from "@/hooks/use-translations";
 import { companyProfileAPI } from "@/lib/api";
 import {
   Award,
@@ -16,7 +17,6 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Particles } from "@/components/magicui/particles";
 
 interface CompanyStats {
   projectsCompleted?: number;
@@ -37,74 +37,74 @@ interface CompanyProfile {
 }
 
 // Fallback stats
-const defaultStats = [
+const getDefaultStats = (t: (key: string) => string) => [
   {
     number: 50,
     suffix: "+",
-    label: "Projects Completed",
-    description: "Successful digital solutions delivered",
+    label: t("sections.about.stats.projectsCompleted"),
+    description: t("sections.about.stats.projectsCompletedDesc"),
   },
   {
     number: 25,
     suffix: "+",
-    label: "Happy Clients",
-    description: "Businesses transformed through technology",
+    label: t("sections.about.stats.happyClients"),
+    description: t("sections.about.stats.happyClientsDesc"),
   },
   {
     number: 5,
     suffix: "+",
-    label: "Years Experience",
-    description: "Years of digital innovation expertise",
+    label: t("sections.about.stats.yearsExperience"),
+    description: t("sections.about.stats.yearsExperienceDesc"),
   },
   {
     number: 15,
     suffix: "+",
-    label: "Team Members",
-    description: "Skilled professionals ready to help",
+    label: t("sections.about.stats.teamMembers"),
+    description: t("sections.about.stats.teamMembersDesc"),
   },
 ];
 
-const values = [
+const getValues = (t: (key: string) => string) => [
   {
     icon: Target,
-    title: "Innovation First",
-    description:
-      "We prioritize cutting-edge solutions that drive meaningful business transformation and competitive advantage.",
+    title: t("sections.about.values.innovationFirst.title"),
+    description: t("sections.about.values.innovationFirst.description"),
   },
   {
     icon: Users,
-    title: "Client-Centric",
-    description:
-      "Your success is our success. We work closely with clients to understand and exceed their expectations.",
+    title: t("sections.about.values.clientCentric.title"),
+    description: t("sections.about.values.clientCentric.description"),
   },
   {
     icon: Lightbulb,
-    title: "Creative Solutions",
-    description:
-      "We think outside the box to deliver unique, tailored solutions that address your specific challenges.",
+    title: t("sections.about.values.creativeSolutions.title"),
+    description: t("sections.about.values.creativeSolutions.description"),
   },
   {
     icon: Award,
-    title: "Quality Excellence",
-    description:
-      "We maintain the highest standards in everything we do, ensuring reliable and scalable solutions.",
+    title: t("sections.about.values.qualityExcellence.title"),
+    description: t("sections.about.values.qualityExcellence.description"),
   },
 ];
 
-const texts = [
-  "Digital Innovation",
-  "Business Growth",
-  "Technology Solutions",
-  "Future Success",
+const getTexts = (t: (key: string) => string) => [
+  t("sections.about.morphingTexts.digitalInnovation"),
+  t("sections.about.morphingTexts.businessGrowth"),
+  t("sections.about.morphingTexts.technologySolutions"),
+  t("sections.about.morphingTexts.futureSuccess"),
 ];
 
 export default function AboutSection() {
   const { locale } = useLanguage();
+  const { t } = useTranslations();
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(
     null
   );
-  const [stats, setStats] = useState(defaultStats);
+  const [stats, setStats] = useState(() => getDefaultStats(t));
   const [loading, setLoading] = useState(true);
+
+  const values = getValues(t);
+  const texts = getTexts(t);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -176,15 +176,14 @@ export default function AboutSection() {
     ? (locale === "id"
         ? companyProfile.description_id
         : companyProfile.description_en) ||
-      "PT. Teknalogi Transformasi Digital is dedicated to helping businesses thrive in the digital age. We provide comprehensive technology solutions that enhance efficiency, drive innovation, and unlock new growth opportunities."
-    : "PT. Teknalogi Transformasi Digital is dedicated to helping businesses thrive in the digital age. We provide comprehensive technology solutions that enhance efficiency, drive innovation, and unlock new growth opportunities.";
+      t("sections.about.fallbackDescription")
+    : t("sections.about.fallbackDescription");
 
   const companyMission = companyProfile
     ? (locale === "id"
         ? companyProfile.mission_id
-        : companyProfile.mission_en) ||
-      "To accelerate business growth through innovative digital solutions, ensuring your business not only survives but excels by providing flexible and scalable architectures in an ever-evolving digital world."
-    : "To accelerate business growth through innovative digital solutions, ensuring your business not only survives but excels by providing flexible and scalable architectures in an ever-evolving digital world.";
+        : companyProfile.mission_en) || t("sections.about.mission.fallbackText")
+    : t("sections.about.mission.fallbackText");
 
   if (loading) {
     return (
@@ -193,7 +192,7 @@ export default function AboutSection() {
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">
-              Loading company information...
+              {t("ui.loadingCompanyInfo")}
             </span>
           </div>
         </div>
@@ -209,13 +208,14 @@ export default function AboutSection() {
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <BadgeInfo className="w-4 h-4 mr-2" />
-              About {safeCompanyName.split(" ")[1] || "Teknalogi"}
+              {t("sections.about.badge")}{" "}
+              {safeCompanyName.split(" ")[1] || "Teknalogi"}
             </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              Transforming Businesses Through{" "}
+              {t("sections.about.transformingTitle")}{" "}
               <MorphingText texts={texts} className="text-primary" />
             </h2>
           </BlurFade>
@@ -276,7 +276,7 @@ export default function AboutSection() {
           <div className="mt-20 text-center">
             <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 lg:p-12">
               <h3 className="text-2xl lg:text-3xl font-bold text-foreground mb-6">
-                Our Mission
+                {t("sections.about.mission.title")}
               </h3>
               <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
                 &ldquo;{companyMission}&rdquo;

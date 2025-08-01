@@ -1,15 +1,15 @@
 // src/components/layout/navbar.tsx (update existing)
 "use client";
 
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import TeknaLogiIcon from "@/components/ui/teknalogi-icon";
+import { useTranslations } from "@/hooks/use-translations";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
-import { useTranslations } from "@/hooks/use-translations";
 
 export default function Navbar() {
   const { t } = useTranslations();
@@ -24,7 +24,7 @@ export default function Navbar() {
       name: t("nav.about"),
       href: "/about",
       submenu: [
-        { name: "Company Overview", href: "/about" },
+        { name: t("nav.companyOverview"), href: "/about" },
         { name: t("nav.team"), href: "/team" },
         { name: t("nav.certificates"), href: "/certificates" },
       ],

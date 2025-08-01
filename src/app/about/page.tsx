@@ -16,127 +16,134 @@ import { useTranslations } from "@/hooks/use-translations";
 import { ArrowRight, BadgeInfo, Eye, Heart, Target, Zap } from "lucide-react";
 
 // Fallback vision/mission data
-const fallbackVisionMission = [
+const getFallbackVisionMission = (t: (key: string) => string) => [
   {
     icon: Eye,
-    title: "Vision",
-    content:
-      "To become Indonesia's leading digital transformation partner, empowering businesses of all sizes to thrive in the digital era through innovative technology solutions that create lasting competitive advantages.",
+    title: t("pages.about.fallback.visionMission.vision.title"),
+    content: t("pages.about.fallback.visionMission.vision.content"),
     color: "from-blue-500 to-cyan-500",
   },
   {
     icon: Target,
-    title: "Mission",
-    content:
-      "To accelerate business growth through innovative digital solutions, ensuring your business not only survives but excels by providing flexible and scalable architectures in an ever-evolving digital world.",
+    title: t("pages.about.fallback.visionMission.mission.title"),
+    content: t("pages.about.fallback.visionMission.mission.content"),
     color: "from-purple-500 to-pink-500",
   },
 ];
 
 // Fallback core values data
-const fallbackCoreValues = [
+const getFallbackCoreValues = (t: (key: string) => string) => [
   {
     icon: Heart,
-    title: "Passion for Excellence",
-    description:
-      "We are driven by an unwavering commitment to delivering exceptional results that exceed expectations.",
+    title: t("pages.about.fallback.coreValues.passionExcellence.title"),
+    description: t(
+      "pages.about.fallback.coreValues.passionExcellence.description"
+    ),
     color: "from-red-500 to-pink-500",
   },
   {
     icon: Zap,
-    title: "Innovation First",
-    description:
-      "We embrace cutting-edge technologies and creative solutions to solve complex business challenges.",
+    title: t("pages.about.fallback.coreValues.innovationFirst.title"),
+    description: t(
+      "pages.about.fallback.coreValues.innovationFirst.description"
+    ),
     color: "from-yellow-500 to-orange-500",
   },
   {
     icon: Target,
-    title: "Client Success Focus",
-    description:
-      "Your success is our success. We work as true partners invested in your long-term growth.",
+    title: t("pages.about.fallback.coreValues.clientSuccess.title"),
+    description: t("pages.about.fallback.coreValues.clientSuccess.description"),
     color: "from-green-500 to-emerald-500",
   },
   {
     icon: Eye,
-    title: "Transparency & Trust",
-    description:
-      "We believe in open communication and honest relationships built on trust and mutual respect.",
+    title: t("pages.about.fallback.coreValues.transparencyTrust.title"),
+    description: t(
+      "pages.about.fallback.coreValues.transparencyTrust.description"
+    ),
     color: "from-blue-500 to-purple-500",
   },
 ];
 
 // Fallback timeline data
-const fallbackTimeline = [
+const getFallbackTimeline = (t: (key: string) => string) => [
   {
     year: "2019",
-    title: "Company Founded",
-    description:
-      "PT Teknalogi was established with a vision to transform businesses through technology.",
-    milestone: "Started with 3 founding members",
+    title: t("pages.about.fallback.timeline.2019.title"),
+    description: t("pages.about.fallback.timeline.2019.description"),
+    milestone: t("pages.about.fallback.timeline.2019.milestone"),
   },
   {
     year: "2020",
-    title: "First Major Client",
-    description:
-      "Successfully delivered our first enterprise-level digital transformation project.",
-    milestone: "Team expanded to 8 professionals",
+    title: t("pages.about.fallback.timeline.2020.title"),
+    description: t("pages.about.fallback.timeline.2020.description"),
+    milestone: t("pages.about.fallback.timeline.2020.milestone"),
   },
   {
     year: "2021",
-    title: "Service Expansion",
-    description:
-      "Expanded our services to include cloud solutions, mobile development, and cybersecurity.",
-    milestone: "Served 25+ clients across Indonesia",
+    title: t("pages.about.fallback.timeline.2021.title"),
+    description: t("pages.about.fallback.timeline.2021.description"),
+    milestone: t("pages.about.fallback.timeline.2021.milestone"),
   },
   {
     year: "2022",
-    title: "Technology Partnerships",
-    description:
-      "Formed strategic partnerships with major technology providers and cloud platforms.",
-    milestone: "Achieved AWS Partner status",
+    title: t("pages.about.fallback.timeline.2022.title"),
+    description: t("pages.about.fallback.timeline.2022.description"),
+    milestone: t("pages.about.fallback.timeline.2022.milestone"),
   },
   {
     year: "2023",
-    title: "Innovation Focus",
-    description:
-      "Launched our AI and machine learning practice to help clients leverage advanced analytics.",
-    milestone: "Delivered 50+ successful projects",
+    title: t("pages.about.fallback.timeline.2023.title"),
+    description: t("pages.about.fallback.timeline.2023.description"),
+    milestone: t("pages.about.fallback.timeline.2023.milestone"),
   },
   {
-    year: "2024",
-    title: "Continued Growth",
-    description:
-      "Expanding our team and capabilities to serve more clients with comprehensive digital solutions.",
-    milestone: "15+ expert developers and consultants",
+    year: "2025",
+    title: t("pages.about.fallback.timeline.2025.title"),
+    description: t("pages.about.fallback.timeline.2025.description"),
+    milestone: t("pages.about.fallback.timeline.2025.milestone"),
   },
 ];
 
 export default function AboutPage() {
-  const { locale } = useTranslations();
+  const { t, locale } = useTranslations();
   const { companyProfile, journey, loading } = useAboutData();
 
+  // Get fallback data with translations
+  const fallbackVisionMission = getFallbackVisionMission(t);
+  const fallbackCoreValues = getFallbackCoreValues(t);
+  const fallbackTimeline = getFallbackTimeline(t);
+
   // Get vision/mission from company profile with fallback
+  const getVisionContent = () => {
+    if (companyProfile?.vision_id && companyProfile?.vision_en) {
+      return locale === "id"
+        ? companyProfile.vision_id
+        : companyProfile.vision_en;
+    }
+    return fallbackVisionMission[0].content;
+  };
+
+  const getMissionContent = () => {
+    if (companyProfile?.mission_id && companyProfile?.mission_en) {
+      return locale === "id"
+        ? companyProfile.mission_id
+        : companyProfile.mission_en;
+    }
+    return fallbackVisionMission[1].content;
+  };
+
   const visionMission = [
     {
       icon: Eye,
-      title: "Vision",
-      content:
-        companyProfile?.vision_id && companyProfile?.vision_en
-          ? locale === "id"
-            ? companyProfile.vision_id
-            : companyProfile.vision_en
-          : fallbackVisionMission[0].content,
+      title: t("pages.about.fallback.visionMission.vision.title"),
+      content: getVisionContent(),
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: Target,
-      title: "Mission",
-      content:
-        companyProfile?.mission_id && companyProfile?.mission_en
-          ? locale === "id"
-            ? companyProfile.mission_id
-            : companyProfile.mission_en
-          : fallbackVisionMission[1].content,
+      title: t("pages.about.fallback.visionMission.mission.title"),
+      content: getMissionContent(),
       color: "from-purple-500 to-pink-500",
     },
   ];
@@ -148,7 +155,7 @@ export default function AboutPage() {
   const timeline =
     journey && journey.length > 0
       ? journey.map((item) => ({
-          year: item.year?.toString() || "2024",
+          year: item.year?.toString() || "2025",
           title:
             locale === "id"
               ? item.title_id || item.title_en || "Milestone"
@@ -169,7 +176,7 @@ export default function AboutPage() {
       <div className="pt-20 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading about information...</p>
+          <p className="text-muted-foreground">{t("pages.about.loading")}</p>
         </div>
       </div>
     );
@@ -185,25 +192,23 @@ export default function AboutPage() {
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <BadgeInfo className="w-4 h-4 mr-2" />
-              About Teknalogi
+              {t("pages.about.badge")}
             </Badge>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-              Leading Digital Innovation
+              {t("pages.about.title")}
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Since 2019
+                {t("pages.about.titleSpan")}
               </span>
             </h1>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              PT. Teknalogi Transformasi Digital has been at the forefront of
-              digital innovation, helping businesses transform and thrive in the
-              digital era through cutting-edge technology solutions.
+              {t("pages.about.subtitle")}
             </p>
           </BlurFade>
         </div>
@@ -218,10 +223,10 @@ export default function AboutPage() {
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                Our Vision & Mission
+                {t("pages.about.visionMission.title")}
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Guiding principles that drive everything we do
+                {t("pages.about.visionMission.subtitle")}
               </p>
             </div>
           </BlurFade>
@@ -257,8 +262,7 @@ export default function AboutPage() {
           defaultVelocity={1}
           className="font-display text-center text-4xl font-bold tracking-[-0.02em] text-primary/20 drop-shadow-sm"
         >
-          Excellence • Innovation • Partnership • Trust • Growth • Excellence •
-          Innovation • Partnership • Trust • Growth •
+          {t("pages.about.scrollingText")}
         </VelocityScroll>
       </section>
 
@@ -268,10 +272,10 @@ export default function AboutPage() {
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                Our Core Values
+                {t("pages.about.coreValues.title")}
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                The principles that guide our decisions and shape our culture
+                {t("pages.about.coreValues.subtitle")}
               </p>
             </div>
           </BlurFade>
@@ -313,11 +317,10 @@ export default function AboutPage() {
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                Our Journey
+                {t("pages.about.journey.title")}
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                From humble beginnings to becoming a trusted digital innovation
-                partner
+                {t("pages.about.journey.subtitle")}
               </p>
             </div>
           </BlurFade>
@@ -391,19 +394,18 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <BlurFade delay={0.1} inView>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-              Ready to Start Your Digital Journey?
+              {t("pages.about.cta.title")}
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join the growing number of businesses that trust Teknalogi to
-              accelerate their digital transformation.
+              {t("pages.about.cta.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="px-8">
-                Get Started Today
+                {t("pages.about.cta.primaryButton")}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button variant="outline" size="lg" className="px-8">
-                Learn More About Us
+                {t("pages.about.cta.secondaryButton")}
               </Button>
             </div>
           </BlurFade>

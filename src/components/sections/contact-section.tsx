@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/interactive-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useContactData } from "@/hooks/use-contact-data";
+import { useTranslations } from "@/hooks/use-translations";
 import {
   Clock,
   Loader2,
@@ -159,18 +160,17 @@ const transformApiContact = (
     });
 
 // Extract loading component
-const LoadingState = ({ locale }: { locale: string }) => (
-  <section className="relative py-24 px-6">
-    <div className="max-w-7xl mx-auto text-center">
-      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">
-        {locale === "id"
-          ? "Memuat informasi kontak..."
-          : "Loading contact information..."}
-      </p>
-    </div>
-  </section>
-);
+const LoadingState = () => {
+  const { t } = useTranslations();
+  return (
+    <section className="relative py-24 px-6">
+      <div className="max-w-7xl mx-auto text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">{t("ui.loadingContactInfo")}</p>
+      </div>
+    </section>
+  );
+};
 
 // Extract header component
 const ContactHeader = ({ locale }: { locale: string }) => (
@@ -234,7 +234,7 @@ export default function ContactSection() {
   const { contactInfo, loading } = useContactData();
 
   if (loading) {
-    return <LoadingState locale={locale} />;
+    return <LoadingState />;
   }
 
   const transformedContact = contactInfo
