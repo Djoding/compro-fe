@@ -73,10 +73,10 @@ type Circle = {
 
 export const Particles: React.FC<ParticlesProps> = ({
   className = "",
-  quantity = 100,
+  quantity = 200,
   staticity = 50,
   ease = 50,
-  size = 0.4,
+  size = 0.5,
   refresh = false,
   color = "#ffffff",
   vx = 0,

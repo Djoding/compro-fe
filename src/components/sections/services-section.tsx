@@ -25,25 +25,29 @@ import {
   Zap,
 } from "lucide-react";
 
-interface ServiceData {
+// Import Service type from the hook
+interface Service {
   id: string;
-  title_id?: string;
-  title_en?: string;
-  description_id?: string;
-  description_en?: string;
-  features?: string[];
-  category_id?: string;
-  category_en?: string;
+  name_id: string;
+  name_en: string;
+  description_id: string;
+  description_en: string;
+  technologies: string[];
+  createdAt: string;
+  name: string;
+  description: string;
 }
 
 interface PlatformData {
   id: string;
-  name_id?: string;
-  name_en?: string;
-  description_id?: string;
-  description_en?: string;
-  category_id?: string;
-  category_en?: string;
+  name_id: string;
+  name_en: string;
+  imageUrl: string;
+  description_id: string;
+  description_en: string;
+  createdAt: string;
+  name: string;
+  description: string;
 }
 
 interface TransformedService {
@@ -54,6 +58,7 @@ interface TransformedService {
   category: string;
   rating: number;
   actionLabel: string;
+  technologies?: string[];
 }
 
 // Extract fallback data constant
@@ -226,6 +231,7 @@ const generateFallbackServices = (locale: string): TransformedService[] =>
     rating: 5,
     actionLabel:
       locale === "id" ? service.actionLabelId : service.actionLabelEn,
+    technologies: [],
   }));
 
 const generateFallbackPlatforms = (locale: string): TransformedService[] =>
@@ -238,25 +244,51 @@ const generateFallbackPlatforms = (locale: string): TransformedService[] =>
     category: locale === "id" ? platform.categoryId : platform.categoryEn,
     rating: 5,
     actionLabel: locale === "id" ? "Pelajari Teknologi" : "Learn Technology",
+    technologies: [],
   }));
+
+// Helper function to get icon based on service name
+const getServiceIcon = (serviceName: string) => {
+  const name = serviceName.toLowerCase();
+  if (name.includes("digital platform") || name.includes("platform")) {
+    return <Globe className="w-6 h-6" />;
+  }
+  if (
+    name.includes("cloud") ||
+    name.includes("devops") ||
+    name.includes("infrastructure")
+  ) {
+    return <Cloud className="w-6 h-6" />;
+  }
+  if (name.includes("design") || name.includes("ui") || name.includes("ux")) {
+    return <Palette className="w-6 h-6" />;
+  }
+  if (
+    name.includes("strategic") ||
+    name.includes("partnership") ||
+    name.includes("technology")
+  ) {
+    return <Target className="w-6 h-6" />;
+  }
+  return <Wrench className="w-6 h-6" />;
+};
 
 // Extract data transformation functions
 const transformApiServices = (
-  services: ServiceData[],
+  services: Service[],
   locale: string
 ): TransformedService[] =>
   services.map((service) => ({
     id: service.id,
-    title: (locale === "id" ? service.title_id : service.title_en) || "Service",
+    title: (locale === "id" ? service.name_id : service.name_en) || "Service",
     description:
       (locale === "id" ? service.description_id : service.description_en) ||
       "No description",
-    icon: <Wrench className="w-6 h-6" />,
-    category:
-      (locale === "id" ? service.category_id : service.category_en) ||
-      (locale === "id" ? "Layanan" : "Service"),
+    icon: getServiceIcon(service.name_en),
+    category: locale === "id" ? "Layanan" : "Service",
     rating: 5,
     actionLabel: locale === "id" ? "Pelajari Lebih" : "Learn More",
+    technologies: service.technologies || [],
   }));
 
 const transformApiPlatforms = (
@@ -270,12 +302,12 @@ const transformApiPlatforms = (
     description:
       (locale === "id" ? platform.description_id : platform.description_en) ||
       "No description",
-    icon: <Settings className="w-6 h-6" />,
+    icon: getServiceIcon(platform.name_en), // Use service icon function
     category:
-      (locale === "id" ? platform.category_id : platform.category_en) ||
-      "Platform",
+      locale === "id" ? "Platform & Teknologi" : "Platform & Technology",
     rating: 5,
     actionLabel: locale === "id" ? "Pelajari Teknologi" : "Learn Technology",
+    technologies: [],
   }));
 
 // Extract loading component
@@ -347,6 +379,7 @@ const PlatformsSection = ({
             description={platform.description}
             icon={platform.icon}
             category={platform.category}
+            features={platform.technologies}
             actionLabel={platform.actionLabel}
             size="md"
             onAction={() => console.log(`Clicked on ${platform.title}`)}
@@ -398,8 +431,10 @@ export default function ServicesSection() {
                 icon={service.icon}
                 category={service.category}
                 rating={service.rating}
+                features={service.technologies}
                 actionLabel={service.actionLabel}
                 size="md"
+                className="h-full"
                 onAction={() => console.log(`Clicked on ${service.title}`)}
               />
             ))}

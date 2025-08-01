@@ -21,13 +21,16 @@ import {
 } from "lucide-react";
 
 interface ContactData {
-  phone_id?: string;
-  phone_en?: string;
-  email?: string;
-  address_id?: string;
-  address_en?: string;
-  operatingHours_id?: string;
-  operatingHours_en?: string;
+  id: string;
+  location_id: string;
+  location_en: string;
+  phone: string;
+  email: string;
+  operationHours_id: string;
+  operationHours_en: string;
+  updatedAt: string;
+  location: string;
+  operationHours: string;
 }
 
 interface TransformedContactInfo {
@@ -135,9 +138,8 @@ const transformApiContact = (
   generateFallbackContact(locale)
     .filter((item) => {
       if (item.id === "1" && contact.email) return true;
-      if (item.id === "2" && (contact.phone_id || contact.phone_en))
-        return true;
-      if (item.id === "3" && (contact.address_id || contact.address_en))
+      if (item.id === "2" && contact.phone) return true;
+      if (item.id === "3" && (contact.location_id || contact.location_en))
         return true;
       return false;
     })
@@ -146,13 +148,12 @@ const transformApiContact = (
         return { ...item, category: contact.email };
       }
       if (item.id === "2") {
-        const phone = locale === "id" ? contact.phone_id : contact.phone_en;
-        return { ...item, category: phone || item.category };
+        return { ...item, category: contact.phone || item.category };
       }
       if (item.id === "3") {
-        const address =
-          locale === "id" ? contact.address_id : contact.address_en;
-        return { ...item, category: address || item.category };
+        const location =
+          locale === "id" ? contact.location_id : contact.location_en;
+        return { ...item, category: location || item.category };
       }
       return item;
     });
@@ -255,7 +256,7 @@ export default function ContactSection() {
           <InteractiveCardGrid
             columns={2}
             gap={8}
-            className="flex justify-center"
+            className="grid grid-cols-1 md:grid-cols-3 items-stretch"
           >
             {transformedContact.map((contact) => (
               <InteractiveCard
@@ -266,7 +267,7 @@ export default function ContactSection() {
                 category={contact.category}
                 actionLabel={contact.actionLabel}
                 size="md"
-                className="w-lg"
+                className="flex flex-col h-full min-h-[300px]"
                 onAction={() => {
                   if (contact.id === "1") {
                     window.location.href = `mailto:${contact.category}`;

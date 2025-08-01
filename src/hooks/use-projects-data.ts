@@ -3,22 +3,21 @@ import { useEffect, useState } from "react";
 
 interface Project {
   id: string;
-  title: string;
-  description: string;
-  image?: string;
-  gallery?: string[];
-  technologies?: string[];
-  category?: string;
-  client?: string;
-  projectUrl?: string;
-  githubUrl?: string;
-  startDate?: string;
-  endDate?: string;
-  status: "planning" | "in-progress" | "completed" | "on-hold";
-  isFeatured: boolean;
-  isPublished: boolean;
+  title_id: string;
+  title_en: string;
+  serviceCategory: string;
+  imageUrl: string;
+  shortDescription_id: string;
+  shortDescription_en: string;
+  elaboration_id: string;
+  elaboration_en: string;
+  languages: string[];
+  features: string[];
   createdAt: string;
   updatedAt: string;
+  title: string;
+  shortDescription: string;
+  elaboration: string;
 }
 
 interface UseProjectsDataReturn {

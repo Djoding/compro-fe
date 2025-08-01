@@ -7,6 +7,7 @@ import { AbstractWavePattern } from "@/components/ui/abstract-wave-pattern";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  WavySeparator,
   WavySeparatorSmooth,
 } from "@/components/ui/wavy-separator";
 import { useContactData } from "@/hooks/use-contact-data";
@@ -69,29 +70,32 @@ export default function ContactPage() {
       : fallbackFaqs;
 
   // Prepare contact data with fallback
+  const getLocationText = () => {
+    if (!contactInfo?.location)
+      return "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345";
+    return locale === "id" ? contactInfo.location_id : contactInfo.location_en;
+  };
+
+  const getOperationHoursText = () => {
+    if (!contactInfo?.operationHours) return "Mon - Fri: 9:00 AM - 6:00 PM";
+    return locale === "id"
+      ? contactInfo.operationHours_id
+      : contactInfo.operationHours_en;
+  };
+
   const quickContactData = [
     {
       icon: MapPin,
       title: "Visit Our Office",
       primary: "Jakarta Office",
-      secondary:
-        contactInfo?.address_id && contactInfo?.address_en
-          ? locale === "id"
-            ? contactInfo.address_id
-            : contactInfo.address_en
-          : "Jl. Teknologi Digital No. 123, Jakarta Selatan 12345",
+      secondary: getLocationText(),
       action: "Get Directions",
     },
     {
       icon: Phone,
       title: "Call Us",
-      primary:
-        contactInfo?.phone_id && contactInfo?.phone_en
-          ? locale === "id"
-            ? contactInfo.phone_id
-            : contactInfo.phone_en
-          : "+62 21 1234 5678",
-      secondary: "Monday to Friday, 9 AM - 6 PM WIB",
+      primary: contactInfo?.phone || "+62 21 1234 5678",
+      secondary: "Available during business hours",
       action: "Call Now",
     },
     {
@@ -104,14 +108,9 @@ export default function ContactPage() {
     {
       icon: Clock,
       title: "Business Hours",
-      primary:
-        contactInfo?.operatingHours_id && contactInfo?.operatingHours_en
-          ? locale === "id"
-            ? contactInfo.operatingHours_id
-            : contactInfo.operatingHours_en
-          : "Mon - Fri: 9:00 AM - 6:00 PM",
-      secondary: "Weekend consultations by appointment",
-      action: "Schedule Meeting",
+      primary: getOperationHoursText(),
+      secondary: "Jakarta Time (GMT+7)",
+      action: "View Schedule",
     },
   ];
   return (
@@ -149,42 +148,8 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Quick Contact Info */}
-      <section className="pb-4 bg-muted/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickContactData.map((contact, index) => {
-              const Icon = contact.icon;
-              return (
-                <BlurFade key={contact.title} delay={0.2 + index * 0.1} inView>
-                  <Card className="text-center group h-full">
-                    <CardContent className="p-6 flex flex-col h-full">
-                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
-                        <Icon className="w-6 h-6 text-primary" />
-                      </div>
-                      <h3 className="font-semibold text-foreground mb-2">
-                        {contact.title}
-                      </h3>
-                      <p className="text-foreground font-medium mb-1">
-                        {contact.primary}
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-4 flex-grow">
-                        {contact.secondary}
-                      </p>
-                      <button className="text-primary text-sm font-medium hover:underline group-hover:text-accent transition-colors duration-300 mt-auto">
-                        {contact.action}
-                      </button>
-                    </CardContent>
-                  </Card>
-                </BlurFade>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* Wavy Separator */}
-      <WavySeparatorSmooth rotated className="fill-primary/10" />
+      <WavySeparator className="fill-primary/20" />
 
       {/* Main Contact Section */}
       <ContactSection />

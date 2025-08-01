@@ -3,15 +3,14 @@ import { useEffect, useState } from "react";
 
 interface Platform {
   id: string;
+  name_id: string;
+  name_en: string;
+  imageUrl: string;
+  description_id: string;
+  description_en: string;
+  createdAt: string;
   name: string;
   description: string;
-  icon?: string;
-  image?: string;
-  url?: string;
-  category?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface UsePlatformsDataReturn {

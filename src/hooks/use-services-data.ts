@@ -3,15 +3,14 @@ import { useEffect, useState } from "react";
 
 interface Service {
   id: string;
-  title: string;
-  description: string;
-  icon?: string;
-  features?: string[];
-  price?: string;
-  category?: string;
-  isActive: boolean;
+  name_id: string;
+  name_en: string;
+  description_id: string;
+  description_en: string;
+  technologies: string[];
   createdAt: string;
-  updatedAt: string;
+  name: string;
+  description: string;
 }
 
 interface UseServicesDataReturn {

@@ -1,22 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { contactAPI } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 interface ContactInfo {
-  id?: string | number;
-  phone_id?: string;
-  phone_en?: string;
-  email?: string;
-  address_id?: string;
-  address_en?: string;
-  operatingHours_id?: string;
-  operatingHours_en?: string;
-  website?: string;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
-  facebook?: string;
+  id: string;
+  location_id: string;
+  location_en: string;
+  phone: string;
+  email: string;
+  operationHours_id: string;
+  operationHours_en: string;
+  updatedAt: string;
+  location: string;
+  operationHours: string;
 }
 
 export function useContactData() {
@@ -30,10 +27,12 @@ export function useContactData() {
       setError(null);
 
       const response = await contactAPI.getInfo();
-      setContactInfo(response.data || null);
+      setContactInfo((response.data as ContactInfo) || null);
     } catch (err) {
       console.error("Error fetching contact data:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch contact data");
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch contact data"
+      );
       setContactInfo(null);
     } finally {
       setLoading(false);
@@ -48,6 +47,6 @@ export function useContactData() {
     contactInfo,
     loading,
     error,
-    refetch: fetchData
+    refetch: fetchData,
   };
 }

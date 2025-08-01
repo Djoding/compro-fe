@@ -21,14 +21,21 @@ import {
 
 interface ProjectData {
   id: string;
-  title_id?: string;
-  title_en?: string;
-  description_id?: string;
-  description_en?: string;
-  imageUrl?: string;
-  category_id?: string;
-  category_en?: string;
-  technologies?: string[];
+  title_id: string;
+  title_en: string;
+  serviceCategory: string;
+  imageUrl: string;
+  shortDescription_id: string;
+  shortDescription_en: string;
+  elaboration_id: string;
+  elaboration_en: string;
+  languages: string[];
+  features: string[];
+  createdAt: string;
+  updatedAt: string;
+  title: string;
+  shortDescription: string;
+  elaboration: string;
 }
 
 interface TransformedProject {
@@ -39,6 +46,8 @@ interface TransformedProject {
   category: string;
   rating: number;
   actionLabel: string;
+  image?: string;
+  features?: string[];
 }
 
 // Extract fallback data constant
@@ -139,18 +148,37 @@ const FALLBACK_PROJECTS_DATA = [
 const getIconForType = (iconType: string) => {
   const iconMap = {
     globe: <Globe className="w-6 h-6" />,
-    database: <Database className="w-6 h-6" />,
     smartphone: <Smartphone className="w-6 h-6" />,
+    rocket: <Rocket className="w-6 h-6" />,
+    database: <Database className="w-6 h-6" />,
     cpu: <Cpu className="w-6 h-6" />,
     code: <Code className="w-6 h-6" />,
-    rocket: <Rocket className="w-6 h-6" />,
   };
   return (
-    iconMap[iconType as keyof typeof iconMap] || <Rocket className="w-6 h-6" />
+    iconMap[iconType as keyof typeof iconMap] || <Code className="w-6 h-6" />
   );
 };
 
-// Extract fallback data generator
+// Helper function for project icons based on category
+const getProjectIcon = (category: string) => {
+  const lowerCategory = category.toLowerCase();
+  if (lowerCategory.includes("web") || lowerCategory.includes("development")) {
+    return <Globe className="w-6 h-6" />;
+  }
+  if (lowerCategory.includes("mobile") || lowerCategory.includes("app")) {
+    return <Smartphone className="w-6 h-6" />;
+  }
+  if (
+    lowerCategory.includes("e-commerce") ||
+    lowerCategory.includes("ecommerce")
+  ) {
+    return <Rocket className="w-6 h-6" />;
+  }
+  if (lowerCategory.includes("data") || lowerCategory.includes("analytics")) {
+    return <Database className="w-6 h-6" />;
+  }
+  return <Code className="w-6 h-6" />;
+}; // Extract fallback data generator
 const generateFallbackProjects = (locale: string): TransformedProject[] =>
   FALLBACK_PROJECTS_DATA.map((item) => ({
     id: item.id,
@@ -169,21 +197,19 @@ const transformApiProjects = (
 ): TransformedProject[] =>
   projects.map((project) => ({
     id: project.id,
-    title:
-      (locale === "id" ? project.title_id : project.title_en) ||
-      "Untitled Project",
+    title: (locale === "id" ? project.title_id : project.title_en) || "Project",
     description:
-      (locale === "id" ? project.description_id : project.description_en) ||
-      "No description available",
-    icon: <Rocket className="w-6 h-6" />,
+      (locale === "id"
+        ? project.shortDescription_id
+        : project.shortDescription_en) || "No description",
+    icon: getProjectIcon(project.serviceCategory),
     category:
-      (locale === "id" ? project.category_id : project.category_en) ||
-      (locale === "id" ? "Proyek" : "Project"),
+      project.serviceCategory || (locale === "id" ? "Proyek" : "Project"),
     rating: 5,
     actionLabel: locale === "id" ? "Lihat Detail" : "View Details",
-  }));
-
-// Extract loading component
+    image: project.imageUrl,
+    features: project.features || [],
+  })); // Extract loading component
 const LoadingState = ({ locale }: { locale: string }) => (
   <section className="relative py-24 px-6">
     <div className="max-w-7xl mx-auto text-center">
@@ -219,38 +245,6 @@ const PortfolioHeader = ({ locale }: { locale: string }) => (
   </BlurFade>
 );
 
-// Extract stats component
-const ProjectStats = ({ locale }: { locale: string }) => (
-  <BlurFade delay={0.1}>
-    <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">50+</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Proyek Selesai" : "Projects Completed"}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">25+</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Klien Puas" : "Happy Clients"}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">100%</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Tingkat Keberhasilan" : "Success Rate"}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="text-4xl font-bold text-primary">24/7</div>
-        <div className="text-sm text-muted-foreground uppercase tracking-wider">
-          {locale === "id" ? "Support Tersedia" : "Support Available"}
-        </div>
-      </div>
-    </div>
-  </BlurFade>
-);
-
 export default function PortfolioSection() {
   const { locale } = useLanguage();
   const { projects, loading } = useProjectsData();
@@ -279,16 +273,17 @@ export default function PortfolioSection() {
                 title={project.title}
                 description={project.description}
                 icon={project.icon}
+                image={project.image}
                 category={project.category}
+                features={project.features}
                 actionLabel={project.actionLabel}
                 size="md"
+                className="h-full"
                 onAction={() => console.log(`Clicked on ${project.title}`)}
               />
             ))}
           </InteractiveCardGrid>
         </BlurFade>
-
-        <ProjectStats locale={locale} />
       </div>
     </section>
   );

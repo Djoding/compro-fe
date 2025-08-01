@@ -2,6 +2,7 @@
 "use client";
 
 import { BlurFade } from "@/components/magicui/blur-fade";
+import { Particles } from "@/components/magicui/particles";
 import { VelocityScroll } from "@/components/magicui/scroll-based-velocity";
 import AboutSection from "@/components/sections/about-section";
 import { Badge } from "@/components/ui/badge";
@@ -177,6 +178,9 @@ export default function AboutPage() {
     <div className="pt-20">
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-b from-primary/5 to-background">
+        <div className="absolute inset-0">
+          <Particles className="absolute inset-0" color="#8B5CF6" />
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <BlurFade delay={0.1} inView>
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
@@ -206,7 +210,7 @@ export default function AboutPage() {
       </section>
 
       {/* Wavy Separator */}
-      <WavySeparator className="fill-muted/20" />
+      <WavySeparator className="fill-primary/20" />
 
       {/* Vision & Mission Section */}
       <section className="py-24 bg-muted/20">
@@ -222,13 +226,13 @@ export default function AboutPage() {
             </div>
           </BlurFade>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
+          <div className="grid md:grid-cols-2 items-stretch gap-8 mb-16">
             {visionMission.map((item, index) => {
               const Icon = item.icon;
               return (
                 <BlurFade key={item.title} delay={0.1 + index * 0.1} inView>
                   <div
-                    className={`relative p-8 rounded-2xl bg-gradient-to-br ${item.color} text-white overflow-hidden`}
+                    className={`relative min-h-[300px] h-full p-8 rounded-2xl bg-gradient-to-br ${item.color} text-white overflow-hidden`}
                   >
                     <div className="relative z-10">
                       <Icon className="w-12 h-12 mb-4" />
@@ -298,7 +302,7 @@ export default function AboutPage() {
       </section>
 
       {/* Wavy Separator */}
-      <WavySeparatorSmooth rotated className="fill-primary/10" />
+      <WavySeparatorSmooth rotated className="fill-primary/20" />
 
       {/* About Section (existing) */}
       <AboutSection />
@@ -347,7 +351,7 @@ export default function AboutPage() {
                           }`}
                         >
                           <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-                            <div className="flex items-center gap-3 mb-3">
+                            <div className="flex flex-col md:flex-row items-center gap-3 mb-3">
                               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                                 <span className="text-primary font-bold text-sm">
                                   {milestone.year}

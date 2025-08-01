@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 
 interface Testimonial {
   id: string;
-  name: string;
+  clientName: string;
   company: string;
-  position?: string;
-  content: string;
-  rating: number;
-  image?: string;
-  isActive: boolean;
-  isFeatured: boolean;
+  position_id: string;
+  position_en: string;
+  imageUrl: string | null;
+  testimonial_id: string;
+  testimonial_en: string;
   createdAt: string;
   updatedAt: string;
+  position: string;
+  testimonial: string;
 }
 
 interface UseTestimonialsDataReturn {

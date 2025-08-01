@@ -8,10 +8,17 @@ import { Loader2, Quote, Star } from "lucide-react";
 
 interface TestimonialData {
   id: string;
+  clientName: string;
   company: string;
-  content: string;
-  position?: string;
-  rating: number;
+  position_id: string;
+  position_en: string;
+  imageUrl: string | null;
+  testimonial_id: string;
+  testimonial_en: string;
+  createdAt: string;
+  updatedAt: string;
+  position: string;
+  testimonial: string;
 }
 
 // Fallback testimonials data
@@ -28,7 +35,7 @@ const FALLBACK_TESTIMONIALS = [
       "Tim Teknalogi sangat profesional dalam menangani proyek digitalisasi kami. Hasil kerja mereka melampaui ekspektasi dan delivery tepat waktu.",
     contentEn:
       "Teknalogi team is very professional in handling our digitalization project. Their work exceeded expectations and delivered on time.",
-    rating: 5
+    rating: 5,
   },
   {
     id: "2",
@@ -42,7 +49,7 @@ const FALLBACK_TESTIMONIALS = [
       "Berkat bantuan Teknalogi, kami berhasil mengembangkan MVP yang solid dan mendapat funding Series A. Tim mereka memahami kebutuhan startup dengan sangat baik.",
     contentEn:
       "Thanks to Teknalogi's help, we successfully developed a solid MVP and received Series A funding. Their team understands startup needs very well.",
-    rating: 5
+    rating: 5,
   },
   {
     id: "3",
@@ -54,8 +61,9 @@ const FALLBACK_TESTIMONIALS = [
     positionEn: "Owner",
     contentId:
       "Platform e-commerce yang dikembangkan meningkatkan penjualan kami hingga 300%. Support team yang responsif dan solusi yang tepat sasaran.",
-    contentEn: "The e-commerce platform developed increased our sales by 300%. Responsive support team and targeted solutions.",
-    rating: 4
+    contentEn:
+      "The e-commerce platform developed increased our sales by 300%. Responsive support team and targeted solutions.",
+    rating: 4,
   },
   {
     id: "4",
@@ -69,7 +77,7 @@ const FALLBACK_TESTIMONIALS = [
       "Implementasi cloud infrastructure yang sangat impressive. Performa sistem meningkat drastis dan maintenance cost berkurang signifikan.",
     contentEn:
       "Very impressive cloud infrastructure implementation. System performance increased drastically and maintenance costs reduced significantly.",
-    rating: 5
+    rating: 5,
   },
   {
     id: "5",
@@ -83,7 +91,7 @@ const FALLBACK_TESTIMONIALS = [
       "Website dan sistem manajemen klien yang dikembangkan sangat membantu workflow kami. Interface yang intuitif dan fitur yang lengkap.",
     contentEn:
       "The website and client management system developed greatly helped our workflow. Intuitive interface and complete features.",
-    rating: 4
+    rating: 4,
   },
   {
     id: "6",
@@ -97,28 +105,38 @@ const FALLBACK_TESTIMONIALS = [
       "Sistem ERP yang dikembangkan mengintegrasikan semua departemen dengan sempurna. ROI yang terukur dan proses bisnis yang jauh lebih efisien.",
     contentEn:
       "The ERP system developed perfectly integrates all departments. Measurable ROI and much more efficient business processes.",
-    rating: 5
-  }
+    rating: 5,
+  },
 ];
 
 // Transform API data to display format
-const transformTestimonial = (testimonial: TestimonialData, locale: string) => ({
+const transformTestimonial = (
+  testimonial: TestimonialData,
+  locale: string
+) => ({
   id: testimonial.id,
-  name: testimonial.company,
+  name: testimonial.clientName,
   company: testimonial.company,
-  position: testimonial.position || (locale === "id" ? "Klien" : "Client"),
-  content: testimonial.content,
-  rating: testimonial.rating
+  position:
+    (locale === "id" ? testimonial.position_id : testimonial.position_en) ||
+    (locale === "id" ? "Klien" : "Client"),
+  content:
+    locale === "id" ? testimonial.testimonial_id : testimonial.testimonial_en,
+  rating: 5, // Default rating since backend doesn't provide it
+  image: testimonial.imageUrl,
 });
 
 // Transform fallback data
-const transformFallbackTestimonial = (testimonial: (typeof FALLBACK_TESTIMONIALS)[0], locale: string) => ({
+const transformFallbackTestimonial = (
+  testimonial: (typeof FALLBACK_TESTIMONIALS)[0],
+  locale: string
+) => ({
   id: testimonial.id,
   name: locale === "id" ? testimonial.nameId : testimonial.nameEn,
   company: locale === "id" ? testimonial.companyId : testimonial.companyEn,
   position: locale === "id" ? testimonial.positionId : testimonial.positionEn,
   content: locale === "id" ? testimonial.contentId : testimonial.contentEn,
-  rating: testimonial.rating
+  rating: testimonial.rating,
 });
 
 // Testimonial type
@@ -132,8 +150,12 @@ interface TransformedTestimonial {
 }
 
 // Testimonial card component
-const TestimonialCard = ({ testimonial }: { testimonial: TransformedTestimonial }) => (
-  <div className="relative bg-card/50 backdrop-blur-sm py-6 px-16 rounded-lg border border-border/50 shadow-lg max-w-xl">
+const TestimonialCard = ({
+  testimonial,
+}: {
+  testimonial: TransformedTestimonial;
+}) => (
+  <div className="relative bg-card/50 backdrop-blur-sm p-6 rounded-lg border border-border/50 shadow-lg max-w-xl">
     <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
       <Quote className="w-4 h-4 text-primary" />
     </div>
@@ -142,15 +164,23 @@ const TestimonialCard = ({ testimonial }: { testimonial: TransformedTestimonial 
       {[...Array(5)].map((_, i) => (
         <Star
           key={`${testimonial.id}-star-${i}`}
-          className={`w-4 h-4 ${i < testimonial.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+          className={`w-4 h-4 ${
+            i < testimonial.rating
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300"
+          }`}
         />
       ))}
     </div>
 
-    <p className="text-muted-foreground mb-4 text-sm leading-relaxed line-clamp-4">"{testimonial.content}"</p>
+    <p className="text-muted-foreground mb-4 text-sm leading-relaxed line-clamp-4">
+      "{testimonial.content}"
+    </p>
 
     <div className="border-t border-border/50 pt-4">
-      <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
+      <p className="font-semibold text-foreground text-sm">
+        {testimonial.name}
+      </p>
       <p className="text-xs text-muted-foreground">{testimonial.position}</p>
       <p className="text-xs text-primary font-medium">{testimonial.company}</p>
     </div>
@@ -162,7 +192,9 @@ const LoadingState = ({ locale }: { locale: string }) => (
   <section className="relative py-24 px-6">
     <div className="max-w-7xl mx-auto text-center">
       <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-      <p className="text-muted-foreground">{locale === "id" ? "Memuat testimoni..." : "Loading testimonials..."}</p>
+      <p className="text-muted-foreground">
+        {locale === "id" ? "Memuat testimoni..." : "Loading testimonials..."}
+      </p>
     </div>
   </section>
 );
@@ -212,8 +244,10 @@ export default function TestimonialsSection() {
   // Use API data if available, otherwise fallback data
   const displayTestimonials =
     testimonials.length > 0
-      ? testimonials.map(t => transformTestimonial(t, locale))
-      : FALLBACK_TESTIMONIALS.map(t => transformFallbackTestimonial(t, locale));
+      ? testimonials.map((t) => transformTestimonial(t, locale))
+      : FALLBACK_TESTIMONIALS.map((t) =>
+          transformFallbackTestimonial(t, locale)
+        );
 
   return (
     <section className="py-24 bg-background overflow-hidden">
@@ -227,13 +261,16 @@ export default function TestimonialsSection() {
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">What Our Clients Say</h2>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+              What Our Clients Say
+            </h2>
           </BlurFade>
 
           <BlurFade delay={0.1} inView>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Don&apos;t just take our word for it. Here&apos;s what our clients have to say about their experience working with
-              Teknalogi and the results we&apos;ve delivered together.
+              Don&apos;t just take our word for it. Here&apos;s what our clients
+              have to say about their experience working with Teknalogi and the
+              results we&apos;ve delivered together.
             </p>
           </BlurFade>
         </div>
@@ -242,8 +279,11 @@ export default function TestimonialsSection() {
         <BlurFade delay={0.1} inView>
           <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
             <Marquee pauseOnHover className="[--duration:25s]">
-              {displayTestimonials.map(testimonial => (
-                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+              {displayTestimonials.map((testimonial) => (
+                <TestimonialCard
+                  key={testimonial.id}
+                  testimonial={testimonial}
+                />
               ))}
             </Marquee>
             {/* Gradient overlays */}

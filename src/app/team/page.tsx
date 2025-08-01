@@ -5,6 +5,7 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { Particles } from "@/components/magicui/particles";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WavySeparator } from "@/components/ui/wavy-separator";
 import { useLanguage } from "@/contexts/language-context";
 import { useTeamData } from "@/hooks/use-team-data";
 import { getImageUrl } from "@/lib/utils";
@@ -164,16 +165,8 @@ const FALLBACK_TEAM_DATA: TeamMemberData[] = [
   },
 ];
 
-// Departments for filtering
-const departments = [
-  "All",
-  "Executive",
-  "Technology",
-  "Engineering",
-  "Design",
-  "Security",
-  "Project Management",
-];
+// Role categories for filtering based on backend data
+const roleCategories = ["All", "Management", "Staff"];
 
 // Team member card component
 const TeamMemberCard = ({
@@ -327,7 +320,7 @@ const sortTeamMembers = (team: TeamMemberData[]): TeamMemberData[] => {
 export default function TeamPage() {
   const { locale } = useLanguage();
   const { team, loading } = useTeamData();
-  const [selectedDepartment, setSelectedDepartment] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   if (loading) {
     return (
@@ -350,25 +343,21 @@ export default function TeamPage() {
       ? sortTeamMembers(team)
       : sortTeamMembers(FALLBACK_TEAM_DATA);
 
-  // Filter team by department
+  // Filter team by role category
   const filteredTeam =
-    selectedDepartment === "All"
+    selectedCategory === "All"
       ? displayTeam
       : displayTeam.filter(
-          (member) => member.department === selectedDepartment
+          (member) => member.roleCategory === selectedCategory
         );
 
   return (
     <div className="pt-20">
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">
+        {/* Background Effects */}
         <div className="absolute inset-0">
-          <Particles
-            className="absolute inset-0"
-            quantity={100}
-            size={0.8}
-            color="#8B5CF6"
-          />
+          <Particles className="absolute inset-0" color="#8B5CF6" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-20">
@@ -399,16 +388,12 @@ export default function TeamPage() {
         </div>
       </section>
 
+      {/* Wavy Separator */}
+      <WavySeparator className="fill-primary/20" />
+
       {/* Organization Chart */}
       <section className="py-16 bg-background">
-        <div className="absolute">
-          <Particles
-            className="absolute"
-            quantity={100}
-            size={0.8}
-            color="#8B5CF6"
-          />
-        </div>
+        <div className="absolute"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-12">
@@ -427,78 +412,92 @@ export default function TeamPage() {
 
           <BlurFade delay={0.1} inView>
             <div className="relative">
-              {/* CEO Level */}
+              {/* President Director Level */}
               <div className="flex justify-center mb-8">
                 <div className="bg-primary/10 border-2 border-primary/20 rounded-lg p-6 text-center min-w-[200px]">
                   <div className="text-sm font-medium text-primary mb-1">
-                    {locale === "id"
-                      ? "Direktur Utama"
-                      : "Chief Executive Officer"}
+                    {locale === "id" ? "Direktur Utama" : "President Director"}
                   </div>
-                  <div className="text-xs text-muted-foreground">CEO</div>
+                  <div className="text-xs text-muted-foreground">
+                    {locale === "id"
+                      ? "Pemimpin Eksekutif"
+                      : "Executive Leader"}
+                  </div>
                 </div>
               </div>
 
-              {/* Management Level */}
-              <div className="flex justify-center gap-8 mb-8 flex-wrap">
-                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[160px]">
+              {/* Management Level - Heads */}
+              <div className="flex justify-center gap-4 mb-8 flex-wrap">
+                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[180px]">
                   <div className="text-sm font-medium text-foreground mb-1">
                     {locale === "id"
-                      ? "Direktur Teknologi"
-                      : "Chief Technology Officer"}
+                      ? "Kepala Bisnis & Kemitraan"
+                      : "Head of Business Dev & Partnership"}
                   </div>
-                  <div className="text-xs text-muted-foreground">CTO</div>
+                  <div className="text-xs text-muted-foreground">Business</div>
                 </div>
-                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[160px]">
+                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[180px]">
                   <div className="text-sm font-medium text-foreground mb-1">
                     {locale === "id"
-                      ? "Direktur Operasional"
-                      : "Chief Operating Officer"}
+                      ? "Kepala Transformasi Digital"
+                      : "Head of Digital Transformation"}
                   </div>
-                  <div className="text-xs text-muted-foreground">COO</div>
+                  <div className="text-xs text-muted-foreground">Digital</div>
                 </div>
-                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[160px]">
+                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[180px]">
                   <div className="text-sm font-medium text-foreground mb-1">
                     {locale === "id"
-                      ? "Direktur Keuangan"
-                      : "Chief Financial Officer"}
+                      ? "Kepala Proyek Strategis"
+                      : "Head of Strategic Project"}
                   </div>
-                  <div className="text-xs text-muted-foreground">CFO</div>
+                  <div className="text-xs text-muted-foreground">Strategic</div>
+                </div>
+                <div className="bg-card border border-border rounded-lg p-4 text-center min-w-[180px]">
+                  <div className="text-sm font-medium text-foreground mb-1">
+                    {locale === "id"
+                      ? "Kepala Operasional"
+                      : "Head of Operations"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Operations
+                  </div>
                 </div>
               </div>
 
-              {/* Department Level */}
+              {/* Staff Level */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
                   <div className="text-sm font-medium text-foreground mb-1">
-                    {locale === "id" ? "Pengembangan" : "Development"}
+                    {locale === "id"
+                      ? "Keuangan & Akuntansi"
+                      : "Finance & Accounting"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {locale === "id" ? "Tim Engineering" : "Engineering Team"}
+                    {locale === "id" ? "Tim Keuangan" : "Finance Team"}
                   </div>
                 </div>
                 <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
                   <div className="text-sm font-medium text-foreground mb-1">
-                    {locale === "id" ? "Desain" : "Design"}
+                    {locale === "id" ? "Pengembangan TI" : "IT Development"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {locale === "id" ? "Tim UI/UX" : "UI/UX Team"}
+                    {locale === "id" ? "Tim Development" : "Development Team"}
                   </div>
                 </div>
                 <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
                   <div className="text-sm font-medium text-foreground mb-1">
-                    {locale === "id" ? "Pemasaran" : "Marketing"}
+                    {locale === "id" ? "Solusi Data/AI" : "Data/AI Solutions"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {locale === "id" ? "Tim AI" : "AI Team"}
+                  </div>
+                </div>
+                <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
+                  <div className="text-sm font-medium text-foreground mb-1">
+                    {locale === "id" ? "Operasi Digital" : "Digital Operations"}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {locale === "id" ? "Tim Digital" : "Digital Team"}
-                  </div>
-                </div>
-                <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
-                  <div className="text-sm font-medium text-foreground mb-1">
-                    {locale === "id" ? "Operasional" : "Operations"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {locale === "id" ? "Tim Support" : "Support Team"}
                   </div>
                 </div>
               </div>
@@ -509,32 +508,28 @@ export default function TeamPage() {
 
       {/* Filter Section */}
       <section className="py-8 bg-muted/20">
-        <div className="absolute">
-          <Particles
-            className="absolute"
-            quantity={100}
-            size={0.8}
-            color="#8B5CF6"
-          />
-        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <BlurFade delay={0.1} inView>
             <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {departments.map((dept) => {
-                let displayName = dept;
-                if (dept === "All") {
+              {roleCategories.map((category) => {
+                let displayName = category;
+                if (category === "All") {
                   displayName = locale === "id" ? "Semua" : "All";
+                } else if (category === "Management") {
+                  displayName = locale === "id" ? "Manajemen" : "Management";
+                } else if (category === "Staff") {
+                  displayName = locale === "id" ? "Staf" : "Staff";
                 }
 
                 return (
                   <Button
-                    key={dept}
+                    key={category}
                     variant={
-                      dept === selectedDepartment ? "default" : "outline"
+                      category === selectedCategory ? "default" : "outline"
                     }
                     size="sm"
                     className="transition-all duration-200"
-                    onClick={() => setSelectedDepartment(dept)}
+                    onClick={() => setSelectedCategory(category)}
                   >
                     {displayName}
                   </Button>
@@ -547,14 +542,6 @@ export default function TeamPage() {
 
       {/* Team Grid */}
       <section className="py-16 bg-muted/20">
-        <div className="absolute">
-          <Particles
-            className="absolute"
-            quantity={100}
-            size={0.8}
-            color="#8B5CF6"
-          />
-        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTeam.map((member, index) => (
@@ -572,14 +559,6 @@ export default function TeamPage() {
 
       {/* Team Stats */}
       <section className="py-24 bg-background">
-        <div className="absolute">
-          <Particles
-            className="absolute"
-            quantity={100}
-            size={0.8}
-            color="#8B5CF6"
-          />
-        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <BlurFade delay={0.1} inView>
             <div className="text-center mb-16">

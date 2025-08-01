@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import TeknaLogiIcon from "@/components/ui/teknalogi-icon";
-import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, Phone, Linkedin, Instagram, Twitter, Facebook } from "lucide-react";
 import Link from "next/link";
 
 const quickLinks = [
@@ -19,10 +19,14 @@ const services = [
 ];
 
 const socialLinks = [
-  { name: "LinkedIn", href: "#", icon: "💼" },
-  { name: "Twitter", href: "#", icon: "🐦" },
-  { name: "Facebook", href: "#", icon: "�" },
-  { name: "Instagram", href: "#", icon: "�" }
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/company/teknalogi/",
+    icon: Linkedin,
+  },
+  { name: "Twitter", href: "#", icon: Twitter },
+  { name: "Facebook", href: "#", icon: Facebook },
+  { name: "Instagram", href: "https://www.instagram.com/teknalogi.id/", icon: Instagram },
 ];
 
 export default function Footer() {
@@ -46,9 +50,9 @@ export default function Footer() {
                 <Link
                   key={social.name}
                   href={social.href}
-                  className="w-10 h-10 bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground rounded-lg flex items-center justify-center transition-all duration-200"
+                  className="w-10 h-10 bg-primary/10 hover:bg-primary-foreground text-primary hover:text-primary-foreground rounded-lg flex items-center justify-center transition-all duration-200"
                 >
-                  <span className="text-lg">{social.icon}</span>
+                  <social.icon className="w-5 h-5" />
                 </Link>
               ))}
             </div>

@@ -203,14 +203,6 @@ export default function AboutSection() {
 
   return (
     <section className="py-24 bg-gradient-to-b from-background to-muted/20">
-      <div className="absolute inset-0">
-        <Particles
-          className="absolute inset-0"
-          quantity={300}
-          size={0.8}
-          color="#8B5CF6"
-        />
-      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
